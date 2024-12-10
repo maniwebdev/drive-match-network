@@ -1,7 +1,15 @@
-import '../styles/globals.css'
+import Head from 'next/head';
+import { AuthProvider } from '../context/Auth/AuthContext';
+import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return (
+    <>
+      <AuthProvider>
+        <Component {...pageProps} />
+      </AuthProvider>
+    </>
+  );
 }
 
-export default MyApp
+export default MyApp;
