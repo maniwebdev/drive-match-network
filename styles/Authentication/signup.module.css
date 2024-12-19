@@ -219,158 +219,158 @@
 }
 /* Button Styling */
 .signupButton {
-    width: 100%;
-    height: 48px;
-    background-color: #2A9D8F;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 8px;
+  width: 100%;
+  height: 48px;
+  background-color: #2a9d8f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
 }
 
 .signupButton:hover {
-    background-color: #248277;
-    transform: translateY(-1px);
+  background-color: #248277;
+  transform: translateY(-1px);
 }
 
 .signupButton:active {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
 .signupButton:disabled {
-    background-color: #A8DADC;
-    cursor: not-allowed;
-    transform: none;
+  background-color: #a8dadc;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .signupButton .anticon-spin {
-    margin-right: 8px;
+  margin-right: 8px;
 }
 
 /* Login Link */
 .loginPrompt {
-    text-align: center;
-    margin-top: 24px;
-    font-size: 14px;
-    color: #666;
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: #666;
 }
 
 .loginLink {
-    color: #FF8A8A;
-    font-weight: 500;
-    cursor: pointer;
-    margin-left: 4px;
+  color: #ff8a8a;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 4px;
 }
 
 /* Animations */
 @keyframes fadeSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .inputGroup {
-    animation: fadeSlideUp 0.3s ease-out;
+  animation: fadeSlideUp 0.3s ease-out;
 }
 
 /* Responsive Styles */
 @media (max-width: 1024px) {
-    .pageContainer {
-        flex-direction: column;
-    }
+  .pageContainer {
+    flex-direction: column;
+  }
 
-    .featuresSection {
-        padding: 32px;
-    }
+  .featuresSection {
+    padding: 32px;
+  }
 
-    .formSection {
-        padding: 32px 24px;
-    }
+  .formSection {
+    padding: 32px 24px;
+  }
 
-    .formContainer {
-        max-width: 440px;
-        padding: 32px 24px;
-    }
+  .formContainer {
+    max-width: 440px;
+    padding: 32px 24px;
+  }
 
-    .brandName {
-        font-size: 24px;
-    }
+  .brandName {
+    font-size: 24px;
+  }
 
-    .featuresContainer {
-        margin-top: 32px;
-    }
+  .featuresContainer {
+    margin-top: 32px;
+  }
 }
 
 @media (max-width: 640px) {
-    .featuresSection {
-        padding: 24px 16px;
-    }
+  .featuresSection {
+    padding: 24px 16px;
+  }
 
-    .formSection {
-        padding: 24px 16px;
-    }
+  .formSection {
+    padding: 24px 16px;
+  }
 
-    .formContainer {
-        padding: 24px 16px;
-        margin: 0 16px;
-        box-shadow: none;
-    }
+  .formContainer {
+    padding: 24px 16px;
+    margin: 0 16px;
+    box-shadow: none;
+  }
 
-    .welcomeText {
-        font-size: 24px;
-    }
+  .welcomeText {
+    font-size: 24px;
+  }
 
-    .welcomeSubtext {
-        font-size: 14px;
-        margin-bottom: 24px;
-    }
+  .welcomeSubtext {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
 
-    .input {
-        height: 40px;
-    }
+  .input {
+    height: 40px;
+  }
 
-    .signupButton {
-        height: 44px;
-    }
+  .signupButton {
+    height: 44px;
+  }
 
-    .featuresContainer {
-        gap: 16px;
-    }
+  .featuresContainer {
+    gap: 16px;
+  }
 
-    .featureCard {
-        padding: 16px;
-    }
+  .featureCard {
+    padding: 16px;
+  }
 
-    .featureContent h3 {
-        font-size: 16px;
-    }
+  .featureContent h3 {
+    font-size: 16px;
+  }
 
-    .featureContent p {
-        font-size: 13px;
-    }
+  .featureContent p {
+    font-size: 13px;
+  }
 }
 
 /* Error States */
 .input.error {
-    border-color: #FF8A8A;
+  border-color: #ff8a8a;
 }
 
 .errorMessage {
-    color: #FF8A8A;
-    font-size: 12px;
-    margin-top: 4px;
+  color: #ff8a8a;
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 /* Focus States */
@@ -378,6 +378,291 @@
 .signupButton:focus-visible,
 .termsLink:focus-visible,
 .loginLink:focus-visible {
-    outline: 2px solid #2A9D8F;
-    outline-offset: 2px;
+  outline: 2px solid #2a9d8f;
+  outline-offset: 2px;
+}
+/* Small tablets and large phones */
+@media (max-width: 768px) {
+  .pageContainer {
+    flex-direction: column;
+  }
+
+  .featuresSection {
+    padding: 28px 20px;
+  }
+
+  .brandingContainer {
+    margin-bottom: 32px;
+  }
+
+  .logo {
+    width: 90px;
+    height: 90px;
+  }
+
+  .formContainer {
+    max-width: 100%;
+    padding: 28px 20px;
+  }
+
+  .welcomeText {
+    font-size: 26px;
+  }
+
+  .welcomeSubtext {
+    font-size: 15px;
+    margin-bottom: 28px;
+  }
+
+  .input {
+    height: 42px;
+    font-size: 15px;
+  }
+
+  .termsLabel {
+    font-size: 13px;
+  }
+}
+
+/* Medium-sized phones */
+@media (max-width: 480px) {
+  .featuresSection {
+    padding: 20px 16px;
+  }
+
+  .formSection {
+    padding: 20px 16px;
+  }
+
+  .logo {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 16px;
+  }
+
+  .brandName {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+
+  .tagline {
+    font-size: 16px;
+    height: 28px;
+  }
+
+  .featureCard {
+    padding: 16px;
+  }
+
+  .featureContent h3 {
+    font-size: 16px;
+  }
+
+  .featureContent p {
+    font-size: 12px;
+  }
+
+  .welcomeText {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .welcomeSubtext {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .inputLabel {
+    font-size: 13px;
+  }
+
+  .input {
+    height: 40px;
+    font-size: 14px;
+    padding: 0 14px;
+  }
+
+  .passwordToggle {
+    right: 12px;
+  }
+
+  .eyeIcon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .checkbox {
+    width: 16px;
+    height: 16px;
+  }
+
+  .signupButton {
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .loginPrompt {
+    font-size: 13px;
+    margin-top: 20px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 360px) {
+  .featuresSection {
+    padding: 16px 12px;
+  }
+
+  .formSection {
+    padding: 16px 12px;
+  }
+
+  .formContainer {
+    padding: 20px 16px;
+    margin: 0 10px;
+  }
+
+  .welcomeText {
+    font-size: 20px;
+  }
+
+  .welcomeSubtext {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .input {
+    height: 38px;
+    font-size: 13px;
+    padding: 0 12px;
+  }
+
+  .signupForm {
+    gap: 16px;
+  }
+
+  .termsGroup {
+    margin-top: 4px;
+  }
+
+  .termsLabel {
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .checkbox {
+    width: 14px;
+    height: 14px;
+  }
+
+  .featureCard {
+    padding: 14px;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 320px) {
+  .formContainer {
+    padding: 16px 12px;
+  }
+
+  .welcomeText {
+    font-size: 18px;
+  }
+
+  .welcomeSubtext {
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+
+  .input {
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .inputLabel {
+    font-size: 12px;
+  }
+
+  .signupButton {
+    height: 40px;
+    font-size: 13px;
+  }
+
+  .termsLabel,
+  .loginPrompt {
+    font-size: 11px;
+  }
+
+  .featureContent h3 {
+    font-size: 14px;
+  }
+
+  .featureContent p {
+    font-size: 11px;
+  }
+}
+
+/* Landscape orientation */
+@media (max-height: 480px) and (orientation: landscape) {
+  .pageContainer {
+    flex-direction: column;
+  }
+
+  .featuresSection {
+    padding: 16px;
+  }
+
+  .brandingContainer {
+    margin-bottom: 16px;
+  }
+
+  .logo {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 8px;
+  }
+
+  .featuresContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .featureCard {
+    height: 100%;
+  }
+
+  .formContainer {
+    padding: 20px;
+  }
+
+  .signupForm {
+    gap: 16px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .signupButton,
+  .input,
+  .passwordToggle,
+  .termsLabel {
+    min-height: 44px;
+  }
+
+  .checkbox {
+    width: 20px;
+    height: 20px;
+  }
+
+  .passwordToggle {
+    padding: 12px;
+    margin-right: -8px;
+  }
+
+  .termsLabel {
+    padding: 8px 0;
+  }
 }

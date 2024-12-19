@@ -1,0 +1,542 @@
+/* Base Layout */
+.pageContainer {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px 20px;
+}
+
+/* Profile Header Section */
+.coverSection {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 40px 20px;
+  margin-bottom: 24px;
+  border: 1px solid #e9ecef;
+  margin-top: 40px;
+}
+
+.profileImageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.profileImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.uploadButton {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #2a9d8f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.uploadButton:hover {
+  background-color: #248277;
+}
+
+.cameraIcon {
+  width: 18px;
+  height: 18px;
+  color: #ffffff;
+}
+
+.fileInput {
+  display: none;
+}
+
+/* User Info */
+.userInfo {
+  text-align: center;
+}
+
+.userName {
+  font-size: 24px;
+  font-weight: 600;
+  color: #264653;
+  margin: 0 0 16px 0;
+}
+
+.userStats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: #264653;
+  transition: all 0.3s ease;
+}
+
+.statItem:hover {
+  background-color: rgba(42, 157, 143, 0.1);
+  transform: translateY(-2px);
+}
+
+.statIcon {
+  width: 18px;
+  height: 18px;
+  color: #ff8a8a;
+  filter: drop-shadow(0 2px 4px rgba(255, 138, 138, 0.2));
+  transition: transform 0.3s ease;
+}
+
+.statItem:hover .statIcon {
+  transform: scale(1.1) rotate(-10deg);
+}
+
+.driverBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(45deg, #2a9d8f, #248277);
+  border-radius: 20px;
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(42, 157, 143, 0.2);
+  transition: all 0.3s ease;
+}
+
+.driverBadge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(42, 157, 143, 0.3);
+}
+
+.driverIcon {
+  width: 18px;
+  height: 18px;
+  animation: driveAnimation 3s infinite;
+}
+
+@keyframes driveAnimation {
+  0% {
+    transform: translateX(0) rotateY(0);
+  }
+  25% {
+    transform: translateX(3px) rotateY(0);
+  }
+  50% {
+    transform: translateX(0) rotateY(180deg);
+  }
+  75% {
+    transform: translateX(-3px) rotateY(180deg);
+  }
+  100% {
+    transform: translateX(0) rotateY(0);
+  }
+}
+/* Main Content Area */
+.mainContent {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+}
+
+/* Tabs Styling */
+.profileTabs :global(.ant-tabs-nav) {
+  margin: 0 !important;
+  padding: 0 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.profileTabs :global(.ant-tabs-nav::before) {
+  display: none;
+}
+
+.profileTabs :global(.ant-tabs-tab) {
+  padding: 16px 20px;
+  margin: 0 !important;
+  font-size: 15px;
+  color: #666666;
+  transition: color 0.2s ease;
+}
+
+.profileTabs :global(.ant-tabs-tab:hover) {
+  color: #2a9d8f;
+}
+
+.profileTabs :global(.ant-tabs-tab-active) {
+  color: #2a9d8f;
+}
+
+.profileTabs :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: #2a9d8f !important;
+  font-weight: 500;
+}
+
+.profileTabs :global(.ant-tabs-ink-bar) {
+  height: 2px;
+  background: #2a9d8f;
+}
+
+/* Grid Layout */
+.infoGrid {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+}
+
+/* Card Styling */
+.infoCard {
+  flex: 1;
+  min-width: 0; /* Prevents flex item from overflowing */
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #264653;
+  margin: 0;
+}
+
+.editButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.editButton:hover {
+  background-color: #f8f9fa;
+}
+
+.editIcon {
+  width: 16px;
+  height: 16px;
+  color: #2a9d8f;
+}
+
+.cardContent {
+  padding: 16px;
+}
+
+/* Info Items */
+.infoItem {
+  margin-bottom: 16px;
+}
+
+.infoItem:last-child {
+  margin-bottom: 0;
+}
+
+.infoLabel {
+  font-size: 13px;
+  color: #666666;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.infoValue {
+  font-size: 14px;
+  color: #264653;
+  font-weight: 500;
+}
+
+/* Verification Status */
+.verificationStatus {
+  margin-bottom: 16px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.verified {
+  background-color: rgba(42, 157, 143, 0.1);
+  color: #2a9d8f;
+}
+
+.pending {
+  background-color: rgba(255, 138, 138, 0.1);
+  color: #ff8a8a;
+}
+/* Social Links */
+.socialLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.socialLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  color: #264653;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.socialLink:hover {
+  background-color: #e9ecef;
+  transform: translateX(4px);
+}
+
+.socialIcon {
+  width: 18px;
+  height: 18px;
+  color: #2a9d8f;
+}
+
+/* Reviews Section */
+.reviewsContainer {
+  padding: 24px;
+}
+
+.reviewsHeader {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.ratingOverview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.ratingTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #264653;
+  margin: 0;
+}
+
+.ratingValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #264653;
+}
+
+.starIcon {
+  width: 24px;
+  height: 24px;
+  color: #ffd166;
+}
+
+.totalReviews {
+  font-size: 14px;
+  color: #666666;
+  margin: 0;
+}
+
+.emptyReviews {
+  text-align: center;
+  padding: 40px;
+  color: #666666;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* Trip History Section */
+.tripsContainer {
+  padding: 24px;
+}
+
+.tripsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.tripsTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #264653;
+  margin: 0;
+}
+
+.tripStats {
+  display: flex;
+  gap: 16px;
+}
+
+.tripStat {
+  text-align: center;
+  padding: 12px 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.statNumber {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2a9d8f;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #666666;
+}
+
+.emptyTrips {
+  text-align: center;
+  padding: 40px;
+  color: #666666;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 20px 16px;
+  }
+
+  .coverSection {
+    padding: 30px 16px;
+  }
+
+  .userStats {
+    gap: 12px;
+  }
+
+  .infoGrid {
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .profileTabs :global(.ant-tabs-tab) {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .reviewsContainer,
+  .tripsContainer {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 12px;
+  }
+
+  .imageWrapper {
+    width: 120px;
+    height: 120px;
+  }
+
+  .userName {
+    font-size: 20px;
+  }
+
+  .userStats {
+    flex-direction: column;
+  }
+
+  .statItem {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cardHeader {
+    padding: 12px;
+  }
+
+  .cardContent {
+    padding: 12px;
+  }
+
+  .ratingValue {
+    font-size: 24px;
+  }
+
+  .tripStat {
+    padding: 8px 16px;
+  }
+
+  .statNumber {
+    font-size: 18px;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .socialLink:hover {
+    transform: none;
+  }
+
+  .editButton {
+    padding: 8px;
+  }
+}
+
+/* Animation Classes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease-in;
+}

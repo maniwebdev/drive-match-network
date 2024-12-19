@@ -1,0 +1,566 @@
+/* styles/Rides/myRides.module.css */
+
+/* Base Layout */
+.pageContainer {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px 20px;
+}
+
+.contentWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  opacity: 1 !important; /* Prevent blinking */
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 64px);
+  gap: 1rem;
+}
+
+/* Page Header */
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 600;
+  color: #264653;
+  margin: 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.headerRight {
+  display: flex;
+  gap: 16px;
+}
+
+.findRideButton {
+  height: 40px;
+  background: #2a9d8f;
+  border: none;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.findRideButton:hover {
+  background: #248277;
+}
+
+/* Tabs and Container */
+.ridesContainer {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+}
+
+.tabs {
+  margin-bottom: 24px;
+}
+
+.ridesList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 200px;
+}
+
+/* Empty and Loading States */
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.emptyState h3 {
+  font-size: 20px;
+  color: #264653;
+  margin-bottom: 8px;
+}
+
+.emptyState p {
+  color: #666666;
+  margin-bottom: 24px;
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+}
+
+.loadingState p {
+  color: #666666;
+  font-size: 16px;
+}
+/* Ride Card Styles */
+.rideCard {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.rideCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Card Header */
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.statusBadge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.priceInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priceIcon {
+  color: #2a9d8f;
+  width: 20px;
+  height: 20px;
+}
+
+.priceAmount {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2a9d8f;
+}
+
+/* Locations Section */
+.locations {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.locationPoint {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.locationIcon {
+  color: #2a9d8f;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.routeLine {
+  flex: 0 0 auto;
+  width: 2px;
+  height: 40px;
+  background: #2a9d8f;
+  margin: 0 24px;
+  position: relative;
+}
+
+.routeLine::before,
+.routeLine::after {
+  content: "→";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #2a9d8f;
+}
+
+.locationPoint h4 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0 0 4px 0;
+}
+
+.locationPoint p {
+  font-size: 14px;
+  color: #666666;
+  margin: 0;
+}
+
+/* Trip Info Section */
+.tripInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.icon {
+  color: #2a9d8f;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.infoItem span {
+  font-size: 14px;
+  color: #666666;
+}
+/* Matched Ride Section */
+.matchedRideSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.driverInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.driverAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.driverAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a9d8f;
+  color: white;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.driverDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.driverDetails h4 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0;
+}
+
+.driverStats {
+  display: flex;
+  gap: 12px;
+}
+
+.driverStats span {
+  font-size: 14px;
+  color: #666666;
+}
+
+/* Action Buttons */
+.cardActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.viewDetailsButton,
+.cancelButton,
+.messageButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.viewDetailsButton {
+  background: #2a9d8f;
+  color: white;
+  border: none;
+}
+
+.viewDetailsButton:hover {
+  background: #248277;
+}
+
+.cancelButton {
+  background: #fff;
+  border: 1px solid #ff4d4f;
+  color: #ff4d4f;
+}
+
+.cancelButton:hover {
+  background: #fff1f0;
+  border-color: #ff7875;
+  color: #ff7875;
+}
+
+.messageButton {
+  background: #fff;
+  border: 1px solid #2a9d8f;
+  color: #2a9d8f;
+}
+
+.messageButton:hover {
+  background: #f0f9f8;
+}
+
+.buttonIcon {
+  width: 16px;
+  height: 16px;
+}
+/* Modal Styles */
+.cancelModal {
+  max-width: 400px;
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  gap: 16px;
+}
+
+.warningIcon {
+  width: 48px;
+  height: 48px;
+  color: #ff4d4f;
+}
+
+.warningText {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+
+.warningText h4 {
+  color: #264653;
+  font-size: 16px;
+  margin: 0;
+}
+
+.matchedWarning,
+.dateWarning {
+  margin-top: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .contentWrapper {
+    max-width: 960px;
+  }
+
+  .tripInfo {
+    gap: 12px;
+  }
+
+  .infoItem {
+    flex: 1;
+    min-width: calc(50% - 8px);
+  }
+}
+
+@media (max-width: 992px) {
+  .contentWrapper {
+    max-width: 720px;
+  }
+
+  .pageTitle {
+    font-size: 28px;
+  }
+
+  .matchedRideSection {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .viewDetailsButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 20px 16px;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .headerRight {
+    width: 100%;
+  }
+
+  .findRideButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .locations {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .routeLine {
+    width: 100%;
+    height: 2px;
+    margin: 0;
+  }
+
+  .routeLine::before {
+    transform: rotate(90deg);
+    top: -12px;
+  }
+
+  .infoItem {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .cardActions {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .messageButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .pageTitle {
+    font-size: 24px;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .priceInfo {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .locationPoint h4 {
+    font-size: 14px;
+  }
+
+  .locationPoint p {
+    font-size: 12px;
+  }
+
+  .driverInfo {
+    width: 100%;
+  }
+
+  .driverStats {
+    flex-wrap: wrap;
+  }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  .rideCard {
+    transition: none;
+  }
+
+  .rideCard:hover {
+    transform: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .pageContainer {
+    padding: 0;
+    background: white;
+  }
+
+  .findRideButton,
+  .cardActions {
+    display: none;
+  }
+
+  .rideCard {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}

@@ -55,7 +55,6 @@ export const ChatProvider = ({ children }) => {
 
         // Single receiveMessage handler
         newSocket.on('receiveMessage', ({ content, senderId, chatId, messageId }) => {
-            console.log('Received message:', { content, senderId, chatId, messageId });
 
             const newMessage = {
                 _id: messageId || Date.now().toString(),

@@ -208,6 +208,37 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const fetchUserProfile = async (userId) => {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            return { success: false, message: "Authentication required" };
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/api/auth/profile/${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': authToken,
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch user profile');
+            }
+
+            return { success: true, user: data };
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            return {
+                success: false,
+                message: error.message || 'Failed to fetch user profile'
+            };
+        }
+    };
+
     const contextValue = {
         currentUser,
         loading,
@@ -219,6 +250,7 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser,
         updateBasicProfile,
         uploadProfilePicture,
+        fetchUserProfile,
     };
 
     return (

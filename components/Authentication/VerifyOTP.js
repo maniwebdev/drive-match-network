@@ -68,7 +68,7 @@ const VerifyOTP = () => {
     };
 
     const handleChange = (value, index) => {
-        const sanitizedValue = value.replace(/[^0-9]/g, '').slice(0, 1);
+        const sanitizedValue = value.slice(0, 1);
         
         setOtp(currentOtp => {
             const newOtp = [...currentOtp];
@@ -102,7 +102,7 @@ const VerifyOTP = () => {
 
     const handlePaste = (e) => {
         e.preventDefault();
-        const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+        const pastedData = e.clipboardData.getData('text').slice(0, 6);
         const newOtp = [...otp];
 
         for (let i = 0; i < pastedData.length; i++) {

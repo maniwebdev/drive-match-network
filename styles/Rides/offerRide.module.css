@@ -1,0 +1,511 @@
+/* styles/Rides/offerRide.module.css */
+
+/* Base Layout */
+.pageContainer {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px 20px;
+}
+
+.contentWrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 40px;
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 600;
+  color: #264653;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* Steps Container */
+.stepsContainer {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+  margin-bottom: 24px;
+}
+
+.stepIcon {
+  color: #2a9d8f;
+  width: 20px;
+  height: 20px;
+}
+
+/* Form Container */
+.formContainer {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.formItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.formItem :global(.ant-form-item-label) > label {
+  font-weight: 500;
+  color: #264653;
+}
+
+/* Vehicle Info Section */
+.vehicleInfo {
+  background: rgba(42, 157, 143, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.vehicleDetails {
+  margin-top: 12px;
+}
+
+.vehicleItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.vehicleIcon {
+  color: #2a9d8f;
+  width: 24px;
+  height: 24px;
+}
+
+.vehicleModel {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0;
+}
+
+.vehiclePlate {
+  font-size: 14px;
+  color: #666666;
+  margin: 4px 0;
+}
+
+.vehicleCapacity {
+  font-size: 14px;
+  color: #2a9d8f;
+  margin: 0;
+}
+
+.noVehicle {
+  text-align: center;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.noVehicle p {
+  color: #666666;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0 0 16px 0;
+}
+/* Input and Location Picker Styles */
+.input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.input:hover {
+  border-color: #2a9d8f;
+}
+
+.inputIcon {
+  color: #2a9d8f;
+  width: 16px;
+  height: 16px;
+}
+
+/* Time Selection */
+.timeSelectionContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeSelect {
+  flex: 1;
+  max-width: 120px;
+}
+
+.timeSeparator {
+  color: #666666;
+  font-weight: 500;
+  font-size: 18px;
+}
+
+/* Date and Duration Inputs */
+.datePicker {
+  width: 100%;
+}
+
+.durationInput {
+  width: 100%;
+}
+
+/* Waypoints Section */
+.waypointsSection {
+  border-top: 1px solid #e9ecef;
+  padding-top: 24px;
+  margin-top: 24px;
+}
+
+.addWaypointButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #2a9d8f;
+  border-color: #2a9d8f;
+  margin-bottom: 16px;
+}
+
+.addWaypointButton:hover {
+  color: #248277;
+  border-color: #248277;
+}
+
+.waypointItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  animation: slideIn 0.3s ease;
+}
+
+/* Seats and Price Section */
+.seatsInput, 
+.priceInput {
+  width: 100%;
+}
+
+.pricingInfo {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.pricingInfo h4 {
+  font-size: 14px;
+  color: #264653;
+  margin: 0 0 8px 0;
+}
+
+.earnings {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2a9d8f;
+  margin: 0;
+}
+
+.earningsNote {
+  font-size: 12px;
+  color: #666666;
+  margin: 4px 0 0 0;
+}
+
+/* Preference Section */
+.preferenceItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.preferenceDescription {
+  font-size: 14px;
+  color: #666666;
+}
+
+.switch {
+  background-color: #e9ecef;
+}
+
+.switch:global(.ant-switch-checked) {
+  background-color: #2a9d8f !important;
+}
+
+/* Helper Text */
+.helperText {
+  font-size: 12px;
+  color: #666666;
+  margin-top: 4px;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+      opacity: 0;
+      transform: translateY(10px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+/* Ant Design Component Overrides */
+.formContainer :global(.ant-select-selector) {
+  height: 40px !important;
+  padding: 4px 12px !important;
+  border-color: #e9ecef !important;
+}
+
+.formContainer :global(.ant-select-selection-item) {
+  line-height: 32px !important;
+}
+
+.formContainer :global(.ant-picker) {
+  width: 100%;
+  border-color: #e9ecef;
+}
+
+.formContainer :global(.ant-input-number) {
+  width: 100%;
+  border-color: #e9ecef;
+}
+
+.formContainer :global(.ant-steps-item-icon) {
+  background: #ffffff;
+  border-color: #e9ecef;
+}
+
+.formContainer :global(.ant-steps-item-active .ant-steps-item-icon) {
+  background: #2a9d8f;
+  border-color: #2a9d8f;
+}
+
+.formContainer :global(.ant-steps-item-finish .ant-steps-item-icon) {
+  border-color: #2a9d8f;
+}
+/* Button Container and Actions */
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e9ecef;
+}
+
+.prevButton, 
+.nextButton, 
+.submitButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 8px 24px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.prevButton {
+  color: #666666;
+  border: 1px solid #e9ecef;
+}
+
+.prevButton:hover {
+  background: #f8f9fa;
+  border-color: #666666;
+}
+
+.nextButton {
+  background: #2a9d8f;
+  border: none;
+}
+
+.nextButton:hover {
+  background: #248277;
+}
+
+.submitButton {
+  background: #2a9d8f;
+  border: none;
+}
+
+.submitButton:hover {
+  background: #248277;
+}
+
+/* Driver Verification Required */
+.driverVerificationRequired {
+  text-align: center;
+  padding: 48px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+  margin-top: 24px;
+}
+
+.verificationIcon {
+  width: 48px;
+  height: 48px;
+  color: #2a9d8f;
+  margin-bottom: 16px;
+}
+
+.driverVerificationRequired h2 {
+  font-size: 24px;
+  color: #264653;
+  margin-bottom: 8px;
+}
+
+.driverVerificationRequired p {
+  color: #666666;
+  margin-bottom: 24px;
+  max-width: 400px;
+  margin: 0 auto 24px auto;
+}
+
+.verificationButton {
+  background: #2a9d8f;
+  border: none;
+  padding: 8px 24px;
+  height: 40px;
+}
+
+.verificationButton:hover {
+  background: #248277;
+}
+
+/* Steps Override Styles */
+.step {
+  transition: all 0.3s ease;
+}
+
+.step :global(.ant-steps-item-title) {
+  font-size: 14px;
+}
+
+.step :global(.ant-steps-item-tail::after) {
+  background-color: #e9ecef !important;
+}
+
+.step :global(.ant-steps-item-active .ant-steps-item-title) {
+  font-weight: 500 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pageContainer {
+      padding: 20px 16px;
+  }
+
+  .contentWrapper {
+      margin-top: 20px;
+  }
+
+  .pageTitle {
+      font-size: 24px;
+      margin-bottom: 24px;
+  }
+
+  .formContainer {
+      padding: 20px;
+  }
+
+  .timeSelectionContainer {
+      flex-direction: column;
+      align-items: stretch;
+  }
+
+  .timeSelect {
+      max-width: 100%;
+  }
+
+  .buttonContainer {
+      flex-direction: column-reverse;
+      gap: 12px;
+  }
+
+  .prevButton, 
+  .nextButton, 
+  .submitButton {
+      width: 100%;
+      justify-content: center;
+  }
+
+  .waypointItem {
+      flex-direction: column;
+      gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+      padding: 16px;
+  }
+
+  .stepsContainer {
+      padding: 16px 12px;
+  }
+
+  .formContainer {
+      padding: 16px;
+  }
+
+  .vehicleItem {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+  }
+
+  .driverVerificationRequired {
+      padding: 32px 20px;
+  }
+
+  .driverVerificationRequired h2 {
+      font-size: 20px;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .addWaypointButton:hover {
+      color: #2a9d8f;
+      border-color: #2a9d8f;
+  }
+
+  .nextButton:hover,
+  .submitButton:hover {
+      background: #2a9d8f;
+  }
+}
+

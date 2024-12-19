@@ -1,0 +1,351 @@
+/* Modal Base Styles */
+.modal :global(.ant-modal-content) {
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.modal :global(.ant-modal-header) {
+    padding: 20px 24px;
+    border-bottom: 1px solid #E9ECEF;
+    margin: 0;
+}
+
+.modal :global(.ant-modal-body) {
+    padding: 24px;
+}
+
+.modal :global(.ant-modal-footer) {
+    margin-top: 0;
+    padding: 16px 24px;
+    border-top: 1px solid #E9ECEF;
+}
+
+/* Modal Title */
+.modalTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #264653;
+    margin: 0;
+}
+
+/* Form Container */
+.formContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Form Inputs */
+.input {
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid #E9ECEF;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.input:hover {
+    border-color: #2A9D8F;
+}
+
+.input:focus {
+    border-color: #2A9D8F;
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1);
+}
+
+.textArea {
+    border-radius: 8px;
+    border: 1px solid #E9ECEF;
+    padding: 12px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.textArea:hover {
+    border-color: #2A9D8F;
+}
+
+.textArea:focus {
+    border-color: #2A9D8F;
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1);
+}
+
+/* Form Labels */
+.formLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #264653;
+    font-weight: 500;
+}
+
+/* Social Media Labels */
+.socialLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #264653;
+}
+
+.socialLabel svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Form Items */
+.form :global(.ant-form-item) {
+    margin-bottom: 20px;
+}
+
+.form :global(.ant-form-item-label) {
+    padding-bottom: 6px;
+}
+
+.form :global(.ant-form-item-label > label) {
+    font-size: 14px;
+    font-weight: 500;
+    color: #264653;
+}
+
+.form :global(.ant-form-item-explain-error) {
+    font-size: 12px;
+    color: #FF8A8A;
+    margin-top: 4px;
+}
+
+/* Switch Styles */
+.driverSwitch {
+    min-width: 40px;
+}
+
+.driverSwitch :global(.ant-switch-checked) {
+    background-color: #2A9D8F;
+}
+
+.driverLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #264653;
+}
+
+/* Driver Note */
+.driverNote {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background-color: rgba(42, 157, 143, 0.1);
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.noteIcon {
+    color: #2A9D8F;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.noteContent {
+    flex: 1;
+}
+
+.noteContent h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #264653;
+    margin: 0 0 8px 0;
+}
+
+.noteContent ul {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 13px;
+    color: #666666;
+}
+
+.noteContent li {
+    margin-bottom: 4px;
+}
+
+.noteContent li:last-child {
+    margin-bottom: 0;
+}
+
+/* Verification Note */
+.verificationNote {
+    display: flex;
+    padding: 16px;
+    background: rgba(42, 157, 143, 0.05);
+    border-left: 3px solid #2A9D8F;
+    border-radius: 8px;
+}
+
+.verificationNote .noteIcon {
+    color: #2A9D8F;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+/* Button Styles */
+.updateButton {
+    background: #2A9D8F !important;
+    border: none !important;
+    height: 40px;
+    padding: 0 24px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease !important;
+}
+
+.updateButton:hover {
+    background: #248277 !important;
+    transform: translateY(-1px);
+}
+
+.updateButton:active {
+    transform: translateY(0);
+}
+
+.cancelButton {
+    border-color: #E9ECEF !important;
+    color: #666666 !important;
+    height: 40px;
+    padding: 0 24px;
+    transition: all 0.3s ease !important;
+}
+
+.cancelButton:hover {
+    color: #264653 !important;
+    border-color: #264653 !important;
+    background: #f8f9fa !important;
+}
+
+/* Error States */
+.input.error {
+    border-color: #FF8A8A;
+}
+
+.input.error:hover,
+.input.error:focus {
+    border-color: #FF8A8A;
+    box-shadow: 0 0 0 2px rgba(255, 138, 138, 0.1);
+}
+
+/* Loading States */
+.form :global(.ant-form-item-loading) {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Animation Classes */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.formContainer {
+    animation: slideUp 0.3s ease-out;
+}
+
+.driverNote,
+.verificationNote {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .modal {
+        margin: 0 16px;
+    }
+
+    .modal :global(.ant-modal-content) {
+        padding: 0;
+    }
+
+    .modal :global(.ant-modal-header) {
+        padding: 16px 20px;
+    }
+
+    .modal :global(.ant-modal-body) {
+        padding: 20px;
+    }
+
+    .modal :global(.ant-modal-footer) {
+        padding: 12px 20px;
+    }
+
+    .input,
+    .textArea {
+        font-size: 16px; /* Better for mobile input */
+    }
+}
+
+@media (max-width: 480px) {
+    .modalTitle {
+        font-size: 16px;
+    }
+
+    .formContainer {
+        gap: 16px;
+    }
+
+    .driverNote,
+    .verificationNote {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .updateButton,
+    .cancelButton {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .modal :global(.ant-modal-footer) {
+        flex-direction: column-reverse;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+    .input,
+    .textArea,
+    .updateButton,
+    .cancelButton {
+        cursor: default;
+    }
+
+    .updateButton:hover,
+    .cancelButton:hover {
+        transform: none;
+    }
+
+    .input,
+    .textArea {
+        font-size: 16px;
+        min-height: 44px;
+    }
+}

@@ -1,0 +1,527 @@
+/* Base Layout */
+.pageContainer {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px 20px;
+}
+
+.contentWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+}
+
+.loadingContainer p {
+  color: #666666;
+  font-size: 16px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666666;
+  border: 1px solid #e9ecef;
+}
+
+.backButton:hover {
+  color: #264653;
+  border-color: #264653;
+}
+
+.statusBadge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Section Titles */
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #264653;
+  margin-bottom: 16px;
+}
+
+/* Ride Details Card */
+.rideDetailsCard {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Route Information */
+.routeInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.location {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+}
+
+.icon {
+  color: #2a9d8f;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.locationLabel {
+  font-size: 12px;
+  color: #666666;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.locationName {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0 0 4px 0;
+}
+
+.locationAddress {
+  font-size: 14px;
+  color: #666666;
+  margin: 0;
+}
+
+.routeDivider {
+  position: relative;
+  width: 2px;
+  align-self: stretch;
+  margin: 0 24px;
+}
+
+.dividerLine {
+  height: 100%;
+  width: 2px;
+  background: #e9ecef;
+  position: relative;
+}
+
+.dividerLine::before,
+.dividerLine::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: #2a9d8f;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.dividerLine::before {
+  top: 0;
+}
+
+.dividerLine::after {
+  bottom: 0;
+}
+
+/* Ride Info */
+.rideInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.infoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.infoLabel {
+  font-size: 12px;
+  color: #666666;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.infoValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: #264653;
+}
+
+/* Preferences */
+.preferences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.preferenceItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #666666;
+  border: 1px solid #e9ecef;
+}
+/* Bookings Section */
+.bookingsSection {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Request Card */
+.requestsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.requestCard {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.requestCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.requestHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Passenger Info */
+.passengerInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.passengerAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  font-size: 20px;
+  color: #666666;
+  text-transform: uppercase;
+}
+
+.passengerDetails h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0 0 4px 0;
+}
+
+.requestStats {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  color: #666666;
+}
+
+/* Request Details */
+.requestDetails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666666;
+}
+
+/* Request Actions */
+.requestActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.acceptButton {
+  background: #2a9d8f;
+  border: none;
+}
+
+.acceptButton:hover {
+  background: #248277;
+}
+
+.messageButton {
+  color: #2a9d8f;
+  border-color: #2a9d8f;
+}
+
+.messageButton:hover {
+  color: #248277;
+  border-color: #248277;
+}
+
+.buttonIcon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Tabs Styling */
+.tabs {
+  margin-top: 16px;
+}
+/* Modal Styles */
+.actionModal {
+  max-width: 480px;
+}
+
+.modalContent {
+  padding: 16px 0;
+}
+
+.modalWarning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #fff2f0;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.warningIcon {
+  color: #ff4d4f;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.modalWarning p {
+  color: #ff4d4f;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .contentWrapper {
+    max-width: 960px;
+  }
+
+  .infoItem {
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 992px) {
+  .contentWrapper {
+    max-width: 720px;
+  }
+
+  .routeInfo {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .routeDivider {
+    width: 100%;
+    height: 2px;
+    margin: 0;
+  }
+
+  .dividerLine {
+    width: 100%;
+    height: 2px;
+  }
+
+  .dividerLine::before,
+  .dividerLine::after {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .dividerLine::before {
+    left: 0;
+  }
+
+  .dividerLine::after {
+    left: auto;
+    right: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 20px 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .backButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .requestCard {
+    padding: 16px;
+  }
+
+  .requestHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .requestActions {
+    flex-direction: column;
+  }
+
+  .acceptButton,
+  .rejectButton,
+  .messageButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .rideDetailsCard,
+  .bookingsSection {
+    padding: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 18px;
+  }
+
+  .passengerDetails h3 {
+    font-size: 14px;
+  }
+
+  .requestStats {
+    font-size: 12px;
+  }
+
+  .locationName {
+    font-size: 14px;
+  }
+
+  .locationAddress {
+    font-size: 12px;
+  }
+}
+
+/* High Resolution Screens */
+@media screen and (min-width: 1440px) {
+  .contentWrapper {
+    max-width: 1320px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .pageContainer {
+    padding: 0;
+    background: white;
+  }
+
+  .backButton,
+  .actionButtons {
+    display: none;
+  }
+
+  .rideDetailsCard,
+  .bookingsSection {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .requestCard:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .backButton:hover {
+    color: #666666;
+    border-color: #e9ecef;
+  }
+
+  .acceptButton:hover {
+    background: #2a9d8f;
+  }
+
+  .messageButton:hover {
+    color: #2a9d8f;
+    border-color: #2a9d8f;
+  }
+}

@@ -128,7 +128,7 @@
 .otpInput {
   width: 48px;
   height: 56px;
-  border: 2px solid #e9ecef;
+  border: 2px solid #d3d3d3;
   border-radius: 8px;
   font-size: 24px;
   font-weight: 600;
@@ -366,4 +366,246 @@
 
 .formContainer {
   animation: fadeIn 0.4s ease-out;
+}
+/* Small tablets and large phones */
+@media (max-width: 768px) {
+  .pageContainer {
+    flex-direction: column;
+  }
+
+  .stepsSection {
+    padding: 28px 20px;
+  }
+
+  .brandingContainer {
+    margin-bottom: 32px;
+  }
+
+  .logo {
+    width: 90px;
+    height: 90px;
+  }
+
+  .formContainer {
+    max-width: 100%;
+    padding: 28px 20px;
+  }
+
+  .otpContainer {
+    gap: 10px;
+    margin: 24px 0;
+  }
+
+  .otpInput {
+    width: 42px;
+    height: 50px;
+    font-size: 22px;
+  }
+
+  .verifyButton {
+    height: 46px;
+    font-size: 15px;
+  }
+}
+
+/* Medium-sized phones */
+@media (max-width: 480px) {
+  .stepsSection {
+    padding: 20px 16px;
+  }
+
+  .logo {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 16px;
+  }
+
+  .brandName {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+
+  .formHeader h2 {
+    font-size: 22px;
+  }
+
+  .formHeader p {
+    font-size: 13px;
+  }
+
+  .stepCard {
+    padding: 14px;
+  }
+
+  .stepIcon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .otpContainer {
+    gap: 8px;
+    margin: 20px 0;
+  }
+
+  .otpInput {
+    width: 38px;
+    height: 46px;
+    font-size: 20px;
+    border-width: 1.5px;
+  }
+
+  .timer,
+  .errorMessage {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .bottomActions {
+    gap: 12px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 360px) {
+  .stepsSection {
+    padding: 16px 12px;
+  }
+
+  .formContainer {
+    padding: 20px 16px;
+    margin: 0 10px;
+  }
+
+  .formHeader h2 {
+    font-size: 20px;
+  }
+
+  .otpContainer {
+    gap: 6px;
+    margin: 16px 0;
+  }
+
+  .otpInput {
+    width: 34px;
+    height: 42px;
+    font-size: 18px;
+  }
+
+  .verifyButton {
+    height: 42px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .resendButton {
+    font-size: 13px;
+  }
+
+  .backLink {
+    font-size: 13px;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 320px) {
+  .formContainer {
+    padding: 16px 12px;
+  }
+
+  .formHeader h2 {
+    font-size: 18px;
+  }
+
+  .formHeader p {
+    font-size: 12px;
+  }
+
+  .otpInput {
+    width: 32px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .timer,
+  .errorMessage {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .bottomActions {
+    gap: 10px;
+  }
+}
+
+/* Landscape orientation for small devices */
+@media (max-height: 480px) and (orientation: landscape) {
+  .pageContainer {
+    flex-direction: column;
+  }
+
+  .stepsSection {
+    padding: 16px;
+  }
+
+  .stepsContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .stepCard {
+    height: 100%;
+  }
+
+  .logo {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 12px;
+  }
+
+  .otpContainer {
+    margin: 16px 0;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .verifyButton,
+  .resendButton,
+  .backLink {
+    min-height: 44px;
+  }
+
+  .otpInput {
+    padding: 0;
+    touch-action: manipulation;
+  }
+
+  .resendButton,
+  .backLink {
+    padding: 12px;
+  }
+}
+
+/* High DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .otpInput {
+    border-width: 2px;
+  }
+
+  .otpInput:focus {
+    box-shadow: 0 0 0 1px rgba(42, 157, 143, 0.1);
+  }
+}
+
+/* Reduce motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .otpInput {
+    transition: none;
+  }
+
+  .otpInput.error {
+    animation: none;
+  }
 }

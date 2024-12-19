@@ -1,0 +1,364 @@
+/* Base Navbar Styles */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+    height: 60px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.98);
+}
+
+.navContainer {
+    max-width: 1200px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Logo Section */
+.logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.logoContainer:hover {
+    transform: translateY(-1px);
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.scrolled .logo {
+    transform: scale(0.9);
+}
+
+.logoText {
+    font-size: 18px;
+    font-weight: 600;
+    color: #264653;
+    transition: all 0.3s ease;
+}
+
+.scrolled .logoText {
+    font-size: 16px;
+}
+
+/* Navigation Center */
+.navCenter {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.navItem {
+    text-decoration: none;
+    color: #666666;
+    position: relative;
+}
+
+.navItemContent {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.navItem:hover .navItemContent {
+    background: rgba(42, 157, 143, 0.1);
+    color: #2A9D8F;
+}
+
+.navItem.active .navItemContent {
+    background: rgba(42, 157, 143, 0.1);
+    color: #2A9D8F;
+}
+
+.menuIcon {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s ease;
+}
+
+.navItem:hover .menuIcon {
+    transform: scale(1.1);
+}
+
+/* Right Section */
+.navRight {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Notification & Message Buttons */
+.notificationBtn,
+.messageBtn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.notificationBtn:hover,
+.messageBtn:hover {
+    background: rgba(42, 157, 143, 0.1);
+}
+
+.bellIcon,
+.messageIcon {
+    width: 20px;
+    height: 20px;
+    color: #666666;
+    transition: all 0.3s ease;
+}
+
+.notificationBtn:hover .bellIcon,
+.messageBtn:hover .messageIcon {
+    color: #2A9D8F;
+    transform: scale(1.1);
+}
+
+/* Badge Styles */
+.navRight :global(.ant-badge) {
+    display: flex;
+}
+
+.navRight :global(.ant-badge-count) {
+    background: #FF8A8A;
+    box-shadow: 0 0 0 2px #ffffff;
+    font-size: 10px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    line-height: 16px;
+}
+
+/* User Menu */
+.userMenu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(42, 157, 143, 0.1);
+}
+
+.userMenu:hover {
+    background: rgba(42, 157, 143, 0.15);
+}
+
+.userAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatarImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.userInfo {
+    padding-right: 8px;
+}
+
+.userName {
+    font-size: 14px;
+    font-weight: 500;
+    color: #264653;
+}
+
+/* Dropdown Wrapper */
+.dropdownWrapper :global(.ant-dropdown-menu) {
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dropdownWrapper :global(.ant-dropdown-menu-item) {
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
+.dropdownWrapper :global(.ant-dropdown-menu-item:hover) {
+    background: rgba(42, 157, 143, 0.1);
+}
+/* Menu Items */
+.menuItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px;
+}
+
+.menuItemContent {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.menuItemTitle {
+    font-size: 14px;
+    font-weight: 500;
+    color: #264653;
+}
+
+.menuItemSubtitle {
+    font-size: 12px;
+    color: #666666;
+}
+
+.menuItemWithBadge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.menuBadge {
+    margin-left: auto;
+}
+
+/* Logout Item */
+.logoutItem {
+    color: #FF8A8A;
+}
+
+.logoutItem svg {
+    color: #FF8A8A;
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes ripple {
+    0% {
+        box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.2);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(42, 157, 143, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(42, 157, 143, 0);
+    }
+}
+
+/* Animation Classes */
+.notificationBtn:has(.ant-badge-count),
+.messageBtn:has(.ant-badge-count) {
+    animation: ripple 2s infinite;
+}
+
+.dropdownWrapper :global(.ant-dropdown-menu) {
+    animation: slideDown 0.2s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .navContainer {
+        padding: 0 16px;
+    }
+
+    .navCenter {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        height: 60px;
+    }
+
+    .logoText {
+        font-size: 16px;
+    }
+
+    .navCenter {
+        display: none;
+    }
+
+    .userInfo {
+        display: none;
+    }
+
+    .userMenu {
+        padding: 4px;
+    }
+
+    .notificationBtn,
+    .messageBtn {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+    .navItem:hover .navItemContent,
+    .userMenu:hover,
+    .notificationBtn:hover,
+    .messageBtn:hover {
+        transform: none;
+    }
+
+    .notificationBtn,
+    .messageBtn,
+    .userMenu {
+        padding: 12px;
+    }
+}
+
+/* High Contrast Support */
+@media (forced-colors: active) {
+    .navbar {
+        border-bottom: 1px solid CanvasText;
+    }
+
+    .navItem.active {
+        outline: 2px solid Highlight;
+    }
+}
