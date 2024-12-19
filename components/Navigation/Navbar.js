@@ -27,6 +27,7 @@ const Navbar = () => {
         fetchCurrentUser();
     }, []);
 
+    // Handle scroll effect
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 20);
@@ -46,18 +47,8 @@ const Navbar = () => {
         };
     }, []);
 
-    const navigationItems = currentUser?.isDriver ? [
-        {
-            label: 'Offer a Ride',
-            href: '/ride/offer-ride',
-            icon: <Car className={styles.menuIcon} />
-        },
-        {
-            label: 'My Offers',
-            href: '/ride/my-offers',
-            icon: <Car className={styles.menuIcon} />
-        }
-    ] : [
+    // Navigation items
+    const navigationItems = [
         {
             label: 'Find a Ride',
             href: '/ride/find-ride',
@@ -67,9 +58,20 @@ const Navbar = () => {
             label: 'My Trips',
             href: '/ride/my-rides',
             icon: <Car className={styles.menuIcon} />
-        }
+        },
+        ...(currentUser?.isDriver ? [{
+            label: 'Offer a Ride',
+            href: '/ride/offer-ride',
+            icon: <Car className={styles.menuIcon} />
+        }] : []),
+        ...(currentUser?.isDriver ? [{
+            label: 'My Offers',
+            href: '/ride/my-offers',
+            icon: <Car className={styles.menuIcon} />
+        }] : [])
     ];
 
+    // User menu items (for dropdown)
     const userMenuItems = [
         {
             key: 'profile',
@@ -86,6 +88,7 @@ const Navbar = () => {
         },
         { type: 'divider' },
 
+        // Only include navigation items in mobile view
         ...(isMobile ? navigationItems.map(item => ({
             key: item.label,
             label: (
@@ -99,6 +102,7 @@ const Navbar = () => {
 
         ...(isMobile ? [{ type: 'divider' }] : []),
 
+        // Settings and logout
         {
             key: 'settings',
             label: (
@@ -120,11 +124,9 @@ const Navbar = () => {
             onClick: logout
         }
     ];
-
-    const GoInbox = () => {
-        router.push('/inbox/chats');
-    };
-
+const GoInbox = () => {
+    router.push('/inbox/chats')
+}
     return (
         <motion.nav
             className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}
@@ -133,6 +135,7 @@ const Navbar = () => {
             transition={{ duration: 0.3 }}
         >
             <div className={styles.navContainer}>
+                {/* Left Section - Logo */}
                 <Link href="/" className={styles.logoContainer}>
                     <Image
                         src="/images/carlogo.png"
@@ -144,15 +147,15 @@ const Navbar = () => {
                     <span className={styles.logoText}>Drive Match</span>
                 </Link>
 
+                {/* Center Section - Navigation Items (Hidden on mobile) */}
                 {!isMobile && (
                     <div className={styles.navCenter}>
                         {navigationItems.map((item, index) => (
                             <Link
                                 key={index}
                                 href={item.href}
-                                className={`${styles.navItem} ${
-                                    router.pathname === item.href ? styles.active : ''
-                                }`}
+                                className={`${styles.navItem} ${router.pathname === item.href ? styles.active : ''
+                                    }`}
                             >
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
@@ -167,6 +170,7 @@ const Navbar = () => {
                     </div>
                 )}
 
+                {/* Right Section */}
                 <div className={styles.navRight}>
                     <button className={styles.notificationBtn}>
                         <Badge count={3} size="small">
