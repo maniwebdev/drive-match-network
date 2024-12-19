@@ -157,14 +157,14 @@ const UpdateProfileModal = ({ visible, onClose, type }) => {
                             rules={[
                                 { required: true, message: 'Please enter your phone number' },
                                 {
-                                    pattern: /^(\+92|0)?[0-9]{10}$/,
-                                    message: 'Please enter a valid Pakistani phone number'
+                                    pattern: /^(\+1|1)?[-. ]?(\([0-9]{3}\)|[0-9]{3})[-. ]?[0-9]{3}[-. ]?[0-9]{4}$/,
+                                    message: 'Please enter a valid US phone number'
                                 }
                             ]}
                         >
                             <Input
                                 className={styles.input}
-                                placeholder="Enter your phone number"
+                                placeholder="Enter your phone number (e.g., 555-123-4567)"
                             />
                         </Form.Item>
 
@@ -348,7 +348,7 @@ const UpdateProfileModal = ({ visible, onClose, type }) => {
                             rules={[
                                 { required: true, message: 'Please enter plate number' },
                                 {
-                                  //  pattern: /^[A-Z0-9-]+$/,
+                                    //  pattern: /^[A-Z0-9-]+$/,
                                     message: 'Please enter a valid plate number format (e.g., ABC-123)'
                                 }
                             ]}
@@ -369,7 +369,7 @@ const UpdateProfileModal = ({ visible, onClose, type }) => {
                             }
                             rules={[
                                 { required: true, message: 'Please enter seating capacity' },
-                               // { type: 'number', min: 1, max: 8, message: 'Capacity must be between 1 and 8' }
+                                // { type: 'number', min: 1, max: 8, message: 'Capacity must be between 1 and 8' }
                             ]}
                         >
                             <Input
