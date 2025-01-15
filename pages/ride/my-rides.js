@@ -30,7 +30,6 @@ import { motion } from 'framer-motion';
 import moment from 'moment';
 import Navbar from '../../components/Navigation/Navbar';
 import styles from '../../styles/Rides/myRides.module.css';
-import ReviewModal from '../../components/Review/ReviewModal';
 
 const { TabPane } = Tabs;
 
@@ -43,7 +42,6 @@ const MyRides = () => {
     const [processing, setProcessing] = useState(false);
     const [refreshInterval, setRefreshInterval] = useState(null);
     const [pageLoading, setPageLoading] = useState(true);
-    const [showReviewModal, setShowReviewModal] = useState(false);
     const [selectedRideForReview, setSelectedRideForReview] = useState(null);
 
     // Hooks
@@ -178,16 +176,6 @@ const MyRides = () => {
 
     const handleViewRideDetails = (rideId) => {
         router.push(`/ride/details/${rideId}`);
-    };
-
-    const handleReviewClick = (request) => {
-        setSelectedRideForReview(request);
-        setShowReviewModal(true);
-    };
-
-    // Add this to handle review submission
-    const handleReviewSubmitted = () => {
-        fetchRideRequests(); // Refresh the rides list
     };
 
     const handleFindRide = () => {
@@ -487,19 +475,6 @@ const MyRides = () => {
                     {renderCancelModal()}
                 </motion.div>
             </div>
-            {showReviewModal && (
-                <ReviewModal
-                    isOpen={showReviewModal}
-                    onClose={() => {
-                        setShowReviewModal(false);
-                        setSelectedRideForReview(null);
-                    }}
-                    rideData={selectedRideForReview?.matchedRide}
-                    revieweeRole="driver"
-                    revieweeId={selectedRideForReview?.matchedRide?.driver?._id}
-                    onReviewSubmitted={handleReviewSubmitted}
-                />
-            )}
 
         </>
     );

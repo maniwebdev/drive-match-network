@@ -17,6 +17,7 @@ import {
     MoreVertical,
     Phone,
 } from 'lucide-react';
+import { message } from 'antd';
 
 const ChatPage = () => {
     // Router and Refs
@@ -60,6 +61,7 @@ const ChatPage = () => {
     const [recordingTime, setRecordingTime] = useState(0);
     const [showOptionsMenu, setShowOptionsMenu] = useState(false);
     const [isLocalRecording, setIsLocalRecording] = useState(false);
+    const [isSendingMessage, setIsSendingMessage] = useState(false);
 
     // Initial Setup Effects
     useEffect(() => {
@@ -86,7 +88,7 @@ const ChatPage = () => {
     useEffect(() => {
         if (chatId && socket) {
             socket.emit('joinRoom', { chatId });
-         //   console.log('Joined chat room:', chatId);
+            //   console.log('Joined chat room:', chatId);
         }
     }, [chatId, socket]);
 
@@ -221,6 +223,31 @@ const ChatPage = () => {
         }
     };
 
+    // const handleSendMessage = async (e) => {
+    //     e.preventDefault();
+    //     const trimmedMessage = messageInput.trim();
+
+    //     if (!trimmedMessage && !imagePreview) return;
+
+    //     try {
+    //         setLoading(true);
+
+    //         if (imagePreview) {
+    //             await sendFileMessage(imagePreview.file, chatId);
+    //             setImagePreview(null);
+    //         } else {
+    //             await sendMainMessage(chatId, trimmedMessage);
+    //         }
+
+    //         setMessageInput('');
+    //         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    //     } catch (error) {
+    //         console.error('Error sending message:', error);
+    //         alert('Failed to send message. Please try again.');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
     const handleSendMessage = async (e) => {
         e.preventDefault();
         const trimmedMessage = messageInput.trim();
@@ -228,7 +255,7 @@ const ChatPage = () => {
         if (!trimmedMessage && !imagePreview) return;
 
         try {
-            setLoading(true);
+            setIsSendingMessage(true); // Use local loading state instead
 
             if (imagePreview) {
                 await sendFileMessage(imagePreview.file, chatId);
@@ -241,9 +268,9 @@ const ChatPage = () => {
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         } catch (error) {
             console.error('Error sending message:', error);
-            alert('Failed to send message. Please try again.');
+            message.error('Failed to send message. Please try again.');
         } finally {
-            setLoading(false);
+            setIsSendingMessage(false); // Clear local loading state
         }
     };
     const GoInbox = () => {
@@ -604,11 +631,14 @@ const ChatPage = () => {
                                                     <button
                                                         type="submit"
                                                         className={`${styles.sendButton} ${(!messageInput.trim() && !imagePreview) ?
-                                                            styles.disabled : ''
-                                                            }`}
-                                                        disabled={!messageInput.trim() && !imagePreview}
+                                                            styles.disabled : ''}`}
+                                                        disabled={!messageInput.trim() && !imagePreview || isSendingMessage}
                                                     >
-                                                        <Send size={20} />
+                                                        {isSendingMessage ? (
+                                                            <div className={styles.sendingSpinner} />
+                                                        ) : (
+                                                            <Send size={20} />
+                                                        )}
                                                     </button>
                                                 </div>
                                             </form>

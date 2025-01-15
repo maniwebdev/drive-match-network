@@ -27,224 +27,156 @@ const { TextArea } = Input;
 const ReviewModal = ({
     isOpen,
     onClose,
-    rideData,
-    revieweeRole,
-    revieweeId,
-    onReviewSubmitted
+    userToReview,
+    onReviewSubmitted,
+    isDriver = false
 }) => {
     const [form] = Form.useForm();
     const { createReview, loading } = useReview();
-    const [submitting, setSubmitting] = useState(false);
+    const [rating, setRating] = useState(0);
 
     useEffect(() => {
         if (!isOpen) {
             form.resetFields();
+            setRating(0);
         }
     }, [isOpen, form]);
 
     const handleSubmit = async (values) => {
-        setSubmitting(true);
+        if (rating === 0) {
+            message.warning('Please select a rating');
+            return;
+        }
+
         try {
             const reviewData = {
-                rating: values.overallRating,
+                rating: rating,
                 comment: values.comment,
-                categories: {
-                    punctuality: values.punctuality,
-                    communication: values.communication,
-                    reliability: values.reliability
-                },
-                ...(revieweeRole === 'driver' && {
-                    driverSpecificRatings: {
-                        drivingSkill: values.drivingSkill,
-                        vehicleCleanliness: values.vehicleCleanliness,
-                        safetyMeasures: values.safetyMeasures
-                    }
-                })
+                tripId: values.tripId, // If you're implementing trip-specific reviews
+                tripType: isDriver ? 'RideOffer' : 'RideRequest'
             };
 
-            const result = await createReview(rideData._id, reviewData);
+            const result = await createReview(userToReview._id, reviewData);
 
             if (result.success) {
                 message.success('Review submitted successfully');
-                form.resetFields();
                 onClose();
                 if (onReviewSubmitted) {
-                    onReviewSubmitted();
+                    onReviewSubmitted(result.review);
                 }
-            } else {
-                throw new Error(result.message || 'Failed to submit review');
             }
         } catch (error) {
-            console.error('Submit review error:', error);
-            message.error(error.message || 'Error submitting review');
-        } finally {
-            setSubmitting(false);
+            message.error('Failed to submit review');
         }
     };
 
     return (
         <Modal
-            title={`Rate your ${revieweeRole}`}
             open={isOpen}
             onCancel={onClose}
             footer={null}
-            width={600}
+            width={500}
             className={styles.reviewModal}
-        >
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleSubmit}
-                className={styles.reviewForm}
-            >
-                {/* Overall Rating */}
-                <Form.Item
-                    name="overallRating"
-                    label="Overall Rating"
-                    rules={[{ required: true, message: 'Please rate your experience' }]}
-                    className={styles.ratingItem}
-                >
-                    <Rate
-                        character={<Star className={styles.starIcon} />}
-                        className={styles.rateField}
-                    />
-                </Form.Item>
-
-                <Divider />
-
-                {/* Common Categories */}
-                <div className={styles.categorySection}>
-                    <h4>Rate the following aspects:</h4>
-                    <Space direction="vertical" className={styles.categories}>
-                        <Form.Item
-                            name="punctuality"
-                            label={
-                                <span className={styles.categoryLabel}>
-                                    <Clock className={styles.categoryIcon} />
-                                    Punctuality
-                                </span>
-                            }
-                            rules={[{ required: true, message: 'Required' }]}
-                        >
-                            <Rate className={styles.categoryRate} />
-                        </Form.Item>
-
-                        <Form.Item
-                            name="communication"
-                            label={
-                                <span className={styles.categoryLabel}>
-                                    <MessageSquare className={styles.categoryIcon} />
-                                    Communication
-                                </span>
-                            }
-                            rules={[{ required: true, message: 'Required' }]}
-                        >
-                            <Rate className={styles.categoryRate} />
-                        </Form.Item>
-
-                        <Form.Item
-                            name="reliability"
-                            label={
-                                <span className={styles.categoryLabel}>
-                                    <ThumbsUp className={styles.categoryIcon} />
-                                    Reliability
-                                </span>
-                            }
-                            rules={[{ required: true, message: 'Required' }]}
-                        >
-                            <Rate className={styles.categoryRate} />
-                        </Form.Item>
-                    </Space>
+            title={
+                <div className={styles.modalHeader}>
+                    <h2 className={styles.modalTitle}>
+                        Rate your experience with {userToReview?.fullName}
+                    </h2>
                 </div>
-                {/* Driver-specific Categories */}
-                {revieweeRole === 'driver' && (
-                    <>
-                        <Divider />
-                        <div className={styles.categorySection}>
-                            <h4>Rate the driver specifically:</h4>
-                            <Space direction="vertical" className={styles.categories}>
-                                <Form.Item
-                                    name="drivingSkill"
-                                    label={
-                                        <span className={styles.categoryLabel}>
-                                            <Car className={styles.categoryIcon} />
-                                            Driving Skill
-                                        </span>
-                                    }
-                                    rules={[{ required: true, message: 'Required' }]}
-                                >
-                                    <Rate className={styles.categoryRate} />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="vehicleCleanliness"
-                                    label={
-                                        <span className={styles.categoryLabel}>
-                                            <Sparkles className={styles.categoryIcon} />
-                                            Vehicle Cleanliness
-                                        </span>
-                                    }
-                                    rules={[{ required: true, message: 'Required' }]}
-                                >
-                                    <Rate className={styles.categoryRate} />
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="safetyMeasures"
-                                    label={
-                                        <span className={styles.categoryLabel}>
-                                            <Shield className={styles.categoryIcon} />
-                                            Safety Measures
-                                        </span>
-                                    }
-                                    rules={[{ required: true, message: 'Required' }]}
-                                >
-                                    <Rate className={styles.categoryRate} />
-                                </Form.Item>
-                            </Space>
-                        </div>
-                    </>
-                )}
-
-                {/* Comment Section */}
-                <Form.Item
-                    name="comment"
-                    label="Write your review"
-                    rules={[
-                        { required: true, message: 'Please write a review' },
-                        { min: 10, message: 'Review must be at least 10 characters long' }
-                    ]}
-                    className={styles.commentSection}
-                >
-                    <TextArea
-                        rows={4}
-                        placeholder="Share your experience..."
-                        maxLength={500}
-                        showCount
-                        className={styles.commentInput}
+            }
+        >
+            <div className={styles.modalContent}>
+                {/* User Info Section */}
+                <div className={styles.userInfo}>
+                    <img
+                        src={userToReview?.profilePicture?.url || '/images/carlogo.png'}
+                        alt={userToReview?.fullName}
+                        className={styles.userAvatar}
                     />
-                </Form.Item>
+                    <div className={styles.userDetails}>
+                        <h3 className={styles.userName}>{userToReview?.fullName}</h3>
+                        {isDriver && (
+                            <span className={styles.driverBadge}>
+                                <Car size={16} />
+                                Driver
+                            </span>
+                        )}
+                    </div>
+                </div>
 
-                {/* Submit Button */}
-                <Form.Item className={styles.submitSection}>
-                    <Button
-                        type="default"
-                        onClick={onClose}
-                        className={styles.cancelButton}
-                        disabled={submitting}
+                <Divider className={styles.divider} />
+
+                {/* Rating Section */}
+                <div className={styles.ratingSection}>
+                    <h4 className={styles.ratingTitle}>Overall Rating</h4>
+                    <Rate
+                        className={styles.rateStars}
+                        value={rating}
+                        onChange={setRating}
+                        character={<Star className={styles.starIcon} />}
+                    />
+                    <div className={styles.ratingHint}>
+                        {rating > 0 ? (
+                            <div className={styles.selectedRating}>
+                                <Sparkles size={16} />
+                                {rating === 5 && "Excellent!"}
+                                {rating === 4 && "Very Good!"}
+                                {rating === 3 && "Good"}
+                                {rating === 2 && "Fair"}
+                                {rating === 1 && "Poor"}
+                            </div>
+                        ) : (
+                            <span className={styles.ratingPlaceholder}>
+                                Select your rating
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Review Form */}
+                <Form
+                    form={form}
+                    onFinish={handleSubmit}
+                    layout="vertical"
+                    className={styles.reviewForm}
+                >
+                    <Form.Item
+                        name="comment"
+                        rules={[
+                            { required: true, message: 'Please write your review' },
+                            { min: 10, message: 'Review must be at least 10 characters' }
+                        ]}
                     >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                        loading={submitting}
-                        className={styles.submitButton}
-                    >
-                        Submit Review
-                    </Button>
-                </Form.Item>
-            </Form>
+                        <TextArea
+                            placeholder="Share your experience..."
+                            rows={4}
+                            className={styles.reviewInput}
+                            maxLength={500}
+                            showCount
+                        />
+                    </Form.Item>
+
+                    {/* Submit Button */}
+                    <div className={styles.submitSection}>
+                        <Button
+                            type="default"
+                            onClick={onClose}
+                            className={styles.cancelButton}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={loading}
+                            className={styles.submitButton}
+                            disabled={rating === 0}
+                        >
+                            Submit Review
+                        </Button>
+                    </div>
+                </Form>
+            </div>
         </Modal>
     );
 };

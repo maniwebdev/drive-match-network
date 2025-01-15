@@ -142,24 +142,18 @@ export const AuthProvider = ({ children }) => {
                     'auth-token': authToken,
                 },
                 body: JSON.stringify({
-                    fullName: updateData.fullName,
-                    phoneNumber: updateData.phoneNumber,
-                    bio: updateData.bio,
-                    socialLinks: updateData.socialLinks,
-                    isDriver: updateData.isDriver,
-                    driverVerification: updateData.driverVerification,
-                    vehicle: updateData.vehicle
+                    ...updateData,  // Spread the update data
+                    isDriver: updateData.isDriver !== undefined ? updateData.isDriver : currentUser?.isDriver
                 }),
             });
 
             const data = await response.json();
 
             if (response.ok && data.success) {
-                setCurrentUser(data.user); // Update the current user state
+                setCurrentUser(data.user);
                 message.success(data.message || 'Profile updated successfully');
                 return { success: true, user: data.user };
             } else if (data.errors) {
-                // Handle validation errors
                 const errorMessages = data.errors.map(err => err.msg).join(', ');
                 message.error(errorMessages);
                 return { success: false, message: errorMessages };

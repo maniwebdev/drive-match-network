@@ -11,9 +11,12 @@ import {
     Search,
     Bell,
     LogOut,
-    Settings,
     MessageSquare,
-    HelpCircle
+    HelpCircle,
+    MapPin,
+    UserPlus,
+    LayoutGrid,
+    ClipboardList
 } from 'lucide-react';
 import { Badge, Dropdown } from 'antd';
 
@@ -47,30 +50,51 @@ const Navbar = () => {
         };
     }, []);
 
-    // Navigation items
-    const navigationItems = [
+    // Navigation items for normal users
+    const userNavigationItems = [
         {
             label: 'Find a Ride',
             href: '/ride/find-ride',
             icon: <Search className={styles.menuIcon} />
         },
         {
-            label: 'My Trips',
+            label: 'My Rides',
             href: '/ride/my-rides',
             icon: <Car className={styles.menuIcon} />
         },
-        ...(currentUser?.isDriver ? [{
+        {
+            label: 'Request Trip',
+            href: '/trip/request-trip',
+            icon: <MapPin className={styles.menuIcon} />
+        },
+        {
+            label: 'My Trip Requests',
+            href: '/trip/my-trips',
+            icon: <ClipboardList className={styles.menuIcon} />
+        }
+    ];
+
+    // Navigation items for drivers
+    const driverNavigationItems = [
+        {
+            label: 'Available Requests',
+            href: '/trip/available-trips',
+            icon: <UserPlus className={styles.menuIcon} />
+        },
+        {
+            label: 'My Offers',
+            href: '/ride/my-offers',
+            icon: <LayoutGrid className={styles.menuIcon} />
+        },
+        {
             label: 'Offer a Ride',
             href: '/ride/offer-ride',
             icon: <Car className={styles.menuIcon} />
-        }] : []),
-        ...(currentUser?.isDriver ? [{
-            label: 'My Offers',
-            href: '/ride/my-offers',
-            icon: <Car className={styles.menuIcon} />
-        }] : [])
+        }
     ];
 
+    // Select navigation items based on user role
+    const navigationItems = currentUser?.isDriver ? driverNavigationItems : userNavigationItems;
     // User menu items (for dropdown)
     const userMenuItems = [
         {
@@ -102,16 +126,26 @@ const Navbar = () => {
 
         ...(isMobile ? [{ type: 'divider' }] : []),
 
-        // Settings and logout
-        {
-            key: 'settings',
+        // Add driver verification option for non-drivers
+        ...(!currentUser?.isDriver ? [{
+            key: 'becomeDriver',
             label: (
                 <div className={styles.menuItem}>
-                    <Settings size={16} />
-                    <span>Settings</span>
+                    <Car size={16} />
+                    <span>Become a Driver</span>
                 </div>
             ),
-            onClick: () => router.push('/settings')
+            onClick: () => router.push('/user/profile')
+        }] : []),
+        {
+            key: 'help',
+            label: (
+                <div className={styles.menuItem}>
+                    <HelpCircle size={16} />
+                    <span>Help & Support</span>
+                </div>
+            ),
+            onClick: () => router.push('/help')
         },
         {
             key: 'logout',
@@ -124,9 +158,14 @@ const Navbar = () => {
             onClick: logout
         }
     ];
-const GoInbox = () => {
-    router.push('/inbox/chats')
-}
+
+    const goToInbox = () => {
+        router.push('/inbox/chats');
+    };
+
+    const goToNotifications = () => {
+        router.push('/notifications');
+    };
     return (
         <motion.nav
             className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}
@@ -172,18 +211,31 @@ const GoInbox = () => {
 
                 {/* Right Section */}
                 <div className={styles.navRight}>
-                    <button className={styles.notificationBtn}>
+                    {/* 
+                         <motion.button
+                        className={styles.notificationBtn}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={goToNotifications}
+                    >
                         <Badge count={3} size="small">
                             <Bell className={styles.bellIcon} />
                         </Badge>
-                    </button>
-
-                    <button className={styles.messageBtn}>
+                    </motion.button>
+                        */}
+                    {/* Messages */}
+                    <motion.button
+                        className={styles.messageBtn}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={goToInbox}
+                    >
                         <Badge count={2} size="small">
-                            <MessageSquare onClick={GoInbox} className={styles.messageIcon} />
+                            <MessageSquare className={styles.messageIcon} />
                         </Badge>
-                    </button>
+                    </motion.button>
 
+                    {/* User Menu Dropdown */}
                     <Dropdown
                         menu={{ items: userMenuItems }}
                         trigger={['click']}

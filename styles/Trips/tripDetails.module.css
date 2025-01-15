@@ -1,0 +1,441 @@
+/* styles/Trips/tripDetails.module.css */
+
+/* Base Layout */
+.pageContainer {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px 20px;
+}
+
+.contentWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e9ecef;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.backButton:hover {
+  border-color: #2a9d8f;
+  color: #2a9d8f;
+}
+
+.statusBadge {
+  background: #f8f9fa;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Main Layout */
+.detailsContainer {
+  display: flex;
+  gap: 24px;
+}
+
+.mainContent {
+  flex: 1;
+}
+
+.sidebar {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Common Elements */
+.divider {
+  margin: 20px 0;
+  border-color: #e9ecef;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  color: #2a9d8f;
+  flex-shrink: 0;
+}
+
+/* Basic Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Requester Card */
+.requesterCard {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.requesterInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.requesterAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: #2a9d8f;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.requesterDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.requesterName {
+  font-size: 20px;
+  font-weight: 600;
+  color: #264653;
+  margin: 0;
+}
+
+.requesterStats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rating,
+.trips {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666666;
+  font-size: 14px;
+}
+
+.contactButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #2a9d8f;
+  border: none;
+  height: 40px;
+  padding: 0 24px;
+  margin-top: 8px;
+}
+
+.contactButton:hover {
+  background: #248277;
+}
+
+.notes {
+  padding: 0 20px 20px;
+}
+
+.notes h3 {
+  font-size: 14px;
+  color: #264653;
+  margin-bottom: 8px;
+}
+
+.notes p {
+  color: #666666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.acceptButton {
+  background: #2a9d8f;
+  border: none;
+  height: 48px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.acceptButton:hover {
+  background: #248277;
+}
+/* Trip Details Card */
+.tripCard {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.routeInfo {
+  display: flex;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.location {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.locationLabel {
+  font-size: 12px;
+  color: #666666;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.locationName {
+  font-size: 18px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0 0 4px 0;
+}
+
+.locationAddress {
+  font-size: 14px;
+  color: #666666;
+  margin: 0;
+}
+
+.routeDivider {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  position: relative;
+}
+
+.dividerLine {
+  position: relative;
+  height: 2px;
+  width: 60px;
+  background: #e9ecef;
+}
+
+.dividerLine::before,
+.dividerLine::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #2a9d8f;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.dividerLine::before {
+  left: -4px;
+}
+
+.dividerLine::after {
+  right: -4px;
+}
+
+.tripDetails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 20px;
+}
+
+.detailItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.detailItem div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailLabel {
+  font-size: 12px;
+  color: #666666;
+}
+
+.detailValue {
+  font-size: 14px;
+  color: #264653;
+  font-weight: 500;
+}
+/* Modal Styles */
+.modal {
+  animation: fadeIn 0.3s ease;
+}
+
+.modalContent {
+  padding: 16px 0;
+}
+
+.modalContent p {
+  color: #264653;
+  margin: 0 0 16px 0;
+}
+
+.modalContent ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+}
+
+.modalContent li {
+  color: #666666;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.modalContent li::before {
+  content: "•";
+  position: absolute;
+  left: 8px;
+  color: #2a9d8f;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .detailsContainer {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .tripDetails {
+    gap: 16px;
+  }
+
+  .detailItem {
+    min-width: calc(50% - 8px);
+  }
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 20px 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .statusBadge {
+    align-self: flex-end;
+  }
+
+  .routeInfo {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .routeDivider {
+    transform: rotate(90deg);
+    margin: 16px 0;
+  }
+
+  .tripDetails {
+    flex-direction: column;
+  }
+
+  .detailItem {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .requesterInfo {
+    padding: 16px;
+  }
+
+  .requesterAvatar {
+    width: 64px;
+    height: 64px;
+  }
+
+  .requesterName {
+    font-size: 18px;
+  }
+
+  .requesterStats {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .locationName {
+    font-size: 16px;
+  }
+
+  .notes {
+    padding: 0 16px 16px;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .backButton:hover {
+    border-color: #e9ecef;
+    color: inherit;
+  }
+
+  .contactButton:hover,
+  .acceptButton:hover {
+    background: #2a9d8f;
+  }
+}

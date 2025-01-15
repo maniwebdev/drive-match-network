@@ -1,0 +1,300 @@
+/* styles/Trips/requestTrip.module.css */
+
+/* Base Layout */
+.pageContainer {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px 20px;
+}
+
+.contentWrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 40px;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 600;
+  color: #264653;
+  margin-bottom: 8px;
+}
+
+.pageDescription {
+  color: #666666;
+  font-size: 16px;
+}
+
+/* Steps Container */
+.stepsContainer {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+  margin-bottom: 24px;
+}
+
+.stepIcon {
+  color: #2a9d8f;
+  width: 20px;
+  height: 20px;
+}
+
+/* Form Container */
+.formContainer {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.formItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.formItem :global(.ant-form-item-label) > label {
+  font-weight: 500;
+  color: #264653;
+}
+
+/* Input Styles */
+.input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.input:hover {
+  border-color: #2a9d8f;
+}
+
+.inputIcon {
+  color: #2a9d8f;
+  width: 16px;
+  height: 16px;
+}
+/* Time Selection Styles */
+.timeSelectionContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeSelect {
+  flex: 1;
+  max-width: 120px;
+}
+
+.timeSeparator {
+  color: #666666;
+  font-weight: 500;
+  font-size: 18px;
+}
+
+/* Form Fields */
+.datePicker {
+  width: 100%;
+}
+
+.seatsInput,
+.select {
+  width: 100%;
+}
+
+.textArea {
+  width: 100%;
+  min-height: 120px;
+  resize: none;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* Button Container */
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e9ecef;
+}
+
+.prevButton,
+.nextButton,
+.submitButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 8px 24px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.prevButton {
+  color: #666666;
+  border: 1px solid #e9ecef;
+}
+
+.prevButton:hover {
+  background: #f8f9fa;
+  border-color: #666666;
+}
+
+.nextButton,
+.submitButton {
+  background: #2a9d8f;
+  border: none;
+  color: #ffffff;
+}
+
+.nextButton:hover,
+.submitButton:hover {
+  background: #248277;
+}
+
+/* Ant Design Overrides */
+.formContainer :global(.ant-select-selector) {
+  height: 40px !important;
+  padding: 4px 12px !important;
+  border-color: #e9ecef !important;
+}
+
+.formContainer :global(.ant-select-selection-item) {
+  line-height: 32px !important;
+}
+
+.formContainer :global(.ant-picker) {
+  width: 100%;
+  border-color: #e9ecef;
+}
+
+.formContainer :global(.ant-input-number) {
+  width: 100%;
+  border-color: #e9ecef;
+}
+/* Steps Override Styles */
+.step :global(.ant-steps-item-title) {
+  font-size: 14px;
+}
+
+.step :global(.ant-steps-item-tail::after) {
+  background-color: #e9ecef !important;
+}
+
+.step :global(.ant-steps-item-active .ant-steps-item-title) {
+  font-weight: 500 !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stepContent {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 20px 16px;
+  }
+
+  .contentWrapper {
+    margin-top: 20px;
+  }
+
+  .pageTitle {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .formContainer {
+    padding: 20px;
+  }
+
+  .timeSelectionContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .timeSelect {
+    max-width: 100%;
+  }
+
+  .buttonContainer {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+
+  .prevButton,
+  .nextButton,
+  .submitButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 16px;
+  }
+
+  .stepsContainer {
+    padding: 16px 12px;
+  }
+
+  .formContainer {
+    padding: 16px;
+  }
+
+  .pageTitle {
+    font-size: 20px;
+  }
+
+  .pageDescription {
+    font-size: 14px;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .nextButton:hover,
+  .submitButton:hover {
+    background: #2a9d8f;
+  }
+
+  .prevButton:hover {
+    background: none;
+    border-color: #e9ecef;
+  }
+}

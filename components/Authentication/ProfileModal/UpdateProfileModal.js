@@ -81,7 +81,7 @@ const UpdateProfileModal = ({ visible, onClose, type }) => {
                         fullName: values.fullName,
                         phoneNumber: values.phoneNumber,
                         bio: values.bio,
-                        isDriver: values.isDriver
+                        isDriver: isDriver
                     };
                     break;
 

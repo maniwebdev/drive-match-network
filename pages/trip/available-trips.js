@@ -1,12 +1,11 @@
-// pages/ride/find-ride.js
+// pages/trip/available-trips.js
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../context/Auth/AuthContext';
-import { useRide } from '../../context/Ride/RideContext';
+import { useTrip } from '../../context/Ride/TripContext';
 import {
     Form,
     DatePicker,
-    InputNumber,
     Select,
     Button,
     Empty,
@@ -17,56 +16,54 @@ import {
     Search,
     Calendar,
     Users,
-    DollarSign,
     Package,
     MapPin,
-    ArrowRight,
-    Filter
+    Filter,
+    Car
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import moment from 'moment';
 import Navbar from '../../components/Navigation/Navbar';
 import LocationInput from '../../components/Rides/LocationInput';
-import styles from '../../styles/Rides/findRide.module.css';
+import styles from '../../styles/Trips/availableTrips.module.css';
 
 const { Option } = Select;
 
-const FindRide = () => {
-    // Router and context hooks
+const AvailableTrips = () => {
     const router = useRouter();
     const { currentUser } = useAuth();
-    const { searchRideOffers, loading } = useRide();
+    const { getAvailableTrips, loading } = useTrip();
     const [form] = Form.useForm();
 
-    // Location and loading states
+    // States
     const [userLocation, setUserLocation] = useState(null);
-    const [nearbyRides, setNearbyRides] = useState([]);
     const [loadingLocation, setLoadingLocation] = useState(false);
+    const [tripRequests, setTripRequests] = useState([]);
+    const [showFilters, setShowFilters] = useState(false);
+    const [isSearched, setIsSearched] = useState(false);
 
-    // Search parameters state
+    // Search parameters
     const [searchParams, setSearchParams] = useState({
         origin: {
-            address: '',
             city: '',
             coordinates: []
         },
         destination: {
-            address: '',
             city: '',
             coordinates: []
         },
         departureDate: null,
-        seats: 1,
-        maxPrice: null,
-        luggageSize: 'medium'
+        luggageSize: null
     });
+    // Check if user is a verified driver
+    useEffect(() => {
+        if (!currentUser?.isDriver || !currentUser?.driverVerification?.isVerified) {
+            message.error('Only verified drivers can access this page');
+            //   router.push('/user/profile');
+        }
+    }, [currentUser, router]);
 
-    // UI states
-    const [searchResults, setSearchResults] = useState([]);
-    const [showFilters, setShowFilters] = useState(false);
-    const [isSearched, setIsSearched] = useState(false);
-    const [initialLoadDone, setInitialLoadDone] = useState(false);
-    // Location and nearby rides effect
+    // Get user location and nearby trip requests
     useEffect(() => {
         const getUserLocation = async () => {
             if (!navigator.geolocation) {
@@ -86,13 +83,14 @@ const FindRide = () => {
                 };
                 setUserLocation(location);
 
-                // Search for nearby rides with minimal parameters
-                const result = await searchRideOffers({
-                    departureDate: moment().format('YYYY-MM-DD')
-                }, location);
+                // Search for nearby trips
+                const result = await getAvailableTrips({
+                    lat: location.lat,
+                    lng: location.lng
+                });
 
                 if (result.success) {
-                    setSearchResults(result.rideOffers);
+                    setTripRequests(result.trips);
                     setIsSearched(true);
                 }
             } catch (error) {
@@ -106,42 +104,6 @@ const FindRide = () => {
         getUserLocation();
     }, []);
 
-    // URL query parameters effect
-    useEffect(() => {
-        const {
-            originCity,
-            destinationCity,
-            date,
-            seats
-        } = router.query;
-
-        if (!initialLoadDone && (originCity || destinationCity || date || seats)) {
-            setSearchParams(prev => ({
-                ...prev,
-                origin: { ...prev.origin, city: originCity || '' },
-                destination: { ...prev.destination, city: destinationCity || '' },
-                departureDate: date ? moment(date) : null,
-                seats: seats ? parseInt(seats) : 1
-            }));
-
-            handleSearch({
-                originCity,
-                destinationCity,
-                departureDate: date,
-                seats: seats ? parseInt(seats) : 1
-            });
-        }
-        setInitialLoadDone(true);
-    }, [router.query]);
-
-    // Cleanup effect
-    useEffect(() => {
-        return () => {
-            setSearchResults([]);
-            setIsSearched(false);
-        };
-    }, []);
-
     // Handler functions
     const handleLocationChange = (field, value) => {
         setSearchParams(prev => ({
@@ -150,57 +112,43 @@ const FindRide = () => {
         }));
     };
 
-    const handleSearch = async (overrideParams) => {
-        const searchData = overrideParams || {
-            originCity: searchParams.origin?.city,
-            destinationCity: searchParams.destination?.city,
-            departureDate: searchParams.departureDate?.format('YYYY-MM-DD'),
-            seats: searchParams.seats,
-            ...(searchParams.maxPrice && { maxPrice: searchParams.maxPrice }),
-            ...(searchParams.luggageSize && { allowedLuggage: searchParams.luggageSize })
-        };
-
-        // Validate required fields
-        if (!overrideParams && (!searchData.originCity || !searchData.destinationCity || !searchData.departureDate)) {
-            message.error('Please fill in all required fields');
+    const handleSearch = async () => {
+        if (!searchParams.origin.city && !searchParams.destination.city && !searchParams.departureDate) {
+            message.warning('Please enter at least one search criteria');
             return;
         }
 
         try {
-          //  console.log('Searching with params:', searchData);
-            const result = await searchRideOffers(searchData, userLocation);
-         //   console.log('Search result:', result);
+            const searchData = {
+                originCity: searchParams.origin.city,
+                destinationCity: searchParams.destination.city,
+                departureDate: searchParams.departureDate?.format('YYYY-MM-DD'),
+                luggageSize: searchParams.luggageSize,
+                ...(userLocation && {
+                    lat: userLocation.lat,
+                    lng: userLocation.lng
+                })
+            };
+
+            const result = await getAvailableTrips(searchData);
 
             if (result.success) {
-                setSearchResults(result.rideOffers);
+                setTripRequests(result.trips);
                 setIsSearched(true);
-
-                // Only update URL if it's a new search (not from URL params)
-                if (!overrideParams) {
-                    router.push({
-                        pathname: '/ride/find-ride',
-                        query: {
-                            originCity: searchData.originCity,
-                            destinationCity: searchData.destinationCity,
-                            date: searchData.departureDate,
-                            seats: searchData.seats
-                        }
-                    }, undefined, { shallow: true });
-                }
             } else {
-                message.error(result.message || 'Failed to search rides');
+                message.error(result.message || 'Failed to search trip requests');
             }
         } catch (error) {
             console.error('Search error:', error);
-            message.error('An error occurred while searching rides');
+            message.error('An error occurred while searching trip requests');
         }
     };
 
-    const handleRideSelect = (rideId) => {
-        router.push(`/ride/details/${rideId}`);
+    const handleTripSelect = (tripId) => {
+        router.push(`/trip/details/${tripId}`);
     };
-    // Render search form
-    const renderSearchForm = () => (
+    {/*
+     const renderSearchForm = () => (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -213,36 +161,29 @@ const FindRide = () => {
             >
                 <div className={styles.mainSearchFields}>
                     <Form.Item
-                        label="From"
-                        required
+                        label="City From"
                         className={styles.locationField}
                     >
                         <LocationInput
                             value={searchParams.origin}
                             onChange={(value) => handleLocationChange('origin', value)}
-                            placeholder="Enter pickup location"
+                            placeholder="Enter origin city"
                         />
                     </Form.Item>
 
-                    <div className={styles.arrowIcon}>
-                        <ArrowRight />
-                    </div>
-
                     <Form.Item
-                        label="To"
-                        required
+                        label="City To"
                         className={styles.locationField}
                     >
                         <LocationInput
                             value={searchParams.destination}
                             onChange={(value) => handleLocationChange('destination', value)}
-                            placeholder="Enter destination"
+                            placeholder="Enter destination city"
                         />
                     </Form.Item>
 
                     <Form.Item
                         label="Date"
-                        required
                         className={styles.dateField}
                     >
                         <DatePicker
@@ -254,23 +195,10 @@ const FindRide = () => {
                         />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Seats"
-                        className={styles.seatsField}
-                    >
-                        <InputNumber
-                            min={1}
-                            max={8}
-                            value={searchParams.seats}
-                            onChange={(value) => setSearchParams(prev => ({ ...prev, seats: value }))}
-                            className={styles.seatsInput}
-                        />
-                    </Form.Item>
-
                     <Button
                         type="primary"
                         icon={<Search />}
-                        onClick={() => handleSearch()}
+                        onClick={handleSearch}
                         loading={loading}
                         className={styles.searchButton}
                     >
@@ -278,7 +206,6 @@ const FindRide = () => {
                     </Button>
                 </div>
 
-                {/* Advanced Filters Section */}
                 <div className={styles.filtersSection}>
                     <Button
                         type="text"
@@ -293,25 +220,8 @@ const FindRide = () => {
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
                             className={styles.filtersContainer}
                         >
-                            <Form.Item
-                                label="Maximum Price"
-                                className={styles.filterField}
-                            >
-                                <InputNumber
-                                    prefix={<DollarSign className={styles.inputIcon} />}
-                                    min={0}
-                                    value={searchParams.maxPrice}
-                                    onChange={(value) => setSearchParams(prev => ({
-                                        ...prev,
-                                        maxPrice: value
-                                    }))}
-                                    className={styles.priceInput}
-                                />
-                            </Form.Item>
-
                             <Form.Item
                                 label="Luggage Size"
                                 className={styles.filterField}
@@ -323,6 +233,7 @@ const FindRide = () => {
                                         luggageSize: value
                                     }))}
                                     className={styles.select}
+                                    allowClear
                                 >
                                     <Option value="small">Small (Backpack)</Option>
                                     <Option value="medium">Medium (Carry-on)</Option>
@@ -334,14 +245,14 @@ const FindRide = () => {
                 </div>
             </Form>
         </motion.div>
-    );
-    // Render search results
+    );    
+        */}
     const renderSearchResults = () => {
         if (loadingLocation) {
             return (
                 <div className={styles.loadingState}>
                     <Spin size="large" />
-                    <p>Finding rides near you...</p>
+                    <p>Finding trip requests near you...</p>
                 </div>
             );
         }
@@ -354,9 +265,9 @@ const FindRide = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className={styles.initialStateContent}
                     >
-                        <Search className={styles.initialStateIcon} />
-                        <h2>Find Your Perfect Ride</h2>
-                        <p>Enter your travel details to search for available rides</p>
+                        <Car className={styles.initialStateIcon} />
+                        <h2>Find Trip Requests</h2>
+                        <p>Search for passengers looking for rides in your area</p>
                     </motion.div>
                 </div>
             );
@@ -366,18 +277,18 @@ const FindRide = () => {
             return (
                 <div className={styles.loadingState}>
                     <Spin size="large" />
-                    <p>Searching for rides...</p>
+                    <p>Searching for trip requests...</p>
                 </div>
             );
         }
 
-        if (searchResults.length === 0) {
+        if (tripRequests.length === 0) {
             return (
                 <div className={styles.noResults}>
                     <Empty
                         description={
                             <div className={styles.noResultsContent}>
-                                <h3>No rides found</h3>
+                                <h3>No trip requests found</h3>
                                 <p>Try adjusting your search criteria or check back later</p>
                             </div>
                         }
@@ -393,62 +304,54 @@ const FindRide = () => {
                 className={styles.searchResults}
             >
                 <h2 className={styles.resultsTitle}>
-                    {isSearched && searchResults === nearbyRides ? 
-                        'Nearby Rides' : 
-                        'Available Rides'} ({searchResults.length})
+                    Available Trip Requests ({tripRequests.length})
                 </h2>
                 <div className={styles.resultsList}>
-                    {searchResults.map((ride) => (
+                    {tripRequests.map((trip) => (
                         <motion.div
-                            key={ride._id}
+                            key={trip._id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             whileHover={{ scale: 1.02 }}
-                            className={styles.rideCard}
-                            onClick={() => handleRideSelect(ride._id)}
+                            className={styles.tripCard}
+                            onClick={() => handleTripSelect(trip._id)}
                         >
-                            <div className={styles.rideHeader}>
-                                <div className={styles.driverInfo}>
-                                    <div className={styles.driverAvatar}>
-                                        {ride.driver.profilePicture ? (
+                            <div className={styles.tripHeader}>
+                                <div className={styles.requesterInfo}>
+                                    <div className={styles.requesterAvatar}>
+                                        {trip.requester.profilePicture ? (
                                             <img
-                                                src={ride.driver.profilePicture.url}
-                                                alt={ride.driver.fullName}
+                                                src={trip.requester.profilePicture.url}
+                                                alt={trip.requester.fullName}
                                                 className={styles.avatarImage}
                                             />
                                         ) : (
                                             <div className={styles.avatarPlaceholder}>
-                                                {ride.driver.fullName[0]}
+                                                {trip.requester.fullName[0]}
                                             </div>
                                         )}
                                     </div>
-                                    <div className={styles.driverDetails}>
-                                        <h3 className={styles.driverName}>
-                                            {ride.driver.fullName}
+                                    <div className={styles.requesterDetails}>
+                                        <h3 className={styles.requesterName}>
+                                            {trip.requester.fullName}
                                         </h3>
                                         <div className={styles.rating}>
-                                            ⭐ {ride.driver.rating?.toFixed(1)}
+                                            ⭐ {trip.requester.rating?.toFixed(1)}
                                         </div>
                                     </div>
                                 </div>
-                                <div className={styles.ridePrice}>
-                                    <span className={styles.priceAmount}>
-                                        ${ride.pricePerSeat}
-                                    </span>
-                                    <span className={styles.priceLabel}>per seat</span>
-                                </div>
                             </div>
 
-                            <div className={styles.rideDetails}>
+                            <div className={styles.tripDetails}>
                                 <div className={styles.locations}>
                                     <div className={styles.locationItem}>
                                         <MapPin className={styles.locationIcon} />
                                         <div className={styles.locationText}>
                                             <span className={styles.locationName}>
-                                                {ride.origin.city}
+                                                {trip.origin.city}
                                             </span>
                                             <span className={styles.locationAddress}>
-                                                {ride.origin.address}
+                                                {trip.origin.address}
                                             </span>
                                         </div>
                                     </div>
@@ -457,41 +360,41 @@ const FindRide = () => {
                                         <MapPin className={styles.locationIcon} />
                                         <div className={styles.locationText}>
                                             <span className={styles.locationName}>
-                                                {ride.destination.city}
+                                                {trip.destination.city}
                                             </span>
                                             <span className={styles.locationAddress}>
-                                                {ride.destination.address}
+                                                {trip.destination.address}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className={styles.rideInfo}>
+                                <div className={styles.tripInfo}>
                                     <div className={styles.infoItem}>
                                         <Calendar className={styles.infoIcon} />
                                         <span>
-                                            {moment(ride.departureDate).format('ddd, MMM D, YYYY')} at {ride.departureTime}
+                                            {moment(trip.departureDate).format('ddd, MMM D, YYYY')} at {trip.departureTime}
                                         </span>
                                     </div>
                                     <div className={styles.infoItem}>
                                         <Users className={styles.infoIcon} />
                                         <span>
-                                            {ride.availableSeats - ride.bookedSeats}/{ride.availableSeats} seats
+                                            {trip.numberOfSeats} seats needed
                                         </span>
                                     </div>
                                     <div className={styles.infoItem}>
                                         <Package className={styles.infoIcon} />
                                         <span>
-                                            Luggage: {ride.allowedLuggage}
+                                            Luggage: {trip.luggageSize}
                                         </span>
                                     </div>
-                                    <div className={styles.infoItem}>
-                                        {ride.smoking ? '🚬 Smoking allowed' : '🚭 No smoking'}
-                                    </div>
-                                    <div className={styles.infoItem}>
-                                        {ride.pets ? '🐾 Pets allowed' : '⛔ No pets'}
-                                    </div>
                                 </div>
+
+                                {trip.additionalNotes && (
+                                    <div className={styles.notes}>
+                                        <p>{trip.additionalNotes}</p>
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     ))}
@@ -499,7 +402,7 @@ const FindRide = () => {
             </motion.div>
         );
     };
-    // Main render
+
     return (
         <>
             <Navbar />
@@ -509,13 +412,29 @@ const FindRide = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className={styles.contentWrapper}
                 >
-                    {renderSearchForm()}
-                    {renderSearchResults()}
+                    {!currentUser?.isDriver || !currentUser?.driverVerification?.isVerified ? (
+                        <div className={styles.driverVerificationRequired}>
+                            <Car className={styles.verificationIcon} />
+                            <h2>Driver Verification Required</h2>
+                            <p>You need to be a verified driver to view trip requests.</p>
+                            <Button
+                                type="primary"
+                                onClick={() => router.push('/user/profile')}
+                                className={styles.verificationButton}
+                            >
+                                Complete Verification
+                            </Button>
+                        </div>
+                    ) : (
+                        <>
+                            {/*  {renderSearchForm()}*/}
+                            {renderSearchResults()}
+                        </>
+                    )}
                 </motion.div>
             </div>
         </>
     );
 };
 
-// Export the component
-export default FindRide;
+export default AvailableTrips;

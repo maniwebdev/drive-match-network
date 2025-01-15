@@ -12,21 +12,37 @@
 //       </Head>
 
 //       <main>
-       
+
 //       </main>
 //     </div>
 //   )
 // }
 import Head from 'next/head'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+import { AuthTokenCheck } from '../components/Authentication/AuthTokenCheck';
+import { useRouter } from 'next/router';
 
 export default function Home() {
+  const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const { isAuthenticated, isUserVerified, hasFetchedUserDetails } = AuthTokenCheck();
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  React.useEffect(() => {
+    if (hasFetchedUserDetails) {
+      if (isAuthenticated && isUserVerified) {
+        router.replace('/user/profile');
+      }
+      setIsLoading(false);
+    }
+  }, [hasFetchedUserDetails, isAuthenticated, isUserVerified, router]);
+
+  if (isLoading) return <Loading />;
 
   return (
     <div style={styles.container}>
@@ -49,10 +65,10 @@ export default function Home() {
             <span style={styles.emoji} className="peopleEmoji">👥</span>
             <span style={styles.emoji} className="earthEmoji">🌍</span>
           </div>
-          
+
           <h1 style={styles.title}>Drive Match Network</h1>
           <p style={styles.subtitle}>The Future of Carpooling is Coming Soon</p>
-          
+
           <div style={styles.features}>
             <div style={styles.feature}>
               <span style={styles.featureEmoji}>💰</span>
@@ -69,8 +85,8 @@ export default function Home() {
           </div>
 
           <div style={styles.newsletter}>
-            <input 
-              type="email" 
+            <input
+              type="email"
               placeholder="Enter your email for updates"
               style={styles.input}
             />

@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import Navbar from '../../components/Navigation/Navbar';
 import styles from '../../styles/Rides/myOffers.module.css';
-import ReviewModal from '../../components/Review/ReviewModal';
 
 const MyOffers = () => {
     const router = useRouter();
@@ -28,8 +27,6 @@ const MyOffers = () => {
     const { getUserRideOffers, completeRideOffer, loading } = useRide();
     const [offers, setOffers] = useState([]);
     const [activeTab, setActiveTab] = useState('active');
-    const [showReviewModal, setShowReviewModal] = useState(false);
-    const [selectedRideForReview, setSelectedRideForReview] = useState(null);
 
     useEffect(() => {
         fetchCurrentUser();
@@ -117,15 +114,6 @@ const MyOffers = () => {
 
     const handleManageOffer = (offerId) => {
         router.push(`/ride/offers/${offerId}/manage`);
-    };
-
-    const handleReviewClick = (offer) => {
-        setSelectedRideForReview(offer);
-        setShowReviewModal(true);
-    };
-
-    const handleReviewSubmitted = () => {
-        fetchOffers(); // Refresh the offers list
     };
 
 
@@ -398,19 +386,6 @@ const MyOffers = () => {
                     )}
                 </motion.div>
             </div>
-            {showReviewModal && (
-                <ReviewModal
-                    isOpen={showReviewModal}
-                    onClose={() => {
-                        setShowReviewModal(false);
-                        setSelectedRideForReview(null);
-                    }}
-                    rideData={selectedRideForReview}
-                    revieweeRole="passenger"
-                    revieweeId={selectedRideForReview?.passenger?._id}
-                    onReviewSubmitted={handleReviewSubmitted}
-                />
-            )}
         </>
     );
 };

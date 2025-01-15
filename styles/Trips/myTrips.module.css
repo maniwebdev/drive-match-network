@@ -1,0 +1,437 @@
+/* styles/Trips/myTrips.module.css */
+
+/* Base Layout */
+.pageContainer {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px 20px;
+}
+
+.contentWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-top: 40px;
+}
+
+/* Page Header */
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 600;
+  color: #264653;
+  margin: 0;
+}
+
+.createButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #2a9d8f;
+  border: none;
+  padding: 8px 24px;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.createButton:hover {
+  background: #248277;
+}
+
+.RequestButton{
+  background: #2a9d8f;
+}
+
+/* Tabs Container */
+.tabsContainer {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+}
+
+.tabs {
+  padding: 0 24px;
+}
+
+.tabs :global(.ant-tabs-nav) {
+  margin: 0 !important;
+}
+
+.tabs :global(.ant-tabs-tab) {
+  padding: 16px 24px;
+  transition: all 0.3s ease;
+}
+
+.tabs :global(.ant-tabs-tab-active) {
+  font-weight: 500;
+}
+
+.tabs :global(.ant-tabs-ink-bar) {
+  background: #2a9d8f;
+}
+
+/* Loading and Empty States */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.emptyStateContainer {
+  padding: 48px;
+  text-align: center;
+}
+
+.emptyStateText h3 {
+  font-size: 16px;
+  color: #264653;
+  margin-bottom: 8px;
+}
+
+.emptyStateText p {
+  color: #666666;
+  margin: 0;
+}
+/* Trip Cards */
+.tripsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+}
+
+.tripCard {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.tripCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tripHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.routeInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.location {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 200px;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  color: #2a9d8f;
+  flex-shrink: 0;
+}
+
+.arrow {
+  color: #666666;
+  font-size: 20px;
+  margin: 0 8px;
+}
+
+.location h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0;
+}
+
+.address {
+  font-size: 12px;
+  color: #666666;
+  margin: 4px 0 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.statusBadge {
+  background: #f8f9fa;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Trip Details */
+.tripDetails {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #264653;
+}
+
+.detailItem .icon {
+  width: 16px;
+  height: 16px;
+  color: #2a9d8f;
+}
+/* Driver Info */
+.driverInfo {
+  border-top: 1px solid #e9ecef;
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.driverInfo h4 {
+  font-size: 14px;
+  color: #264653;
+  margin: 0 0 12px 0;
+}
+
+.driverDetails {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.driverAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.driverName {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0 0 4px 0;
+}
+
+.driverRating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666666;
+}
+
+.starIcon {
+  width: 16px;
+  height: 16px;
+  color: #ffd700;
+}
+
+/* Notes Section */
+.notes {
+  border-top: 1px solid #e9ecef;
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.notes h4 {
+  font-size: 14px;
+  color: #264653;
+  margin: 0 0 8px 0;
+}
+
+.notes p {
+  color: #666666;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Action Buttons */
+.tripActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.cancelButton,
+.reviewButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  height: 36px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.cancelButton {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.cancelButton:hover {
+  color: #ff7875;
+  border-color: #ff7875;
+}
+
+.reviewButton {
+  background: #2a9d8f;
+  border: none;
+}
+
+.reviewButton:hover {
+  background: #248277;
+}
+
+.buttonIcon {
+  width: 16px;
+  height: 16px;
+}
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 20px 16px;
+  }
+
+  .contentWrapper {
+    margin-top: 20px;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .pageTitle {
+    font-size: 24px;
+  }
+
+  .routeInfo {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .arrow {
+    transform: rotate(90deg);
+    margin: 4px 0;
+  }
+
+  .tripDetails {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .tripActions {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .reviewButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 16px;
+  }
+
+  .tripCard {
+    padding: 16px;
+  }
+
+  .driverDetails {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .tabs :global(.ant-tabs-tab) {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tripCard {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .tripCard:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .createButton:hover {
+    background: #2a9d8f;
+  }
+
+  .cancelButton:hover {
+    color: #ff4d4f;
+    border-color: #ff4d4f;
+  }
+
+  .reviewButton:hover {
+    background: #2a9d8f;
+  }
+}
+
+/* Ant Design Overrides */
+.tabs :global(.ant-tabs-tab:hover) {
+  color: #2a9d8f;
+}
+
+.tabs :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: #2a9d8f !important;
+}

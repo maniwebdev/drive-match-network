@@ -1,3 +1,26 @@
+.reviewButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #ffd166;
+  border: none;
+  border-radius: 20px;
+  color: #264653;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.reviewButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.3);
+}
+
+.reviewIcon {
+  width: 18px;
+  height: 18px;
+}
 /* Base Layout */
 .pageContainer {
   min-height: 100vh;

@@ -15,10 +15,10 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../../context/Auth/AuthContext';
 import Navbar from '../../../components/Navigation/Navbar';
-import ReviewModal from '../../../components/Review/ReviewModal';
 import styles from '../../../styles/Profile/userProfile.module.css';
 import { useChat } from '../../../context/Chat/ChatContext';
 import ReviewsDisplay from '../../../components/Review/ReviewsDisplay';
+import ReviewModal from '../../../components/Review/ReviewModal';
 
 const UserProfileView = () => {
     // Router and Context
@@ -29,8 +29,8 @@ const UserProfileView = () => {
     // State Management
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [reviewModalVisible, setReviewModalVisible] = useState(false);
     const [error, setError] = useState(null);
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
     // Fetch User Profile
     useEffect(() => {
@@ -96,18 +96,6 @@ const UserProfileView = () => {
         );
     }
 
-    // Handle Review Modal
-    const handleReviewSubmit = async () => {
-        setReviewModalVisible(false);
-        // Refresh the profile to show new review
-        const response = await fetch(`/api/users/${id}`);
-        const data = await response.json();
-        if (data.success) {
-            setUserProfile(data.user);
-            message.success('Review submitted successfully');
-        }
-    };
-
     const handleSendMessage = async () => {
         if (!currentUser) {
             message.info('Please login to contact the driver');
@@ -126,6 +114,23 @@ const UserProfileView = () => {
         } catch (error) {
             console.error('Create chat error:', error);
             message.error('Error starting chat');
+        }
+    };
+
+    const handleOpenReviewModal = () => {
+        if (!currentUser) {
+            message.info('Please login to leave a review');
+            router.push('/auth/login');
+            return;
+        }
+        setIsReviewModalOpen(true);
+    };
+
+    const handleReviewSubmitted = async () => {
+        // Refresh user profile to update reviews
+        const result = await fetchUserProfile(id);
+        if (result.success) {
+            setUserProfile(result.user);
         }
     };
 
@@ -296,9 +301,9 @@ const UserProfileView = () => {
         children: (
             <ReviewsDisplay
                 reviews={userProfile?.reviews || []}
-                rating={userProfile?.rating}
-                totalTrips={userProfile?.totalTrips}
-                isDriver={userProfile?.isDriver}
+                rating={userProfile?.reviewStats?.averageRating || 0}
+                totalTrips={userProfile?.totalTrips || 0}
+                isDriver={userProfile?.isDriver || false}
             />
         )
     });
@@ -370,6 +375,19 @@ const UserProfileView = () => {
                                         <span>Message</span>
                                     </motion.button>
                                 )}
+                                {currentUser?._id !== id && (
+                                    <>
+                                        <motion.button
+                                            className={styles.reviewButton}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={handleOpenReviewModal}
+                                        >
+                                            <Star className={styles.reviewIcon} />
+                                            <span>Write Review</span>
+                                        </motion.button>
+                                    </>
+                                )}
                             </div>
                         </motion.div>
                     </div>
@@ -384,18 +402,14 @@ const UserProfileView = () => {
                         animated={{ inkBar: true, tabPane: true }}
                     />
                 </div>
-
-                {/* Review Modal */}
-                {reviewModalVisible && (
-                    <ReviewModal
-                        isOpen={reviewModalVisible}
-                        onClose={() => setReviewModalVisible(false)}
-                        revieweeId={id}
-                        revieweeRole={userProfile?.isDriver ? 'driver' : 'passenger'}
-                        onReviewSubmitted={handleReviewSubmit}
-                    />
-                )}
             </motion.div>
+            <ReviewModal
+                isOpen={isReviewModalOpen}
+                onClose={() => setIsReviewModalOpen(false)}
+                userToReview={userProfile}
+                onReviewSubmitted={handleReviewSubmitted}
+                isDriver={userProfile?.isDriver}
+            />
         </>
     );
 };

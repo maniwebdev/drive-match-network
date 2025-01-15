@@ -45,7 +45,7 @@ const ManageOffer = () => {
     // State declarations
     const [offer, setOffer] = useState(null);
     const [bookingRequests, setBookingRequests] = useState([]);
-    const [activeTab, setActiveTab] = useState('active');  // Changed from 'pending' to 'active'
+    const [activeTab, setActiveTab] = useState('active');
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [showActionModal, setShowActionModal] = useState(false);
     const [actionType, setActionType] = useState(null);

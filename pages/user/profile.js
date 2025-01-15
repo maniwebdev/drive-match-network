@@ -7,9 +7,13 @@ import { Camera, Edit2, MapPin, Star, Facebook, Twitter, Instagram, Calendar, Ca
 import Image from 'next/image';
 import UpdateProfileModal from '../../components/Authentication/ProfileModal/UpdateProfileModal';
 import Navbar from '../../components/Navigation/Navbar';
+import { useReview } from '../../context/Review/ReviewContext';
+import ReviewsDisplay from '../../components/Review/ReviewsDisplay';
 
 const UserProfile = () => {
     const { currentUser, fetchCurrentUser, uploadProfilePicture } = useAuth();
+    const { getUserReviews } = useReview();
+    const [userReviews, setUserReviews] = useState({ reviews: [], stats: null });
     const [modalVisible, setModalVisible] = useState(false);
     const [modalType, setModalType] = useState(null);
 
@@ -17,6 +21,17 @@ const UserProfile = () => {
         fetchCurrentUser();
     }, [])
 
+    useEffect(() => {
+        const fetchReviews = async () => {
+            if (currentUser?._id) {
+                const result = await getUserReviews(currentUser._id);
+                if (result.success) {
+                    setUserReviews(result);
+                }
+            }
+        };
+        fetchReviews();
+    }, [currentUser?._id]);
 
     const handleProfilePictureChange = async (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -246,23 +261,12 @@ const UserProfile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
             >
-                <div className={styles.reviewsHeader}>
-                    <div className={styles.ratingOverview}>
-                        <h2 className={styles.ratingTitle}>Overall Rating</h2>
-                        <div className={styles.ratingValue}>
-                            <Star className={styles.starIcon} />
-                            <span>{currentUser?.rating?.toFixed(1) || '0.0'}</span>
-                        </div>
-                        <p className={styles.totalReviews}>
-                            Based on {currentUser?.totalTrips || 0} trips
-                        </p>
-                    </div>
-                </div>
-                <div className={styles.reviewsList}>
-                    <div className={styles.emptyReviews}>
-                        <p>Reviews section coming soon!</p>
-                    </div>
-                </div>
+                <ReviewsDisplay
+                    reviews={userReviews.reviews}
+                    rating={currentUser?.rating || 0}
+                    totalTrips={currentUser?.totalTrips || 0}
+                    isDriver={currentUser?.isDriver || false}
+                />
             </motion.div>
         )
     });
