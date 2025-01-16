@@ -33,6 +33,7 @@ import { motion } from 'framer-motion';
 import moment from 'moment';
 import Navbar from '../../../components/Navigation/Navbar';
 import styles from '../../../styles/Rides/rideDetails.module.css';
+import LoadingAnimation from '../../../components/LoadingAnimation';
 
 const RideDetails = () => {
     const router = useRouter();
@@ -411,8 +412,7 @@ const RideDetails = () => {
             <>
                 <Navbar />
                 <div className={styles.loadingContainer}>
-                    <Spin size="large" />
-                    <p>Loading ride details...</p>
+                   <LoadingAnimation />
                 </div>
             </>
         );

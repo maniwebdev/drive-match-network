@@ -1,0 +1,238 @@
+/* Header.module.css */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background-color: transparent;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.scrolled {
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  height: 70px;
+}
+
+.headerContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.logoText {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2a9d8f;
+  letter-spacing: -0.5px;
+}
+
+/* Desktop Navigation */
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.navLink {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.navLink:hover {
+  color: #2a9d8f;
+}
+
+.navLink::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #2a9d8f;
+  transition: width 0.3s ease;
+}
+
+.navLink:hover::after {
+  width: 100%;
+}
+
+/* Auth Buttons */
+.authButtons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.loginButton {
+  padding: 8px 20px;
+  border: 2px solid #2a9d8f;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #2a9d8f;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.loginButton:hover {
+  background-color: #2a9d8f;
+  color: white;
+}
+
+.signupButton {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2a9d8f;
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.signupButton:hover {
+  background-color: #248277;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(42, 157, 143, 0.2);
+}
+
+/* Mobile Menu Button */
+.mobileMenuButton {
+  display: none;
+  background: none;
+  border: none;
+  color: #264653;
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* Mobile Menu */
+.mobileMenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mobileNavLink {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  text-decoration: none;
+  padding: 8px 0;
+}
+
+.mobileAuthButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.mobileLoginButton {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #2a9d8f;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #2a9d8f;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.mobileSignupButton {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2a9d8f;
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .desktopNav,
+  .authButtons {
+    display: none;
+  }
+
+  .mobileMenuButton {
+    display: block;
+  }
+
+  .mobileMenu {
+    display: block;
+  }
+
+  .headerContainer {
+    padding: 0 16px;
+  }
+
+  .logoText {
+    font-size: 20px;
+  }
+}
+
+/* Animation Classes */
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.scrolled .logoText,
+.scrolled .navLink,
+.scrolled .loginButton,
+.scrolled .signupButton {
+  animation: slideDown 0.3s ease forwards;
+}

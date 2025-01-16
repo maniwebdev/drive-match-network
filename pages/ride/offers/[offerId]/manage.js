@@ -33,6 +33,7 @@ import { motion } from 'framer-motion';
 import moment from 'moment';
 import Navbar from '../../../../components/Navigation/Navbar';
 import styles from '../../../../styles/Rides/manageOffer.module.css';
+import LoadingAnimation from '../../../../components/LoadingAnimation';
 
 const { TabPane } = Tabs;
 
@@ -414,8 +415,7 @@ const ManageOffer = () => {
             <>
                 <Navbar />
                 <div className={styles.loadingContainer}>
-                    <Spin size="large" />
-                    <p>Loading ride details...</p>
+                    <LoadingAnimation />
                 </div>
             </>
         );

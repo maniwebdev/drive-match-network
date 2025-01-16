@@ -223,31 +223,8 @@ const ChatPage = () => {
         }
     };
 
-    // const handleSendMessage = async (e) => {
-    //     e.preventDefault();
-    //     const trimmedMessage = messageInput.trim();
-
-    //     if (!trimmedMessage && !imagePreview) return;
-
-    //     try {
-    //         setLoading(true);
-
-    //         if (imagePreview) {
-    //             await sendFileMessage(imagePreview.file, chatId);
-    //             setImagePreview(null);
-    //         } else {
-    //             await sendMainMessage(chatId, trimmedMessage);
-    //         }
-
-    //         setMessageInput('');
-    //         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    //     } catch (error) {
-    //         console.error('Error sending message:', error);
-    //         alert('Failed to send message. Please try again.');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
+  
+    
     const handleSendMessage = async (e) => {
         e.preventDefault();
         const trimmedMessage = messageInput.trim();

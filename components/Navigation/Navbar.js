@@ -22,7 +22,7 @@ import { Badge, Dropdown } from 'antd';
 
 const Navbar = () => {
     const router = useRouter();
-    const { currentUser, fetchCurrentUser, logout } = useAuth();
+    const { currentUser, fetchCurrentUser } = useAuth();
     const [scrolled, setScrolled] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
@@ -49,6 +49,11 @@ const Navbar = () => {
             window.removeEventListener('resize', handleResize);
         };
     }, []);
+
+    const logout = () => {
+        localStorage.removeItem('authToken');
+        router.push('/auth/login')
+    }
 
     // Navigation items for normal users
     const userNavigationItems = [

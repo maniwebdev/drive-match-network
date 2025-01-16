@@ -19,6 +19,7 @@ import styles from '../../../styles/Profile/userProfile.module.css';
 import { useChat } from '../../../context/Chat/ChatContext';
 import ReviewsDisplay from '../../../components/Review/ReviewsDisplay';
 import ReviewModal from '../../../components/Review/ReviewModal';
+import LoadingAnimation from '../../../components/LoadingAnimation';
 
 const UserProfileView = () => {
     // Router and Context
@@ -75,8 +76,7 @@ const UserProfileView = () => {
     if (loading) {
         return (
             <div className={styles.loadingContainer}>
-                <div className={styles.loadingSpinner} />
-                <p>Loading profile...</p>
+                <LoadingAnimation />
             </div>
         );
     }

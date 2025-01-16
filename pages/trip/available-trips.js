@@ -26,6 +26,7 @@ import moment from 'moment';
 import Navbar from '../../components/Navigation/Navbar';
 import LocationInput from '../../components/Rides/LocationInput';
 import styles from '../../styles/Trips/availableTrips.module.css';
+import LoadingAnimation from '../../components/LoadingAnimation';
 
 const { Option } = Select;
 
@@ -251,8 +252,7 @@ const AvailableTrips = () => {
         if (loadingLocation) {
             return (
                 <div className={styles.loadingState}>
-                    <Spin size="large" />
-                    <p>Finding trip requests near you...</p>
+                    <LoadingAnimation />
                 </div>
             );
         }

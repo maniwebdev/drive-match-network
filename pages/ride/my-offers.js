@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../../components/Navigation/Navbar';
 import styles from '../../styles/Rides/myOffers.module.css';
+import LoadingAnimation from '../../components/LoadingAnimation';
 
 const MyOffers = () => {
     const router = useRouter();
@@ -232,7 +233,7 @@ const MyOffers = () => {
             children: (
                 loading ? (
                     <div className={styles.loadingContainer}>
-                        <Spin size="large" />
+                       <LoadingAnimation />
                     </div>
                 ) : filterOffers('active').length > 0 ? (
                     <div className={styles.offersGrid}>

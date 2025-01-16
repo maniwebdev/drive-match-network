@@ -28,6 +28,7 @@ import moment from 'moment';
 import Navbar from '../../components/Navigation/Navbar';
 import LocationInput from '../../components/Rides/LocationInput';
 import styles from '../../styles/Rides/findRide.module.css';
+import LoadingAnimation from '../../components/LoadingAnimation';
 
 const { Option } = Select;
 
@@ -167,9 +168,9 @@ const FindRide = () => {
         }
 
         try {
-          //  console.log('Searching with params:', searchData);
+            //  console.log('Searching with params:', searchData);
             const result = await searchRideOffers(searchData, userLocation);
-         //   console.log('Search result:', result);
+            //   console.log('Search result:', result);
 
             if (result.success) {
                 setSearchResults(result.rideOffers);
@@ -340,8 +341,7 @@ const FindRide = () => {
         if (loadingLocation) {
             return (
                 <div className={styles.loadingState}>
-                    <Spin size="large" />
-                    <p>Finding rides near you...</p>
+                    <LoadingAnimation />
                 </div>
             );
         }
@@ -393,8 +393,8 @@ const FindRide = () => {
                 className={styles.searchResults}
             >
                 <h2 className={styles.resultsTitle}>
-                    {isSearched && searchResults === nearbyRides ? 
-                        'Nearby Rides' : 
+                    {isSearched && searchResults === nearbyRides ?
+                        'Nearby Rides' :
                         'Available Rides'} ({searchResults.length})
                 </h2>
                 <div className={styles.resultsList}>
