@@ -42,7 +42,7 @@ export default function Home() {
     }
   }, [hasFetchedUserDetails, isAuthenticated, isUserVerified, router]);
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div style={styles.container}>
