@@ -1,5 +1,27 @@
 /* styles/Trips/tripDetails.module.css */
+/* Recurrence Details */
+.detailItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
 
+.detailItem .icon {
+  margin-right: 12px;
+  color: #666666;
+}
+
+.detailLabel {
+  font-size: 14px;
+  color: #666666;
+  margin-bottom: 4px;
+}
+
+.detailValue {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+}
 /* Base Layout */
 .pageContainer {
   min-height: 100vh;

@@ -1,48 +1,33 @@
-// pages/trip/request-trip.js
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import { useAuth } from '../../context/Auth/AuthContext';
-import { useTrip } from '../../context/Ride/TripContext';
-import { motion } from 'framer-motion';
-import { Steps, Button, Form, DatePicker, InputNumber, Select, Input, message } from 'antd';
+import { Modal, Steps, Button, Form, DatePicker, InputNumber, Select, Input, message } from 'antd';
 import { MapPin, Calendar, Users, Package, Info, Clock } from 'lucide-react';
 import moment from 'moment';
-import Navbar from '../../components/Navigation/Navbar';
+import { useTrip } from '../../context/Ride/TripContext';
 import LocationInput from '../../components/Rides/LocationInput';
-import styles from '../../styles/Trips/requestTrip.module.css';
+import styles from '../../styles/Trips/EditTripModal.module.css';
 
 const { Step } = Steps;
 const { Option } = Select;
 const { TextArea } = Input;
 
-const RequestTrip = () => {
-    const router = useRouter();
-    const { currentUser } = useAuth();
-    const { createTripRequest, loading } = useTrip();
+const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
     const [form] = Form.useForm();
+    const { editTripRequest, loading } = useTrip();
     const [currentStep, setCurrentStep] = useState(0);
 
-    // Form state
+    // Initialize tripData with proper moment objects
     const [tripData, setTripData] = useState({
-        origin: {
-            address: '',
-            city: '',
-            coordinates: []
-        },
-        destination: {
-            address: '',
-            city: '',
-            coordinates: []
-        },
-        departureDate: null,
-        departureTime: '',
-        numberOfSeats: 1,
-        luggageSize: 'small',
-        additionalNotes: '',
+        origin: trip.origin,
+        destination: trip.destination,
+        departureDate: moment(trip.departureDate),
+        departureTime: trip.departureTime,
+        numberOfSeats: trip.numberOfSeats,
+        luggageSize: trip.luggageSize,
+        additionalNotes: trip.additionalNotes,
         recurrence: {
-            pattern: 'none',
-            endDate: null,
-            customDays: []
+            pattern: trip.recurrence?.pattern || 'none',
+            endDate: trip.recurrence?.endDate ? moment(trip.recurrence.endDate) : null,
+            customDays: trip.recurrence?.customDays || []
         }
     });
 
@@ -120,16 +105,41 @@ const RequestTrip = () => {
         setCurrentStep(currentStep - 1);
     };
 
+    const handleSubmit = async () => {
+        try {
+            if (!validateCurrentStep()) {
+                return;
+            }
+
+            const formattedData = {
+                ...tripData,
+                departureDate: tripData.departureDate?.format('YYYY-MM-DD'),
+                recurrence: tripData.recurrence.pattern !== 'none' ? {
+                    ...tripData.recurrence,
+                    endDate: tripData.recurrence.endDate?.format('YYYY-MM-DD')
+                } : undefined
+            };
+
+            const result = await editTripRequest(trip._id, formattedData);
+
+            if (result.success) {
+                message.success('Trip request updated successfully!');
+                onSuccess();
+            } else {
+                message.error(result.message || 'Failed to update trip request');
+            }
+        } catch (error) {
+            console.error('Submit error:', error);
+            message.error('An error occurred while updating the trip request');
+        }
+    };
+
     const steps = [
         {
             title: 'Route',
             icon: <MapPin className={styles.stepIcon} />,
             content: (
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={styles.stepContent}
-                >
+                <div className={styles.stepContent}>
                     <Form.Item
                         label="Pickup Location"
                         required
@@ -153,18 +163,14 @@ const RequestTrip = () => {
                             placeholder="Enter drop-off address"
                         />
                     </Form.Item>
-                </motion.div>
+                </div>
             )
         },
         {
             title: 'Schedule',
             icon: <Calendar className={styles.stepIcon} />,
             content: (
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={styles.stepContent}
-                >
+                <div className={styles.stepContent}>
                     <Form.Item
                         label="Departure Date"
                         required
@@ -219,18 +225,14 @@ const RequestTrip = () => {
                             </Select>
                         </div>
                     </Form.Item>
-                </motion.div>
+                </div>
             )
         },
         {
             title: 'Details',
             icon: <Users className={styles.stepIcon} />,
             content: (
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={styles.stepContent}
-                >
+                <div className={styles.stepContent}>
                     <Form.Item
                         label="Number of Seats Needed"
                         required
@@ -273,18 +275,14 @@ const RequestTrip = () => {
                             className={styles.textArea}
                         />
                     </Form.Item>
-                </motion.div>
+                </div>
             )
         },
         {
             title: 'Recurrence',
             icon: <Calendar className={styles.stepIcon} />,
             content: (
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={styles.stepContent}
-                >
+                <div className={styles.stepContent}>
                     <Form.Item
                         label="Recurrence Pattern"
                         className={styles.formItem}
@@ -357,109 +355,72 @@ const RequestTrip = () => {
                             </Select>
                         </Form.Item>
                     )}
-                </motion.div>
+                </div>
             )
         }
     ];
 
-    const handleSubmit = async () => {
-        try {
-            if (!validateCurrentStep()) {
-                return;
-            }
-
-            const formattedData = {
-                ...tripData,
-                departureDate: tripData.departureDate?.format('YYYY-MM-DD'),
-                recurrence: tripData.recurrence.pattern !== 'none' ? tripData.recurrence : undefined
-            };
-
-            const result = await createTripRequest(formattedData);
-
-            if (result.success) {
-                message.success('Trip request created successfully!');
-                router.push('/trip/my-trips');
-            } else {
-                message.error(result.message || 'Failed to create trip request');
-            }
-        } catch (error) {
-            console.error('Submit error:', error);
-            message.error('An error occurred while creating the trip request');
-        }
-    };
-
     return (
-        <>
-            <Navbar />
-            <div className={styles.pageContainer}>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={styles.contentWrapper}
-                >
-                    <div className={styles.pageHeader}>
-                        <h1 className={styles.pageTitle}>Request a Trip</h1>
-                        <p className={styles.pageDescription}>
-                            Fill in your trip details and find a driver
-                        </p>
-                    </div>
-
-                    <div className={styles.stepsContainer}>
-                        <Steps current={currentStep}>
-                            {steps.map(step => (
-                                <Step
-                                    key={step.title}
-                                    title={step.title}
-                                    icon={step.icon}
-                                    className={styles.step}
-                                />
-                            ))}
-                        </Steps>
-                    </div>
-
-                    <div className={styles.formContainer}>
-                        <Form
-                            form={form}
-                            layout="vertical"
-                            className={styles.form}
-                        >
-                            {steps[currentStep].content}
-
-                            <div className={styles.buttonContainer}>
-                                {currentStep > 0 && (
-                                    <Button
-                                        onClick={handlePrev}
-                                        className={styles.prevButton}
-                                    >
-                                        Previous
-                                    </Button>
-                                )}
-                                {currentStep < steps.length - 1 && (
-                                    <Button
-                                        type="primary"
-                                        onClick={handleNext}
-                                        className={styles.nextButton}
-                                    >
-                                        Next
-                                    </Button>
-                                )}
-                                {currentStep === steps.length - 1 && (
-                                    <Button
-                                        type="primary"
-                                        onClick={handleSubmit}
-                                        loading={loading}
-                                        className={styles.submitButton}
-                                    >
-                                        Submit Request
-                                    </Button>
-                                )}
-                            </div>
-                        </Form>
-                    </div>
-                </motion.div>
+        <Modal
+            title="Edit Trip Request"
+            open={visible}
+            onCancel={onCancel}
+            footer={null}
+            className={styles.editModal}
+            width={800}
+        >
+            <div className={styles.stepsContainer}>
+                <Steps current={currentStep}>
+                    {steps.map(step => (
+                        <Step
+                            key={step.title}
+                            title={step.title}
+                            icon={step.icon}
+                            className={styles.step}
+                        />
+                    ))}
+                </Steps>
             </div>
-        </>
+
+            <Form
+                form={form}
+                layout="vertical"
+                className={styles.form}
+            >
+                {steps[currentStep].content}
+
+                <div className={styles.buttonContainer}>
+                    {currentStep > 0 && (
+                        <Button
+                            onClick={handlePrev}
+                            className={styles.prevButton}
+                        >
+                            Previous
+                        </Button>
+                    )}
+                    {currentStep < steps.length - 1 && (
+                        <Button
+                            type="primary"
+                            onClick={handleNext}
+                            className={styles.nextButton}
+                        >
+                            Next
+                        </Button>
+                    )}
+                    {currentStep === steps.length - 1 && (
+                        <Button
+                            type="primary"
+                            onClick={handleSubmit}
+                            loading={loading}
+                            className={styles.submitButton}
+                        >
+                            Update Trip
+                        </Button>
+                    )}
+                </div>
+            </Form>
+        </Modal>
     );
 };
 
-export default RequestTrip;
+export default EditTripModal;

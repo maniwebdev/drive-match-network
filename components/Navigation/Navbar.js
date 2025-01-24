@@ -63,20 +63,15 @@ const Navbar = () => {
             icon: <Search className={styles.menuIcon} />
         },
         {
+            label: 'My Trip Requests',
+            href: '/trip/my-trips',
+            icon: <ClipboardList className={styles.menuIcon} />
+        },
+        {
             label: 'My Rides',
             href: '/ride/my-rides',
             icon: <Car className={styles.menuIcon} />
         },
-        {
-            label: 'Request Trip',
-            href: '/trip/request-trip',
-            icon: <MapPin className={styles.menuIcon} />
-        },
-        {
-            label: 'My Trip Requests',
-            href: '/trip/my-trips',
-            icon: <ClipboardList className={styles.menuIcon} />
-        }
     ];
 
     // Navigation items for drivers

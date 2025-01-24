@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/Auth/AuthContext';
 import { useTrip } from '../../context/Ride/TripContext';
-import { Button, Tabs, Badge, Empty, Spin, message } from 'antd';
+import { Button, Tabs, Badge, Empty, Spin, message, Modal } from 'antd';
 import {
     MapPin,
     Calendar,
@@ -18,6 +18,9 @@ import {
 } from 'lucide-react';
 import Navbar from '../../components/Navigation/Navbar';
 import styles from '../../styles/Trips/myTrips.module.css';
+import EditTripModal from '../../components/Trip/EditTripModal';
+import RequestTripModal from '../../components/Trip/RequestTripModal';
+import moment from 'moment';
 
 const MyTrips = () => {
     const router = useRouter();
@@ -25,6 +28,9 @@ const MyTrips = () => {
     const { getMyTrips, loading } = useTrip();
     const [trips, setTrips] = useState([]);
     const [activeTab, setActiveTab] = useState('active');
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [requestModalVisible, setRequestModalVisible] = useState(false);
+    const [selectedTrip, setSelectedTrip] = useState(null);
 
     useEffect(() => {
         fetchTrips();
@@ -56,6 +62,7 @@ const MyTrips = () => {
     const filterTrips = (status) => {
         return trips.filter(trip => trip.status === status);
     };
+
     const formatDate = (date) => {
         return new Date(date).toLocaleDateString('en-US', {
             weekday: 'short',
@@ -74,11 +81,57 @@ const MyTrips = () => {
         message.info('Cancel feature coming soon');
     };
 
-    const TripCard = ({ trip }) => {
+    const handleEdit = (trip) => {
+        setSelectedTrip(trip);
+        setEditModalVisible(true);
+    };
+
+    const handleEditSuccess = () => {
+        setEditModalVisible(false);
+        fetchTrips(); // Refresh the trips list
+    };
+
+    const handleRequestSuccess = () => {
+        setRequestModalVisible(false);
+        fetchTrips(); // Refresh the trips list
+    };
+
+    const TripCard = ({ trip, onEdit }) => {
         const handleDriverClick = (driverId) => {
             router.push(`/user/userprofile/${driverId}`);
-            console.log(driverId, "This is driver id")
+            console.log(driverId, "This is driver id");
         };
+
+        const formatRecurrence = (recurrence) => {
+            if (!recurrence || recurrence.pattern === 'none') {
+                return 'No recurrence';
+            }
+
+            let recurrenceText = '';
+            switch (recurrence.pattern) {
+                case 'daily':
+                    recurrenceText = 'Daily';
+                    break;
+                case 'weekly':
+                    recurrenceText = 'Weekly';
+                    break;
+                case 'weekdays':
+                    recurrenceText = 'Weekdays (Mon-Fri)';
+                    break;
+                case 'custom':
+                    recurrenceText = `Custom (${recurrence.customDays.join(', ')})`;
+                    break;
+                default:
+                    recurrenceText = 'No recurrence';
+            }
+
+            if (recurrence.endDate) {
+                recurrenceText += ` until ${moment(recurrence.endDate).format('MMM D, YYYY')}`;
+            }
+
+            return recurrenceText;
+        };
+
         return (
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -130,6 +183,13 @@ const MyTrips = () => {
                     </div>
                 </div>
 
+                {trip.recurrence && trip.recurrence.pattern !== 'none' && (
+                    <div className={styles.recurrenceDetails}>
+                        <h4>Recurrence</h4>
+                        <p>{formatRecurrence(trip.recurrence)}</p>
+                    </div>
+                )}
+
                 {trip.acceptedDriver && (
                     <div onClick={() => handleDriverClick(trip.acceptedDriver._id)} className={styles.driverInfo}>
                         <h4>Accepted Driver</h4>
@@ -149,6 +209,7 @@ const MyTrips = () => {
                         </div>
                     </div>
                 )}
+
                 {trip.additionalNotes && (
                     <div className={styles.notes}>
                         <h4>Additional Notes</h4>
@@ -158,30 +219,29 @@ const MyTrips = () => {
 
                 <div className={styles.tripActions}>
                     {trip.status === 'active' && (
-                        <Button
-                            danger
-                            onClick={() => handleCancelTrip(trip._id)}
-                            className={styles.cancelButton}
-                            icon={<Ban className={styles.buttonIcon} />}
-                        >
-                            Cancel Request
-                        </Button>
-                    )}
-                    {trip.status === 'completed' && trip.acceptedDriver && (
-                        <Button
-                            type="primary"
-                            onClick={() => handleReviewClick(trip)}
-                            icon={<Star className={styles.buttonIcon} />}
-                        >
-                            Review Driver
-                        </Button>
+                        <>
+                            <Button
+                                type="primary"
+                                onClick={() => onEdit(trip)}
+                                className={styles.editButton}
+                            >
+                                Edit Request
+                            </Button>
+                            <Button
+                                danger
+                                onClick={() => handleCancelTrip(trip._id)}
+                                className={styles.cancelButton}
+                                icon={<Ban className={styles.buttonIcon} />}
+                            >
+                                Cancel Request
+                            </Button>
+                        </>
                     )}
                 </div>
             </motion.div>
         );
     };
 
-    // Tab items configuration
     const tabItems = [
         {
             key: 'active',
@@ -194,7 +254,7 @@ const MyTrips = () => {
                 ) : filterTrips('active').length > 0 ? (
                     <div className={styles.tripsContainer}>
                         {filterTrips('active').map(trip => (
-                            <TripCard key={trip._id} trip={trip} />
+                            <TripCard key={trip._id} trip={trip} onEdit={handleEdit} />
                         ))}
                     </div>
                 ) : (
@@ -250,6 +310,7 @@ const MyTrips = () => {
             )
         }
     ];
+
     return (
         <>
             <Navbar />
@@ -267,7 +328,7 @@ const MyTrips = () => {
                             <Button
                                 type="primary"
                                 icon={<Plus size={16} />}
-                                onClick={() => router.push('/trip/request-trip')}
+                                onClick={() => setRequestModalVisible(true)}
                                 className={styles.createButton}
                             >
                                 Request New Trip
@@ -297,7 +358,7 @@ const MyTrips = () => {
                             >
                                 <Button
                                     type="primary"
-                                    onClick={() => router.push('/trip/request-trip')}
+                                    onClick={() => setRequestModalVisible(true)}
                                     icon={<Plus size={16} />}
                                 >
                                     Request First Trip
@@ -307,6 +368,23 @@ const MyTrips = () => {
                     )}
                 </motion.div>
             </div>
+
+            {/* Edit Trip Modal */}
+            {selectedTrip && (
+                <EditTripModal
+                    trip={selectedTrip}
+                    visible={editModalVisible}
+                    onCancel={() => setEditModalVisible(false)}
+                    onSuccess={handleEditSuccess}
+                />
+            )}
+
+            {/* Request Trip Modal */}
+            <RequestTripModal
+                visible={requestModalVisible}
+                onCancel={() => setRequestModalVisible(false)}
+                onSuccess={handleRequestSuccess}
+            />
         </>
     );
 };

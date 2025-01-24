@@ -21,6 +21,7 @@ import {
 import Navbar from '../../components/Navigation/Navbar';
 import styles from '../../styles/Rides/myOffers.module.css';
 import LoadingAnimation from '../../components/LoadingAnimation';
+import EditRideOfferModal from '../../components/Rides/EditRideOfferModal';
 
 const MyOffers = () => {
     const router = useRouter();
@@ -28,6 +29,7 @@ const MyOffers = () => {
     const { getUserRideOffers, completeRideOffer, loading } = useRide();
     const [offers, setOffers] = useState([]);
     const [activeTab, setActiveTab] = useState('active');
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
     useEffect(() => {
         fetchCurrentUser();
@@ -91,6 +93,10 @@ const MyOffers = () => {
     const handleCancelOffer = async (offerId) => {
         // Add cancel logic here when implementing the feature
         message.info('Cancel feature coming soon');
+    };
+
+    const handleEditOffer = () => {
+        setIsEditModalVisible(true);
     };
 
     const handleCompleteOffer = async (offerId, e) => {
@@ -192,14 +198,32 @@ const MyOffers = () => {
 
                 <div className={styles.offerActions}>
                     {offer.status === 'active' && (
-                        <Button
-                            danger
-                            onClick={() => handleCancelOffer(offer._id)}
-                            className={styles.cancelButton}
-                            icon={<Ban className={styles.buttonIcon} />}
-                        >
-                            Cancel Ride
-                        </Button>
+                        <>
+                            <Button
+                                type="primary"
+                                onClick={handleEditOffer}
+                                className={styles.editButton}
+                            >
+                                Edit Offer
+                            </Button>
+                            <Button
+                                danger
+                                onClick={() => handleCancelOffer(offer._id)}
+                                className={styles.cancelButton}
+                                icon={<Ban className={styles.buttonIcon} />}
+                            >
+                                Cancel Ride
+                            </Button>
+                            <EditRideOfferModal
+                                offer={offer}
+                                visible={isEditModalVisible}
+                                onCancel={() => setIsEditModalVisible(false)}
+                                onSuccess={() => {
+                                    setIsEditModalVisible(false);
+                                    fetchOffers(); // Refresh the offers list
+                                }}
+                            />
+                        </>
                     )}
                     {offer.status === 'full' && (
                         <Button
@@ -233,7 +257,7 @@ const MyOffers = () => {
             children: (
                 loading ? (
                     <div className={styles.loadingContainer}>
-                       <LoadingAnimation />
+                        <LoadingAnimation />
                     </div>
                 ) : filterOffers('active').length > 0 ? (
                     <div className={styles.offersGrid}>

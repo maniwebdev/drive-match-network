@@ -1,428 +1,447 @@
 /* styles/Trips/availableTrips.module.css */
+/* Recurrence Details */
+.recurrenceDetails {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
 
+.recurrenceDetails h4 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #264653;
+  margin-bottom: 8px;
+}
+
+.recurrenceDetails p {
+  font-size: 14px;
+  color: #666666;
+  margin: 0;
+}
 /* Base Layout */
 .pageContainer {
-    min-height: 100vh;
-    background-color: #f8f9fa;
-    padding: 40px 20px;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 40px 20px;
 }
 
 .contentWrapper {
-    max-width: 1200px;
-    margin: 0 auto;
-    margin-top: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-top: 20px;
 }
 
 /* Search Form */
 .searchFormContainer {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e9ecef;
-    margin-bottom: 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+  margin-bottom: 24px;
 }
 
 .searchForm {
-    width: 100%;
+  width: 100%;
 }
 
 .mainSearchFields {
-    display: flex;
-    align-items: flex-end;
-    gap: 16px;
-    margin-bottom: 16px;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .locationField {
-    flex: 2;
-    margin-bottom: 0;
+  flex: 2;
+  margin-bottom: 0;
 }
 
 .dateField {
-    flex: 1;
-    margin-bottom: 0;
+  flex: 1;
+  margin-bottom: 0;
 }
 
 .searchButton {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 40px;
-    background: #2a9d8f;
-    border: none;
-    padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  background: #2a9d8f;
+  border: none;
+  padding: 0 24px;
 }
 
 .searchButton:hover {
-    background: #248277;
+  background: #248277;
 }
 
 /* Filters Section */
 .filtersSection {
-    border-top: 1px solid #e9ecef;
-    padding-top: 16px;
-    margin-top: 16px;
+  border-top: 1px solid #e9ecef;
+  padding-top: 16px;
+  margin-top: 16px;
 }
 
 .filterToggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #2a9d8f;
-    padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #2a9d8f;
+  padding: 0;
 }
 
 .filtersContainer {
-    display: flex;
-    gap: 16px;
-    margin-top: 16px;
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
 }
 
 .filterField {
-    flex: 1;
-    margin-bottom: 0;
+  flex: 1;
+  margin-bottom: 0;
 }
 /* States */
 .loadingState,
 .initialState {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 300px;
-    text-align: center;
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 48px 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 48px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
 }
 
 .loadingState p,
 .initialStateContent p {
-    color: #666666;
-    margin-top: 12px;
+  color: #666666;
+  margin-top: 12px;
 }
 
 .initialStateIcon {
-    width: 48px;
-    height: 48px;
-    color: #2a9d8f;
-    margin-bottom: 16px;
+  width: 48px;
+  height: 48px;
+  color: #2a9d8f;
+  margin-bottom: 16px;
 }
 
 .initialStateContent h2 {
-    font-size: 24px;
-    color: #264653;
-    margin: 0;
+  font-size: 24px;
+  color: #264653;
+  margin: 0;
 }
 
 /* Search Results */
 .searchResults {
-    margin-top: 24px;
+  margin-top: 24px;
 }
 
 .resultsTitle {
-    font-size: 20px;
-    color: #264653;
-    margin-bottom: 16px;
+  font-size: 20px;
+  color: #264653;
+  margin-bottom: 16px;
 }
 
 .resultsList {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .tripCard {
-    background: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .tripCard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* No Results */
 .noResults {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 48px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e9ecef;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 48px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
 }
 
 .noResultsContent h3 {
-    font-size: 18px;
-    color: #264653;
-    margin-bottom: 8px;
+  font-size: 18px;
+  color: #264653;
+  margin-bottom: 8px;
 }
 
 .noResultsContent p {
-    color: #666666;
-    margin: 0;
+  color: #666666;
+  margin: 0;
 }
 /* Trip Card Components */
 .tripHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .requesterInfo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .requesterAvatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    overflow: hidden;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 .avatarImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .avatarPlaceholder {
-    width: 100%;
-    height: 100%;
-    background: #2a9d8f;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 500;
+  width: 100%;
+  height: 100%;
+  background: #2a9d8f;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 500;
 }
 
 .requesterDetails {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .requesterName {
-    font-size: 16px;
-    font-weight: 500;
-    color: #264653;
-    margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0;
 }
 
 .rating {
-    font-size: 14px;
-    color: #666666;
+  font-size: 14px;
+  color: #666666;
 }
 
 /* Trip Details */
 .tripDetails {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .locations {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: #f8f9fa;
-    border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
 }
 
 .locationItem {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
 }
 
 .locationIcon {
-    width: 16px;
-    height: 16px;
-    color: #2a9d8f;
+  width: 16px;
+  height: 16px;
+  color: #2a9d8f;
 }
 
 .locationText {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .locationName {
-    font-size: 14px;
-    font-weight: 500;
-    color: #264653;
+  font-size: 14px;
+  font-weight: 500;
+  color: #264653;
 }
 
 .locationAddress {
-    font-size: 12px;
-    color: #666666;
+  font-size: 12px;
+  color: #666666;
 }
 
 .locationDivider {
-    color: #666666;
-    font-size: 20px;
+  color: #666666;
+  font-size: 20px;
 }
 
 .tripInfo {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .infoItem {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #264653;
-    font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #264653;
+  font-size: 14px;
 }
 
 .infoIcon {
-    width: 16px;
-    height: 16px;
-    color: #2a9d8f;
+  width: 16px;
+  height: 16px;
+  color: #2a9d8f;
 }
 
 .notes {
-    padding: 12px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    margin-top: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 8px;
 }
 
 .notes p {
-    color: #666666;
-    font-size: 14px;
-    margin: 0;
-    line-height: 1.5;
+  color: #666666;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
 }
 /* Driver Verification Required */
 .driverVerificationRequired {
-    text-align: center;
-    padding: 48px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e9ecef;
+  text-align: center;
+  padding: 48px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
 }
 
 .verificationIcon {
-    width: 48px;
-    height: 48px;
-    color: #2a9d8f;
-    margin-bottom: 16px;
+  width: 48px;
+  height: 48px;
+  color: #2a9d8f;
+  margin-bottom: 16px;
 }
 
 .driverVerificationRequired h2 {
-    font-size: 24px;
-    color: #264653;
-    margin-bottom: 8px;
+  font-size: 24px;
+  color: #264653;
+  margin-bottom: 8px;
 }
 
 .driverVerificationRequired p {
-    color: #666666;
-    margin-bottom: 24px;
-    max-width: 400px;
-    margin: 0 auto 24px auto;
+  color: #666666;
+  margin-bottom: 24px;
+  max-width: 400px;
+  margin: 0 auto 24px auto;
 }
 
 .verificationButton {
-    background: #2a9d8f;
-    border: none;
-    padding: 8px 24px;
-    height: 40px;
+  background: #2a9d8f;
+  border: none;
+  padding: 8px 24px;
+  height: 40px;
 }
 
 .verificationButton:hover {
-    background: #248277;
+  background: #248277;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .pageContainer {
-        padding: 20px 16px;
-    }
+  .pageContainer {
+    padding: 20px 16px;
+  }
 
-    .contentWrapper {
-        margin-top: 10px;
-    }
+  .contentWrapper {
+    margin-top: 10px;
+  }
 
-    .mainSearchFields {
-        flex-direction: column;
-        gap: 12px;
-    }
+  .mainSearchFields {
+    flex-direction: column;
+    gap: 12px;
+  }
 
-    .locationField,
-    .dateField {
-        width: 100%;
-    }
+  .locationField,
+  .dateField {
+    width: 100%;
+  }
 
-    .searchButton {
-        width: 100%;
-    }
+  .searchButton {
+    width: 100%;
+  }
 
-    .filtersContainer {
-        flex-direction: column;
-    }
+  .filtersContainer {
+    flex-direction: column;
+  }
 
-    .locations {
-        flex-direction: column;
-        gap: 12px;
-    }
+  .locations {
+    flex-direction: column;
+    gap: 12px;
+  }
 
-    .locationDivider {
-        transform: rotate(90deg);
-    }
+  .locationDivider {
+    transform: rotate(90deg);
+  }
 
-    .tripInfo {
-        flex-direction: column;
-        gap: 12px;
-    }
+  .tripInfo {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 
 @media (max-width: 480px) {
-    .searchFormContainer,
-    .tripCard {
-        padding: 16px;
-    }
+  .searchFormContainer,
+  .tripCard {
+    padding: 16px;
+  }
 
-    .requesterInfo {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
+  .requesterInfo {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 
-    .driverVerificationRequired {
-        padding: 32px 20px;
-    }
+  .driverVerificationRequired {
+    padding: 32px 20px;
+  }
 
-    .driverVerificationRequired h2 {
-        font-size: 20px;
-    }
+  .driverVerificationRequired h2 {
+    font-size: 20px;
+  }
 }
 
 /* Touch Device Optimizations */
 @media (hover: none) {
-    .tripCard:hover {
-        transform: none;
-        box-shadow: none;
-    }
+  .tripCard:hover {
+    transform: none;
+    box-shadow: none;
+  }
 
-    .searchButton:hover,
-    .verificationButton:hover {
-        background: #2a9d8f;
-    }
+  .searchButton:hover,
+  .verificationButton:hover {
+    background: #2a9d8f;
+  }
 }

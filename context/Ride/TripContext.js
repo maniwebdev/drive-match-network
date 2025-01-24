@@ -59,6 +59,51 @@ export const TripProvider = ({ children }) => {
         }
     };
 
+    //edit the trip request
+    const editTripRequest = async (tripId, updatedData) => {
+        setLoading(true);
+        setError(null);
+
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            message.error("You're not logged in");
+            return { success: false };
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/api/tripRequestRoutes/trip/${tripId}/edit`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': authToken,
+                },
+                body: JSON.stringify(updatedData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                message.success(data.message || 'Trip request updated successfully');
+                // Update the myTrips state with the edited trip
+                setMyTrips(prev =>
+                    prev.map(trip =>
+                        trip._id === tripId ? { ...trip, ...updatedData } : trip
+                    )
+                );
+                return { success: true, trip: data.tripRequest };
+            } else {
+                throw new Error(data.message || 'Failed to update trip request');
+            }
+        } catch (err) {
+            const errorMessage = err.message || 'Error updating trip request';
+            message.error(errorMessage);
+            setError(errorMessage);
+            return { success: false, error: errorMessage };
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Get all available trip requests (for drivers)
     const getAvailableTrips = async (filters = {}) => {
         setLoading(true);
@@ -218,6 +263,7 @@ export const TripProvider = ({ children }) => {
         myTrips,
         availableTrips,
         createTripRequest,
+        editTripRequest,
         getAvailableTrips,
         acceptTripRequest,
         getMyTrips,

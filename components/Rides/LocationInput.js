@@ -1,6 +1,6 @@
-// components/Rides/LocationInput.js
+// // components/Rides/LocationInput.js
 import React, { useState } from 'react';
-import { Input, Dropdown } from 'antd';
+import { Input, Dropdown, Spin } from 'antd';
 import { MapPin } from 'lucide-react';
 import styles from '../../styles/Rides/LocationInput.module.css';
 
@@ -33,11 +33,18 @@ const LocationInput = ({ value, onChange, placeholder }) => {
 
     const extractCity = (item) => {
         const addressParts = item.display_name.split(', ');
-        // Usually the city is the second-to-last or third-to-last part
-        return addressParts[addressParts.length - 3] || addressParts[addressParts.length - 2];
+        // Try to find the city name in common parts of the address
+        const city = addressParts.find(part => 
+            part.includes('City') || 
+            part.includes('Town') || 
+            part.includes('Village') || 
+            part.match(/^[A-Za-z\s]+$/) // Match standalone city names
+        );
+        return city || addressParts[0]; // Fallback to the first part if no city is found
     };
 
     const handleSelect = (suggestion) => {
+        console.log('Selected City:', suggestion.city); // Log the extracted city
         onChange(suggestion);
         setSuggestions([]);
     };
@@ -64,17 +71,19 @@ const LocationInput = ({ value, onChange, placeholder }) => {
             open={suggestions.length > 0}
             onOpenChange={(open) => !open && setSuggestions([])}
         >
-            <Input
-                prefix={<MapPin className={styles.inputIcon} />}
-                placeholder={placeholder}
-                className={styles.input}
-                value={value.address}
-                onChange={(e) => {
-                    onChange({ ...value, address: e.target.value });
-                    searchLocation(e.target.value);
-                }}
-                loading={loading}
-            />
+            <div className={styles.inputContainer}>
+                <Input
+                    prefix={<MapPin className={styles.inputIcon} />}
+                    placeholder={placeholder}
+                    className={styles.input}
+                    value={value.address}
+                    onChange={(e) => {
+                        onChange({ ...value, address: e.target.value });
+                        searchLocation(e.target.value);
+                    }}
+                />
+                {loading && <Spin className={styles.loadingSpinner} />}
+            </div>
         </Dropdown>
     );
 };

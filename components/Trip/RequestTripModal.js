@@ -1,13 +1,11 @@
-// pages/trip/request-trip.js
+// components/Trip/RequestTripModal.js
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
 import { useAuth } from '../../context/Auth/AuthContext';
 import { useTrip } from '../../context/Ride/TripContext';
 import { motion } from 'framer-motion';
-import { Steps, Button, Form, DatePicker, InputNumber, Select, Input, message } from 'antd';
+import { Steps, Button, Form, DatePicker, InputNumber, Select, Input, message, Modal } from 'antd';
 import { MapPin, Calendar, Users, Package, Info, Clock } from 'lucide-react';
 import moment from 'moment';
-import Navbar from '../../components/Navigation/Navbar';
 import LocationInput from '../../components/Rides/LocationInput';
 import styles from '../../styles/Trips/requestTrip.module.css';
 
@@ -15,14 +13,12 @@ const { Step } = Steps;
 const { Option } = Select;
 const { TextArea } = Input;
 
-const RequestTrip = () => {
-    const router = useRouter();
+const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
     const { currentUser } = useAuth();
     const { createTripRequest, loading } = useTrip();
     const [form] = Form.useForm();
     const [currentStep, setCurrentStep] = useState(0);
 
-    // Form state
     const [tripData, setTripData] = useState({
         origin: {
             address: '',
@@ -46,7 +42,6 @@ const RequestTrip = () => {
         }
     });
 
-    // Location change handlers
     const handleOriginChange = (location) => {
         setTripData({
             ...tripData,
@@ -61,10 +56,9 @@ const RequestTrip = () => {
         });
     };
 
-    // Validation functions
     const validateCurrentStep = () => {
         switch (currentStep) {
-            case 0: // Route
+            case 0:
                 if (!tripData.origin.address || !tripData.origin.coordinates.length ||
                     !tripData.destination.address || !tripData.destination.coordinates.length) {
                     message.error('Please fill in both pickup and drop-off locations');
@@ -72,7 +66,7 @@ const RequestTrip = () => {
                 }
                 return true;
 
-            case 1: // Schedule
+            case 1:
                 if (!tripData.departureDate || !tripData.departureTime) {
                     message.error('Please fill in departure date and time');
                     return false;
@@ -85,14 +79,14 @@ const RequestTrip = () => {
                 }
                 return true;
 
-            case 2: // Details
+            case 2:
                 if (!tripData.numberOfSeats) {
                     message.error('Please specify number of seats needed');
                     return false;
                 }
                 return true;
 
-            case 3: // Recurrence
+            case 3:
                 if (tripData.recurrence.pattern !== 'none') {
                     if (!tripData.recurrence.endDate) {
                         message.error('Please specify an end date for the recurring trip');
@@ -378,7 +372,7 @@ const RequestTrip = () => {
 
             if (result.success) {
                 message.success('Trip request created successfully!');
-                router.push('/trip/my-trips');
+                onSuccess();
             } else {
                 message.error(result.message || 'Failed to create trip request');
             }
@@ -389,21 +383,19 @@ const RequestTrip = () => {
     };
 
     return (
-        <>
-            <Navbar />
+        <Modal
+            title="Request a Trip"
+            open={visible}
+            onCancel={onCancel}
+            footer={null}
+            width={800}
+        >
             <div className={styles.pageContainer}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={styles.contentWrapper}
                 >
-                    <div className={styles.pageHeader}>
-                        <h1 className={styles.pageTitle}>Request a Trip</h1>
-                        <p className={styles.pageDescription}>
-                            Fill in your trip details and find a driver
-                        </p>
-                    </div>
-
                     <div className={styles.stepsContainer}>
                         <Steps current={currentStep}>
                             {steps.map(step => (
@@ -458,8 +450,8 @@ const RequestTrip = () => {
                     </div>
                 </motion.div>
             </div>
-        </>
+        </Modal>
     );
 };
 
-export default RequestTrip;
+export default RequestTripModal;

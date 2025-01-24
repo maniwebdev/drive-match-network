@@ -1,44 +1,35 @@
 /* styles/Trips/requestTrip.module.css */
 
-/* Base Layout */
-.pageContainer {
-  min-height: 100vh;
-  background-color: #f8f9fa;
-  padding: 40px 20px;
-}
-
-.contentWrapper {
+/* Modal Container */
+.modalContainer {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   margin: 0 auto;
-  margin-top: 40px;
 }
 
-.pageHeader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 32px;
+/* Modal Header */
+.modalHeader {
+  text-align: center;
+  margin-bottom: 24px;
 }
 
-.pageTitle {
-  font-size: 32px;
+.modalTitle {
+  font-size: 24px;
   font-weight: 600;
   color: #264653;
   margin-bottom: 8px;
 }
 
-.pageDescription {
+.modalDescription {
   color: #666666;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 /* Steps Container */
 .stepsContainer {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e9ecef;
   margin-bottom: 24px;
 }
 
@@ -50,29 +41,24 @@
 
 /* Form Container */
 .formContainer {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 32px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e9ecef;
+  margin-top: 16px;
 }
 
 .stepContent {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
+/* Form Item Styles */
 .formItem {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .formItem :global(.ant-form-item-label) > label {
   font-weight: 500;
   color: #264653;
+  font-size: 14px;
 }
 
 /* Input Styles */
@@ -81,18 +67,17 @@
   height: 40px;
   border: 1px solid #e9ecef;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
 }
 
-.input:hover {
+.input:hover,
+.input:focus {
   border-color: #2a9d8f;
+  outline: none;
 }
 
-.inputIcon {
-  color: #2a9d8f;
-  width: 16px;
-  height: 16px;
-}
 /* Time Selection Styles */
 .timeSelectionContainer {
   display: flex;
@@ -111,16 +96,42 @@
   font-size: 18px;
 }
 
-/* Form Fields */
+/* Date Picker Styles */
 .datePicker {
   width: 100%;
 }
 
-.seatsInput,
+.datePicker :global(.ant-picker-input) > input {
+  font-size: 14px;
+}
+
+/* Number Input Styles */
+.seatsInput {
+  width: 100%;
+}
+
+.seatsInput :global(.ant-input-number-input) {
+  height: 40px;
+  font-size: 14px;
+}
+
+/* Select Dropdown Styles */
 .select {
   width: 100%;
 }
 
+.select :global(.ant-select-selector) {
+  height: 40px !important;
+  padding: 4px 12px !important;
+  border-color: #e9ecef !important;
+  font-size: 14px;
+}
+
+.select :global(.ant-select-selection-item) {
+  line-height: 32px !important;
+}
+
+/* TextArea Styles */
 .textArea {
   width: 100%;
   min-height: 120px;
@@ -128,6 +139,14 @@
   border: 1px solid #e9ecef;
   border-radius: 8px;
   padding: 12px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.textArea:hover,
+.textArea:focus {
+  border-color: #2a9d8f;
+  outline: none;
 }
 
 /* Button Container */
@@ -135,8 +154,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 32px;
-  padding-top: 24px;
+  margin-top: 24px;
+  padding-top: 16px;
   border-top: 1px solid #e9ecef;
 }
 
@@ -145,16 +164,20 @@
 .submitButton {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   height: 40px;
   padding: 8px 24px;
   border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
   transition: all 0.3s ease;
 }
 
 .prevButton {
   color: #666666;
   border: 1px solid #e9ecef;
+  background-color: #ffffff;
 }
 
 .prevButton:hover {
@@ -174,29 +197,26 @@
   background: #248277;
 }
 
-/* Ant Design Overrides */
-.formContainer :global(.ant-select-selector) {
-  height: 40px !important;
-  padding: 4px 12px !important;
-  border-color: #e9ecef !important;
+/* Recurrence Step Styles */
+.recurrenceStep {
+  margin-top: 20px;
 }
 
-.formContainer :global(.ant-select-selection-item) {
-  line-height: 32px !important;
+.recurrenceStep .ant-form-item {
+  margin-bottom: 16px;
 }
 
-.formContainer :global(.ant-picker) {
-  width: 100%;
-  border-color: #e9ecef;
+.customDaysSelect .ant-select-selection-item {
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-right: 8px;
 }
 
-.formContainer :global(.ant-input-number) {
-  width: 100%;
-  border-color: #e9ecef;
-}
 /* Steps Override Styles */
 .step :global(.ant-steps-item-title) {
   font-size: 14px;
+  color: #666666;
 }
 
 .step :global(.ant-steps-item-tail::after) {
@@ -205,54 +225,43 @@
 
 .step :global(.ant-steps-item-active .ant-steps-item-title) {
   font-weight: 500 !important;
+  color: #264653 !important;
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.step :global(.ant-steps-item-icon) {
+  background-color: #ffffff;
+  border-color: #e9ecef;
 }
 
-.stepContent {
-  animation: fadeIn 0.3s ease;
+.step :global(.ant-steps-item-active .ant-steps-item-icon) {
+  border-color: #2a9d8f;
 }
 
-/* Responsive Design */
+.step :global(.ant-steps-item-finish .ant-steps-item-icon) {
+  background-color: #2a9d8f;
+  border-color: #2a9d8f;
+}
+
+.step :global(.ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon) {
+  color: #ffffff;
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-  .pageContainer {
-    padding: 20px 16px;
+  .modalContainer {
+    padding: 16px;
   }
 
-  .contentWrapper {
-    margin-top: 20px;
+  .modalTitle {
+    font-size: 20px;
   }
 
-  .pageTitle {
-    font-size: 24px;
-    margin-bottom: 24px;
-  }
-
-  .formContainer {
-    padding: 20px;
-  }
-
-  .timeSelectionContainer {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .timeSelect {
-    max-width: 100%;
+  .modalDescription {
+    font-size: 12px;
   }
 
   .buttonContainer {
-    flex-direction: column-reverse;
+    flex-direction: column;
     gap: 12px;
   }
 
@@ -260,41 +269,5 @@
   .nextButton,
   .submitButton {
     width: 100%;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .pageContainer {
-    padding: 16px;
-  }
-
-  .stepsContainer {
-    padding: 16px 12px;
-  }
-
-  .formContainer {
-    padding: 16px;
-  }
-
-  .pageTitle {
-    font-size: 20px;
-  }
-
-  .pageDescription {
-    font-size: 14px;
-  }
-}
-
-/* Touch Device Optimizations */
-@media (hover: none) {
-  .nextButton:hover,
-  .submitButton:hover {
-    background: #2a9d8f;
-  }
-
-  .prevButton:hover {
-    background: none;
-    border-color: #e9ecef;
   }
 }

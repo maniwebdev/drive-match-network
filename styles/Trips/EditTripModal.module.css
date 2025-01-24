@@ -1,0 +1,337 @@
+/* Modal Container */
+.editModal :global(.ant-modal-content) {
+  border-radius: 12px;
+  padding: 24px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Recurrence Step Styles */
+.recurrenceStep {
+  margin-top: 20px;
+}
+
+.recurrenceStep .ant-form-item {
+  margin-bottom: 16px;
+}
+
+.recurrenceStep .ant-select {
+  width: 100%;
+}
+
+.recurrenceStep .ant-picker {
+  width: 100%;
+}
+
+.customDaysSelect .ant-select-selection-item {
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-right: 8px;
+}
+
+.editModal :global(.ant-modal-header) {
+  border-bottom: none;
+  padding-bottom: 0;
+  background-color: transparent;
+}
+
+.editModal :global(.ant-modal-title) {
+  font-size: 24px;
+  font-weight: 600;
+  color: #264653;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.editModal :global(.ant-modal-body) {
+  padding: 24px 0;
+}
+
+/* Steps Container */
+.stepsContainer {
+  margin-bottom: 24px;
+}
+
+.stepsContainer :global(.ant-steps) {
+  display: flex;
+  flex-direction: row; /* Ensure steps are always in a row */
+  justify-content: space-between;
+}
+
+.stepsContainer :global(.ant-steps-item) {
+  flex: 1;
+  margin-right: 8px; /* Add spacing between steps */
+}
+
+.stepsContainer :global(.ant-steps-item:last-child) {
+  margin-right: 0; /* Remove margin for the last step */
+}
+
+.stepsContainer :global(.ant-steps-item-title) {
+  font-size: 14px;
+  font-weight: 500;
+  color: #666666;
+}
+
+.stepsContainer :global(.ant-steps-item-active .ant-steps-item-title) {
+  color: #2a9d8f;
+}
+
+.stepsContainer :global(.ant-steps-icon) {
+  color: #2a9d8f;
+}
+
+.stepsContainer :global(.ant-steps-item-process .ant-steps-icon) {
+  color: #ffffff;
+  border-radius: 50%;
+}
+
+.stepsContainer :global(.ant-steps-item-wait .ant-steps-icon) {
+  color: #666666;
+}
+
+.stepsContainer :global(.ant-steps-item-finish .ant-steps-icon) {
+  color: #2a9d8f;
+}
+
+/* Step Content */
+.stepContent {
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.stepContent h4 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin-bottom: 16px;
+}
+
+/* Form Items */
+.formItem {
+  margin-bottom: 16px;
+}
+
+.formItem :global(.ant-form-item-label) {
+  font-weight: 500;
+  color: #264653;
+}
+
+.formItem :global(.ant-form-item-label > label) {
+  color: #264653;
+}
+
+.formItem :global(.ant-input),
+.formItem :global(.ant-picker),
+.formItem :global(.ant-select-selector),
+.formItem :global(.ant-input-number) {
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  padding: 8px 12px;
+  width: 100%;
+  transition: border-color 0.3s ease;
+}
+
+.formItem :global(.ant-input):focus,
+.formItem :global(.ant-picker):focus,
+.formItem :global(.ant-select-selector):focus,
+.formItem :global(.ant-input-number):focus {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.formItem :global(.ant-input-number) {
+  width: 100%;
+}
+
+.formItem :global(.ant-select-selector) {
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.formItem :global(.ant-select-selection-item) {
+  color: #264653;
+}
+
+.formItem :global(.ant-select-arrow) {
+  color: #666666;
+}
+
+/* Time Selection */
+.timeSelectionContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeSelect {
+  width: 80px;
+}
+
+.timeSeparator {
+  font-size: 16px;
+  color: #666666;
+}
+
+/* TextArea */
+.textArea {
+  resize: none;
+}
+
+/* Buttons */
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.prevButton,
+.nextButton,
+.submitButton {
+  width: 120px;
+  height: 40px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.prevButton {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: #666666;
+}
+
+.prevButton:hover {
+  background-color: #e9ecef;
+  border-color: #e9ecef;
+  color: #264653; /* Darker text color on hover */
+}
+
+.nextButton,
+.submitButton {
+  background-color: #2a9d8f;
+  border: none;
+  color: #ffffff;
+}
+
+.nextButton:hover,
+.submitButton:hover {
+  background-color: #248277; /* Darker shade of #2a9d8f for hover */
+  color: #ffffff; /* Ensure text color remains white */
+}
+
+/* Remove Ant Design's default blue hover styles */
+.buttonContainer :global(.ant-btn-primary):hover {
+  background-color: #248277 !important;
+  border-color: #248277 !important;
+  color: #ffffff !important;
+}
+
+.buttonContainer :global(.ant-btn-primary):focus {
+  background-color: #2a9d8f !important;
+  border-color: #2a9d8f !important;
+  color: #ffffff !important;
+}
+
+/* Icons */
+.stepIcon {
+  color: #2a9d8f; /* Ensure icons match your theme */
+  font-size: 18px; /* Adjust icon size */
+  margin-right: 8px; /* Add spacing between icon and text */
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+/* Error Message */
+.errorMessage {
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .editModal :global(.ant-modal-content) {
+    padding: 16px;
+  }
+
+  .stepsContainer :global(.ant-steps-item-title) {
+    display: none;
+  }
+
+  .stepContent {
+    padding: 12px;
+  }
+
+  .buttonContainer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .prevButton,
+  .nextButton,
+  .submitButton {
+    width: 100%;
+  }
+
+  /* Adjust icons for smaller screens */
+  .stepIcon {
+    font-size: 16px; /* Smaller icons for mobile */
+    margin-right: 6px; /* Less spacing for mobile */
+  }
+}
+
+@media (max-width: 575px) {
+  /* Further adjustments for very small screens */
+  .stepIcon {
+    font-size: 14px; /* Even smaller icons for very small screens */
+    margin-right: 4px; /* Minimal spacing */
+  }
+
+  .stepContent h4 {
+    font-size: 14px; /* Smaller font size for headings */
+  }
+
+  .formItem :global(.ant-form-item-label > label) {
+    font-size: 14px; /* Smaller font size for labels */
+  }
+
+  .formItem :global(.ant-input),
+  .formItem :global(.ant-picker),
+  .formItem :global(.ant-select-selector),
+  .formItem :global(.ant-input-number) {
+    padding: 6px 10px; /* Smaller padding for inputs */
+  }
+
+  .timeSelect {
+    width: 70px; /* Smaller time select dropdowns */
+  }
+
+  .timeSeparator {
+    font-size: 14px; /* Smaller time separator */
+  }
+
+  /* Ensure steps stay in a row on very small screens */
+  .stepsContainer :global(.ant-steps) {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 135%;
+    overflow-x: auto; /* Allow horizontal scrolling if needed */
+  }
+
+  .stepsContainer :global(.ant-steps-item) {
+    flex: none; /* Prevent steps from stretching */
+    min-width: 80px; /* Minimum width for each step */
+  }
+}

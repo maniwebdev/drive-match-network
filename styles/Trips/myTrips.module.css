@@ -1,5 +1,40 @@
 /* styles/Trips/myTrips.module.css */
+/* Recurrence Details */
+.recurrenceDetails {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
 
+.recurrenceDetails h4 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #264653;
+  margin-bottom: 8px;
+}
+
+.recurrenceDetails p {
+  font-size: 14px;
+  color: #666666;
+  margin: 0;
+}
+/* Edit Button */
+.editButton {
+  background: #2a9d8f;
+  border: none;
+  color: #fff;
+  margin-right: 8px;
+}
+
+.editButton:hover {
+  background: #248277;
+}
+.tripActions :global(.ant-btn-primary):hover {
+  background-color: #248277 !important;
+  border-color: #248277 !important;
+  color: #ffffff !important;
+}
 /* Base Layout */
 .pageContainer {
   min-height: 100vh;
@@ -49,7 +84,7 @@
   background: #248277;
 }
 
-.RequestButton{
+.RequestButton {
   background: #2a9d8f;
 }
 

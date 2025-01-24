@@ -297,6 +297,36 @@ const AvailableTrips = () => {
             );
         }
 
+        // Function to format recurrence details
+        const formatRecurrence = (recurrence) => {
+            if (!recurrence || recurrence.pattern === 'none') {
+                return 'No recurrence';
+            }
+
+            let recurrenceText = '';
+            switch (recurrence.pattern) {
+                case 'daily':
+                    recurrenceText = 'Daily';
+                    break;
+                case 'weekly':
+                    recurrenceText = 'Weekly';
+                    break;
+                case 'weekdays':
+                    recurrenceText = 'Weekdays (Mon-Fri)';
+                    break;
+                case 'custom':
+                    recurrenceText = `Custom (${recurrence.customDays.join(', ')})`;
+                    break;
+                default:
+                    recurrenceText = 'No recurrence';
+            }
+
+            if (recurrence.endDate) {
+                recurrenceText += ` until ${moment(recurrence.endDate).format('MMM D, YYYY')}`;
+            }
+
+            return recurrenceText;
+        };
         return (
             <motion.div
                 initial={{ opacity: 0 }}
@@ -389,6 +419,14 @@ const AvailableTrips = () => {
                                         </span>
                                     </div>
                                 </div>
+
+                                {/* Recurrence Details */}
+                                {trip.recurrence && trip.recurrence.pattern !== 'none' && (
+                                    <div className={styles.recurrenceDetails}>
+                                        <h4>Recurrence</h4>
+                                        <p>{formatRecurrence(trip.recurrence)}</p>
+                                    </div>
+                                )}
 
                                 {trip.additionalNotes && (
                                     <div className={styles.notes}>

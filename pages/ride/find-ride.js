@@ -41,8 +41,9 @@ const FindRide = () => {
 
     // Location and loading states
     const [userLocation, setUserLocation] = useState(null);
-    const [nearbyRides, setNearbyRides] = useState([]);
+    const [searchResults, setSearchResults] = useState([]);
     const [loadingLocation, setLoadingLocation] = useState(false);
+    const [isSearched, setIsSearched] = useState(false);
 
     // Search parameters state
     const [searchParams, setSearchParams] = useState({
@@ -59,15 +60,13 @@ const FindRide = () => {
         departureDate: null,
         seats: 1,
         maxPrice: null,
-        luggageSize: 'medium'
+        luggageSize: ''
     });
 
-    // UI states
-    const [searchResults, setSearchResults] = useState([]);
+    // UI state for showing/hiding filters
     const [showFilters, setShowFilters] = useState(false);
-    const [isSearched, setIsSearched] = useState(false);
-    const [initialLoadDone, setInitialLoadDone] = useState(false);
-    // Location and nearby rides effect
+
+    // Fetch user location and nearby rides on initial load
     useEffect(() => {
         const getUserLocation = async () => {
             if (!navigator.geolocation) {
@@ -87,11 +86,8 @@ const FindRide = () => {
                 };
                 setUserLocation(location);
 
-                // Search for nearby rides with minimal parameters
-                const result = await searchRideOffers({
-                    departureDate: moment().format('YYYY-MM-DD')
-                }, location);
-
+                // Fetch nearby rides
+                const result = await searchRideOffers({}, location);
                 if (result.success) {
                     setSearchResults(result.rideOffers);
                     setIsSearched(true);
@@ -107,87 +103,28 @@ const FindRide = () => {
         getUserLocation();
     }, []);
 
-    // URL query parameters effect
-    useEffect(() => {
-        const {
-            originCity,
-            destinationCity,
-            date,
-            seats
-        } = router.query;
-
-        if (!initialLoadDone && (originCity || destinationCity || date || seats)) {
-            setSearchParams(prev => ({
-                ...prev,
-                origin: { ...prev.origin, city: originCity || '' },
-                destination: { ...prev.destination, city: destinationCity || '' },
-                departureDate: date ? moment(date) : null,
-                seats: seats ? parseInt(seats) : 1
-            }));
-
-            handleSearch({
-                originCity,
-                destinationCity,
-                departureDate: date,
-                seats: seats ? parseInt(seats) : 1
-            });
-        }
-        setInitialLoadDone(true);
-    }, [router.query]);
-
-    // Cleanup effect
-    useEffect(() => {
-        return () => {
-            setSearchResults([]);
-            setIsSearched(false);
-        };
-    }, []);
-
-    // Handler functions
-    const handleLocationChange = (field, value) => {
-        setSearchParams(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
-
+    // Handle search
     const handleSearch = async (overrideParams) => {
         const searchData = overrideParams || {
             originCity: searchParams.origin?.city,
             destinationCity: searchParams.destination?.city,
             departureDate: searchParams.departureDate?.format('YYYY-MM-DD'),
             seats: searchParams.seats,
-            ...(searchParams.maxPrice && { maxPrice: searchParams.maxPrice }),
-            ...(searchParams.luggageSize && { allowedLuggage: searchParams.luggageSize })
+            maxPrice: searchParams.maxPrice,
+            allowedLuggage: searchParams.luggageSize
         };
 
-        // Validate required fields
-        if (!overrideParams && (!searchData.originCity || !searchData.destinationCity || !searchData.departureDate)) {
-            message.error('Please fill in all required fields');
+        // Only require the pickup location to be filled
+        if (!searchData.originCity) {
+            message.error('Please fill in the pickup location');
             return;
         }
 
         try {
-            //  console.log('Searching with params:', searchData);
             const result = await searchRideOffers(searchData, userLocation);
-            //   console.log('Search result:', result);
-
             if (result.success) {
                 setSearchResults(result.rideOffers);
                 setIsSearched(true);
-
-                // Only update URL if it's a new search (not from URL params)
-                if (!overrideParams) {
-                    router.push({
-                        pathname: '/ride/find-ride',
-                        query: {
-                            originCity: searchData.originCity,
-                            destinationCity: searchData.destinationCity,
-                            date: searchData.departureDate,
-                            seats: searchData.seats
-                        }
-                    }, undefined, { shallow: true });
-                }
             } else {
                 message.error(result.message || 'Failed to search rides');
             }
@@ -197,9 +134,19 @@ const FindRide = () => {
         }
     };
 
+    // Handle location change
+    const handleLocationChange = (field, value) => {
+        setSearchParams(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    // Handle ride selection
     const handleRideSelect = (rideId) => {
         router.push(`/ride/details/${rideId}`);
     };
+
     // Render search form
     const renderSearchForm = () => (
         <motion.div
@@ -231,19 +178,17 @@ const FindRide = () => {
 
                     <Form.Item
                         label="To"
-                        required
                         className={styles.locationField}
                     >
                         <LocationInput
                             value={searchParams.destination}
                             onChange={(value) => handleLocationChange('destination', value)}
-                            placeholder="Enter destination"
+                            placeholder="Enter destination (optional)"
                         />
                     </Form.Item>
 
                     <Form.Item
                         label="Date"
-                        required
                         className={styles.dateField}
                     >
                         <DatePicker
@@ -252,6 +197,7 @@ const FindRide = () => {
                             disabledDate={(current) => current && current < moment().startOf('day')}
                             format="YYYY-MM-DD"
                             className={styles.datePicker}
+                            placeholder="Select date (optional)"
                         />
                     </Form.Item>
 
@@ -336,6 +282,7 @@ const FindRide = () => {
             </Form>
         </motion.div>
     );
+
     // Render search results
     const renderSearchResults = () => {
         if (loadingLocation) {
@@ -393,9 +340,7 @@ const FindRide = () => {
                 className={styles.searchResults}
             >
                 <h2 className={styles.resultsTitle}>
-                    {isSearched && searchResults === nearbyRides ?
-                        'Nearby Rides' :
-                        'Available Rides'} ({searchResults.length})
+                    {userLocation && !searchParams.origin.city ? 'Nearby Rides' : 'Available Rides'} ({searchResults.length})
                 </h2>
                 <div className={styles.resultsList}>
                     {searchResults.map((ride) => (
@@ -499,7 +444,7 @@ const FindRide = () => {
             </motion.div>
         );
     };
-    // Main render
+
     return (
         <>
             <Navbar />
@@ -517,5 +462,4 @@ const FindRide = () => {
     );
 };
 
-// Export the component
 export default FindRide;

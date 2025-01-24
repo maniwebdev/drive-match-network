@@ -155,7 +155,7 @@ export const RideProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }; 
 
     // Create ride request
     const createRideRequest = async (requestData) => {

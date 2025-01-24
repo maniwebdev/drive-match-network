@@ -218,77 +218,123 @@ const TripDetails = () => {
             )}
         </Card>
     );
-    const renderTripDetails = () => (
-        <Card className={styles.tripCard}>
-            <div className={styles.routeInfo}>
-                <div className={styles.location}>
-                    <MapPin className={styles.icon} />
-                    <div>
-                        <span className={styles.locationLabel}>Pickup</span>
-                        <h3 className={styles.locationName}>{trip?.origin.city}</h3>
-                        <p className={styles.locationAddress}>{trip?.origin.address}</p>
+    const renderTripDetails = () => {
+        // Function to format recurrence details
+        const formatRecurrence = (recurrence) => {
+            if (!recurrence || recurrence.pattern === 'none') {
+                return 'No recurrence';
+            }
+
+            let recurrenceText = '';
+            switch (recurrence.pattern) {
+                case 'daily':
+                    recurrenceText = 'Daily';
+                    break;
+                case 'weekly':
+                    recurrenceText = 'Weekly';
+                    break;
+                case 'weekdays':
+                    recurrenceText = 'Weekdays (Mon-Fri)';
+                    break;
+                case 'custom':
+                    recurrenceText = `Custom (${recurrence.customDays.join(', ')})`;
+                    break;
+                default:
+                    recurrenceText = 'No recurrence';
+            }
+
+            if (recurrence.endDate) {
+                recurrenceText += ` until ${moment(recurrence.endDate).format('MMM D, YYYY')}`;
+            }
+
+            return recurrenceText;
+        };
+
+        return (
+            <Card className={styles.tripCard}>
+                <div className={styles.routeInfo}>
+                    <div className={styles.location}>
+                        <MapPin className={styles.icon} />
+                        <div>
+                            <span className={styles.locationLabel}>Pickup</span>
+                            <h3 className={styles.locationName}>{trip?.origin.city}</h3>
+                            <p className={styles.locationAddress}>{trip?.origin.address}</p>
+                        </div>
+                    </div>
+
+                    <div className={styles.routeDivider}>
+                        <div className={styles.dividerLine} />
+                    </div>
+
+                    <div className={styles.location}>
+                        <MapPin className={styles.icon} />
+                        <div>
+                            <span className={styles.locationLabel}>Dropoff</span>
+                            <h3 className={styles.locationName}>{trip?.destination.city}</h3>
+                            <p className={styles.locationAddress}>{trip?.destination.address}</p>
+                        </div>
                     </div>
                 </div>
 
-                <div className={styles.routeDivider}>
-                    <div className={styles.dividerLine} />
-                </div>
+                <Divider className={styles.divider} />
 
-                <div className={styles.location}>
-                    <MapPin className={styles.icon} />
-                    <div>
-                        <span className={styles.locationLabel}>Dropoff</span>
-                        <h3 className={styles.locationName}>{trip?.destination.city}</h3>
-                        <p className={styles.locationAddress}>{trip?.destination.address}</p>
+                <div className={styles.tripDetails}>
+                    <div className={styles.detailItem}>
+                        <Calendar className={styles.icon} />
+                        <div>
+                            <span className={styles.detailLabel}>Date</span>
+                            <span className={styles.detailValue}>
+                                {formatDate(trip?.departureDate)}
+                            </span>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <Divider className={styles.divider} />
-
-            <div className={styles.tripDetails}>
-                <div className={styles.detailItem}>
-                    <Calendar className={styles.icon} />
-                    <div>
-                        <span className={styles.detailLabel}>Date</span>
-                        <span className={styles.detailValue}>
-                            {formatDate(trip?.departureDate)}
-                        </span>
+                    <div className={styles.detailItem}>
+                        <Clock className={styles.icon} />
+                        <div>
+                            <span className={styles.detailLabel}>Departure Time</span>
+                            <span className={styles.detailValue}>
+                                {formatTime(trip?.departureTime)}
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                <div className={styles.detailItem}>
-                    <Clock className={styles.icon} />
-                    <div>
-                        <span className={styles.detailLabel}>Departure Time</span>
-                        <span className={styles.detailValue}>
-                            {formatTime(trip?.departureTime)}
-                        </span>
+                    <div className={styles.detailItem}>
+                        <Users className={styles.icon} />
+                        <div>
+                            <span className={styles.detailLabel}>Seats Needed</span>
+                            <span className={styles.detailValue}>
+                                {trip?.numberOfSeats}
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                <div className={styles.detailItem}>
-                    <Users className={styles.icon} />
-                    <div>
-                        <span className={styles.detailLabel}>Seats Needed</span>
-                        <span className={styles.detailValue}>
-                            {trip?.numberOfSeats}
-                        </span>
+                    <div className={styles.detailItem}>
+                        <Package className={styles.icon} />
+                        <div>
+                            <span className={styles.detailLabel}>Luggage Size</span>
+                            <span className={styles.detailValue}>
+                                {trip?.luggageSize.charAt(0).toUpperCase() + trip?.luggageSize.slice(1)}
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                <div className={styles.detailItem}>
-                    <Package className={styles.icon} />
-                    <div>
-                        <span className={styles.detailLabel}>Luggage Size</span>
-                        <span className={styles.detailValue}>
-                            {trip?.luggageSize.charAt(0).toUpperCase() + trip?.luggageSize.slice(1)}
-                        </span>
-                    </div>
+                    {/* Recurrence Details */}
+                    {trip?.recurrence && trip.recurrence.pattern !== 'none' && (
+                        <div className={styles.detailItem}>
+                            <Calendar className={styles.icon} />
+                            <div>
+                                <span className={styles.detailLabel}>Recurrence</span>
+                                <span className={styles.detailValue}>
+                                    {formatRecurrence(trip.recurrence)}
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
-            </div>
-        </Card>
-    );
+            </Card>
+        );
+    };
     const renderAcceptModal = () => (
         <Modal
             title="Accept Trip Request"
