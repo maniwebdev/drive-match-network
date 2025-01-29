@@ -10,7 +10,9 @@ import {
     Button,
     Empty,
     Spin,
-    message
+    message,
+    Input,
+    Switch
 } from 'antd';
 import {
     Search,
@@ -19,7 +21,8 @@ import {
     Package,
     MapPin,
     Filter,
-    Car
+    Car,
+    Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import moment from 'moment';
@@ -29,7 +32,42 @@ import styles from '../../styles/Trips/availableTrips.module.css';
 import LoadingAnimation from '../../components/LoadingAnimation';
 
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 
+// Time display component
+const TimeDisplay = ({ trip }) => {
+    const now = moment();
+    const tripDateTime = moment(trip.departureDate)
+        .set({
+            hour: parseInt(trip.departureTime.split(':')[0]),
+            minute: parseInt(trip.departureTime.split(':')[1])
+        });
+
+    const minutesUntilDeparture = tripDateTime.diff(now, 'minutes');
+    const isDeparted = minutesUntilDeparture <= 0;
+    const isUrgent = minutesUntilDeparture <= 30 && minutesUntilDeparture > 0;
+
+    if (isDeparted) {
+        return <span className={styles.departedBadge}>Departed</span>;
+    }
+
+    if (isUrgent) {
+        return (
+            <div className={styles.urgentTimeContainer}>
+                <span className={styles.urgentBadge}>
+                    <Clock size={14} className={styles.clockIcon} />
+                    Leaving in {minutesUntilDeparture} minutes
+                </span>
+            </div>
+        );
+    }
+
+    return (
+        <span className={styles.normalTime}>
+            {tripDateTime.format('ddd, MMM D')} at {trip.departureTime}
+        </span>
+    );
+};
 const AvailableTrips = () => {
     const router = useRouter();
     const { currentUser } = useAuth();
@@ -45,28 +83,22 @@ const AvailableTrips = () => {
 
     // Search parameters
     const [searchParams, setSearchParams] = useState({
-        origin: {
-            city: '',
-            coordinates: []
-        },
-        destination: {
-            city: '',
-            coordinates: []
-        },
-        departureDate: null,
-        luggageSize: null
+        origin: { city: '', coordinates: [] },
+        destination: { city: '', coordinates: [] },
+        date: null,
+        luggageSize: null,
+        seats: null,
+        urgent: false
     });
-    // Check if user is a verified driver
+
+    // Initial data fetch effect
     useEffect(() => {
         if (!currentUser?.isDriver || !currentUser?.driverVerification?.isVerified) {
-            message.error('Only verified drivers can access this page');
-            //   router.push('/user/profile');
+           // message.error('Only verified drivers can access this page');
+            return;
         }
-    }, [currentUser, router]);
 
-    // Get user location and nearby trip requests
-    useEffect(() => {
-        const getUserLocation = async () => {
+        const fetchInitialTrips = async () => {
             if (!navigator.geolocation) {
                 message.info('Geolocation is not supported by your browser');
                 return;
@@ -84,7 +116,6 @@ const AvailableTrips = () => {
                 };
                 setUserLocation(location);
 
-                // Search for nearby trips
                 const result = await getAvailableTrips({
                     lat: location.lat,
                     lng: location.lng
@@ -102,9 +133,10 @@ const AvailableTrips = () => {
             }
         };
 
-        getUserLocation();
-    }, []);
-
+        if (currentUser?.isDriver) {
+            fetchInitialTrips();
+        }
+    }, [currentUser?.isDriver]);
     // Handler functions
     const handleLocationChange = (field, value) => {
         setSearchParams(prev => ({
@@ -114,30 +146,50 @@ const AvailableTrips = () => {
     };
 
     const handleSearch = async () => {
-        if (!searchParams.origin.city && !searchParams.destination.city && !searchParams.departureDate) {
-            message.warning('Please enter at least one search criteria');
-            return;
-        }
-
         try {
+            const now = moment();
             const searchData = {
                 originCity: searchParams.origin.city,
                 destinationCity: searchParams.destination.city,
-                departureDate: searchParams.departureDate?.format('YYYY-MM-DD'),
+                seats: searchParams.seats,
                 luggageSize: searchParams.luggageSize,
-                ...(userLocation && {
-                    lat: userLocation.lat,
-                    lng: userLocation.lng
-                })
+                urgent: searchParams.urgent,
+                urgentTime: now.toISOString() // Send current time in ISO format
             };
+
+            // If not urgent and date is selected, format it properly
+            if (!searchParams.urgent && searchParams.date) {
+                searchData.date = moment(searchParams.date).format('YYYY-MM-DD');
+            }
+
+            if (userLocation) {
+                searchData.lat = userLocation.lat;
+                searchData.lng = userLocation.lng;
+            }
 
             const result = await getAvailableTrips(searchData);
 
             if (result.success) {
-                setTripRequests(result.trips);
+                const processedTrips = result.trips.map(trip => {
+                    const tripDateTime = moment(trip.departureDate)
+                        .set({
+                            hour: parseInt(trip.departureTime.split(':')[0]),
+                            minute: parseInt(trip.departureTime.split(':')[1])
+                        });
+
+                    const minutesUntilDeparture = tripDateTime.diff(now, 'minutes');
+
+                    return {
+                        ...trip,
+                        minutesUntilDeparture,
+                        isUrgent: minutesUntilDeparture <= 30 && minutesUntilDeparture > 0
+                    };
+                }).filter(trip => trip.minutesUntilDeparture > 0);
+
+                setTripRequests(processedTrips);
                 setIsSearched(true);
             } else {
-                message.error(result.message || 'Failed to search trip requests');
+                message.error(result.error || 'Failed to search trip requests');
             }
         } catch (error) {
             console.error('Search error:', error);
@@ -148,23 +200,17 @@ const AvailableTrips = () => {
     const handleTripSelect = (tripId) => {
         router.push(`/trip/details/${tripId}`);
     };
-    {/*
-     const renderSearchForm = () => (
+
+    // Render Methods
+    const renderSearchForm = () => (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className={styles.searchFormContainer}
         >
-            <Form
-                form={form}
-                layout="vertical"
-                className={styles.searchForm}
-            >
+            <Form form={form} layout="vertical" className={styles.searchForm}>
                 <div className={styles.mainSearchFields}>
-                    <Form.Item
-                        label="City From"
-                        className={styles.locationField}
-                    >
+                    <Form.Item label="From City" className={styles.locationField}>
                         <LocationInput
                             value={searchParams.origin}
                             onChange={(value) => handleLocationChange('origin', value)}
@@ -172,10 +218,7 @@ const AvailableTrips = () => {
                         />
                     </Form.Item>
 
-                    <Form.Item
-                        label="City To"
-                        className={styles.locationField}
-                    >
+                    <Form.Item label="To City" className={styles.locationField}>
                         <LocationInput
                             value={searchParams.destination}
                             onChange={(value) => handleLocationChange('destination', value)}
@@ -183,16 +226,19 @@ const AvailableTrips = () => {
                         />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Date"
-                        className={styles.dateField}
-                    >
+                    <Form.Item label="Date" className={styles.dateField}>
                         <DatePicker
-                            value={searchParams.departureDate}
-                            onChange={(date) => setSearchParams(prev => ({ ...prev, departureDate: date }))}
+                            value={searchParams.date}
+                            onChange={(date) => setSearchParams(prev => ({
+                                ...prev,
+                                date: date
+                            }))}
+                            disabled={searchParams.urgent}
                             disabledDate={(current) => current && current < moment().startOf('day')}
                             format="YYYY-MM-DD"
                             className={styles.datePicker}
+                            showNow
+                            allowClear
                         />
                     </Form.Item>
 
@@ -206,7 +252,6 @@ const AvailableTrips = () => {
                         Search
                     </Button>
                 </div>
-
                 <div className={styles.filtersSection}>
                     <Button
                         type="text"
@@ -224,6 +269,41 @@ const AvailableTrips = () => {
                             className={styles.filtersContainer}
                         >
                             <Form.Item
+                                label="Within 30 minutes"
+                                className={styles.filterField}
+                            >
+                                <Switch
+                                    checked={searchParams.urgent}
+                                    onChange={(checked) => {
+                                        setSearchParams(prev => ({
+                                            ...prev,
+                                            urgent: checked,
+                                            date: checked ? null : prev.date
+                                        }));
+                                        // Trigger search immediately when urgent is toggled on
+                                        if (checked) {
+                                            setTimeout(() => handleSearch(), 0);
+                                        }
+                                    }}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label="Max Seats"
+                                className={styles.filterField}
+                            >
+                                <Input
+                                    type="number"
+                                    min="1"
+                                    max="8"
+                                    value={searchParams.seats}
+                                    onChange={(e) => setSearchParams(prev => ({
+                                        ...prev,
+                                        seats: Number(e.target.value)
+                                    }))}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
                                 label="Luggage Size"
                                 className={styles.filterField}
                             >
@@ -233,12 +313,12 @@ const AvailableTrips = () => {
                                         ...prev,
                                         luggageSize: value
                                     }))}
-                                    className={styles.select}
                                     allowClear
+                                    placeholder="Select luggage size"
                                 >
-                                    <Option value="small">Small (Backpack)</Option>
-                                    <Option value="medium">Medium (Carry-on)</Option>
-                                    <Option value="large">Large (Suitcase)</Option>
+                                    <Option value="small">Small</Option>
+                                    <Option value="medium">Medium</Option>
+                                    <Option value="large">Large</Option>
                                 </Select>
                             </Form.Item>
                         </motion.div>
@@ -246,13 +326,132 @@ const AvailableTrips = () => {
                 </div>
             </Form>
         </motion.div>
-    );    
-        */}
+    );
+
+    // Trip Card Component
+    const TripCard = ({ trip }) => {
+        const recurrenceText = formatRecurrence(trip.recurrence);
+
+        return (
+            <motion.div
+                key={trip._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.02 }}
+                className={`${styles.tripCard} ${trip.isUrgent ? styles.urgentTrip : ''}`}
+                onClick={() => handleTripSelect(trip._id)}
+            >
+                <div className={styles.tripHeader}>
+                    <div className={styles.requesterInfo}>
+                        <div className={styles.requesterAvatar}>
+                            {trip.requester.profilePicture ? (
+                                <img
+                                    src={trip.requester.profilePicture.url}
+                                    alt={trip.requester.fullName}
+                                    className={styles.avatarImage}
+                                />
+                            ) : (
+                                <div className={styles.avatarPlaceholder}>
+                                    {trip.requester.fullName[0]}
+                                </div>
+                            )}
+                        </div>
+                        <div className={styles.requesterDetails}>
+                            <h3>{trip.requester.fullName}</h3>
+                            <div className={styles.rating}>
+                                ⭐ {trip.requester.rating?.toFixed(1) || 'New'}
+                            </div>
+                        </div>
+                    </div>
+                    {trip.isUrgent && (
+                        <div className={styles.urgentBadge}>
+                            Urgent Request
+                        </div>
+                    )}
+                </div>
+
+                <div className={styles.tripDetails}>
+                    <div className={styles.locations}>
+                        <div className={styles.locationItem}>
+                            <MapPin className={styles.locationIcon} />
+                            <div className={styles.locationText}>
+                                <span className={styles.locationName}>
+                                    {trip.origin.city}
+                                </span>
+                                <span className={styles.locationAddress}>
+                                    {trip.origin.address}
+                                </span>
+                            </div>
+                        </div>
+                        <div className={styles.locationDivider}>→</div>
+                        <div className={styles.locationItem}>
+                            <MapPin className={styles.locationIcon} />
+                            <div className={styles.locationText}>
+                                <span className={styles.locationName}>
+                                    {trip.destination.city}
+                                </span>
+                                <span className={styles.locationAddress}>
+                                    {trip.destination.address}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={styles.tripMeta}>
+                        <div className={`${styles.metaItem} ${trip.isUrgent ? styles.urgentTime : ''}`}>
+                            <Calendar size={16} />
+                            <TimeDisplay trip={trip} />
+                        </div>
+                        <div className={styles.metaItem}>
+                            <Users size={16} />
+                            <span>{trip.numberOfSeats} seats</span>
+                        </div>
+                        <div className={styles.metaItem}>
+                            <Package size={16} />
+                            <span>{trip.luggageSize}</span>
+                        </div>
+                    </div>
+                    {recurrenceText && (
+                        <div className={styles.recurrence}>
+                            <span className={styles.recurrenceBadge}>
+                                {recurrenceText}
+                            </span>
+                        </div>
+                    )}
+
+                    {trip.additionalNotes && (
+                        <div className={styles.notes}>
+                            <p>{trip.additionalNotes}</p>
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        );
+    };
+
+    const formatRecurrence = (recurrence) => {
+        if (!recurrence || recurrence.pattern === 'none') return null;
+
+        const patterns = {
+            daily: 'Daily',
+            weekly: 'Weekly',
+            weekdays: 'Weekdays',
+            custom: `Custom (${recurrence.customDays?.join(', ')})`
+        };
+
+        let text = patterns[recurrence.pattern] || '';
+        if (recurrence.endDate) {
+            text += ` until ${moment(recurrence.endDate).format('MMM D, YYYY')}`;
+        }
+        return text;
+    };
+
     const renderSearchResults = () => {
         if (loadingLocation) {
             return (
                 <div className={styles.loadingState}>
                     <LoadingAnimation />
+                    <p>Finding trips near you...</p>
                 </div>
             );
         }
@@ -297,36 +496,6 @@ const AvailableTrips = () => {
             );
         }
 
-        // Function to format recurrence details
-        const formatRecurrence = (recurrence) => {
-            if (!recurrence || recurrence.pattern === 'none') {
-                return 'No recurrence';
-            }
-
-            let recurrenceText = '';
-            switch (recurrence.pattern) {
-                case 'daily':
-                    recurrenceText = 'Daily';
-                    break;
-                case 'weekly':
-                    recurrenceText = 'Weekly';
-                    break;
-                case 'weekdays':
-                    recurrenceText = 'Weekdays (Mon-Fri)';
-                    break;
-                case 'custom':
-                    recurrenceText = `Custom (${recurrence.customDays.join(', ')})`;
-                    break;
-                default:
-                    recurrenceText = 'No recurrence';
-            }
-
-            if (recurrence.endDate) {
-                recurrenceText += ` until ${moment(recurrence.endDate).format('MMM D, YYYY')}`;
-            }
-
-            return recurrenceText;
-        };
         return (
             <motion.div
                 initial={{ opacity: 0 }}
@@ -334,107 +503,11 @@ const AvailableTrips = () => {
                 className={styles.searchResults}
             >
                 <h2 className={styles.resultsTitle}>
-                    Available Trip Requests ({tripRequests.length})
+                    Available Trips ({tripRequests.length})
                 </h2>
                 <div className={styles.resultsList}>
                     {tripRequests.map((trip) => (
-                        <motion.div
-                            key={trip._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            whileHover={{ scale: 1.02 }}
-                            className={styles.tripCard}
-                            onClick={() => handleTripSelect(trip._id)}
-                        >
-                            <div className={styles.tripHeader}>
-                                <div className={styles.requesterInfo}>
-                                    <div className={styles.requesterAvatar}>
-                                        {trip.requester.profilePicture ? (
-                                            <img
-                                                src={trip.requester.profilePicture.url}
-                                                alt={trip.requester.fullName}
-                                                className={styles.avatarImage}
-                                            />
-                                        ) : (
-                                            <div className={styles.avatarPlaceholder}>
-                                                {trip.requester.fullName[0]}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className={styles.requesterDetails}>
-                                        <h3 className={styles.requesterName}>
-                                            {trip.requester.fullName}
-                                        </h3>
-                                        <div className={styles.rating}>
-                                            ⭐ {trip.requester.rating?.toFixed(1)}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className={styles.tripDetails}>
-                                <div className={styles.locations}>
-                                    <div className={styles.locationItem}>
-                                        <MapPin className={styles.locationIcon} />
-                                        <div className={styles.locationText}>
-                                            <span className={styles.locationName}>
-                                                {trip.origin.city}
-                                            </span>
-                                            <span className={styles.locationAddress}>
-                                                {trip.origin.address}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className={styles.locationDivider}>→</div>
-                                    <div className={styles.locationItem}>
-                                        <MapPin className={styles.locationIcon} />
-                                        <div className={styles.locationText}>
-                                            <span className={styles.locationName}>
-                                                {trip.destination.city}
-                                            </span>
-                                            <span className={styles.locationAddress}>
-                                                {trip.destination.address}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className={styles.tripInfo}>
-                                    <div className={styles.infoItem}>
-                                        <Calendar className={styles.infoIcon} />
-                                        <span>
-                                            {moment(trip.departureDate).format('ddd, MMM D, YYYY')} at {trip.departureTime}
-                                        </span>
-                                    </div>
-                                    <div className={styles.infoItem}>
-                                        <Users className={styles.infoIcon} />
-                                        <span>
-                                            {trip.numberOfSeats} seats needed
-                                        </span>
-                                    </div>
-                                    <div className={styles.infoItem}>
-                                        <Package className={styles.infoIcon} />
-                                        <span>
-                                            Luggage: {trip.luggageSize}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Recurrence Details */}
-                                {trip.recurrence && trip.recurrence.pattern !== 'none' && (
-                                    <div className={styles.recurrenceDetails}>
-                                        <h4>Recurrence</h4>
-                                        <p>{formatRecurrence(trip.recurrence)}</p>
-                                    </div>
-                                )}
-
-                                {trip.additionalNotes && (
-                                    <div className={styles.notes}>
-                                        <p>{trip.additionalNotes}</p>
-                                    </div>
-                                )}
-                            </div>
-                        </motion.div>
+                        <TripCard key={trip._id} trip={trip} />
                     ))}
                 </div>
             </motion.div>
@@ -454,7 +527,7 @@ const AvailableTrips = () => {
                         <div className={styles.driverVerificationRequired}>
                             <Car className={styles.verificationIcon} />
                             <h2>Driver Verification Required</h2>
-                            <p>You need to be a verified driver to view trip requests.</p>
+                            <p>Complete your driver profile to view trip requests</p>
                             <Button
                                 type="primary"
                                 onClick={() => router.push('/user/profile')}
@@ -465,7 +538,7 @@ const AvailableTrips = () => {
                         </div>
                     ) : (
                         <>
-                            {/*  {renderSearchForm()}*/}
+                            {renderSearchForm()}
                             {renderSearchResults()}
                         </>
                     )}

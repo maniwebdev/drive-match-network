@@ -1,3 +1,4 @@
+//pages/offer-ride.js
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../context/Auth/AuthContext';
@@ -19,6 +20,8 @@ const OfferRide = () => {
     const { createRideOffer, loading } = useRide();
     const [form] = Form.useForm();
     const [currentStep, setCurrentStep] = useState(0);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTime, setSelectedTime] = useState(null);
 
     const [offerData, setOfferData] = useState({
         origin: {
@@ -32,8 +35,7 @@ const OfferRide = () => {
             coordinates: []
         },
         waypoints: [],
-        departureDate: null,
-        departureTime: '',
+        departureDateTime: null,
         availableSeats: 1,
         pricePerSeat: 0,
         estimatedDuration: 0,
@@ -43,12 +45,10 @@ const OfferRide = () => {
         vehicle: currentUser?.vehicle || null
     });
 
-    // Fetch current user
     useEffect(() => {
         fetchCurrentUser();
     }, []);
 
-    // Check if user is a verified driver
     useEffect(() => {
         if (!currentUser?.isDriver) {
             message.error('Only verified drivers can offer rides');
@@ -56,7 +56,41 @@ const OfferRide = () => {
         }
     }, [currentUser, router]);
 
-    // Location change handlers
+    useEffect(() => {
+        if (offerData.departureDateTime) {
+            setSelectedDate(moment(offerData.departureDateTime).startOf('day'));
+            setSelectedTime(moment(offerData.departureDateTime));
+        }
+    }, [offerData.departureDateTime]);
+
+    const handleDateTimeChange = (date, time) => {
+        if (date && time) {
+            const combinedDateTime = moment(date)
+                .set({
+                    hour: time.hour(),
+                    minute: time.minute(),
+                    second: 0
+                });
+
+            if (combinedDateTime.isValid()) {
+                setOfferData(prev => ({
+                    ...prev,
+                    departureDateTime: combinedDateTime
+                }));
+            }
+        }
+    };
+
+    const handleDateChange = date => {
+        setSelectedDate(date);
+        handleDateTimeChange(date, selectedTime);
+    };
+
+    const handleTimeChange = time => {
+        setSelectedTime(time);
+        handleDateTimeChange(selectedDate, time);
+    };
+
     const handleOriginChange = (location) => {
         setOfferData({
             ...offerData,
@@ -80,10 +114,9 @@ const OfferRide = () => {
         });
     };
 
-    // Form validation
     const validateCurrentStep = () => {
         switch (currentStep) {
-            case 0: // Route
+            case 0:
                 if (!offerData.origin.address || !offerData.origin.coordinates.length ||
                     !offerData.destination.address || !offerData.destination.coordinates.length) {
                     message.error('Please fill in all required route information');
@@ -95,20 +128,25 @@ const OfferRide = () => {
                 }
                 return true;
 
-            case 1: // Schedule
-                if (!offerData.departureDate || !offerData.departureTime || !offerData.estimatedDuration) {
+            case 1:
+                if (!selectedDate || !selectedTime || !offerData.estimatedDuration) {
                     message.error('Please fill in all schedule information');
                     return false;
                 }
-                const selectedDate = moment(offerData.departureDate).startOf('day');
-                const today = moment().startOf('day');
-                if (selectedDate.isBefore(today)) {
-                    message.error('Departure date cannot be in the past');
+
+                const combinedDateTime = moment(selectedDate)
+                    .set({
+                        hour: selectedTime.hour(),
+                        minute: selectedTime.minute()
+                    });
+
+                if (combinedDateTime.isBefore(moment().subtract(5, 'minutes'))) {
+                    message.error('Departure time must be at least 5 minutes in the future');
                     return false;
                 }
                 return true;
 
-            case 2: // Seats & Price
+            case 2:
                 if (!offerData.availableSeats || !offerData.pricePerSeat) {
                     message.error('Please specify seats and price');
                     return false;
@@ -133,6 +171,7 @@ const OfferRide = () => {
     const handlePrev = () => {
         setCurrentStep(currentStep - 1);
     };
+
     const steps = [
         {
             title: 'Route',
@@ -147,22 +186,20 @@ const OfferRide = () => {
                         <h3 className={styles.sectionTitle}>Your Vehicle</h3>
                         <div className={styles.vehicleDetails}>
                             {currentUser?.vehicle ? (
-                                <>
-                                    <div className={styles.vehicleItem}>
-                                        <Car className={styles.vehicleIcon} />
-                                        <div>
-                                            <p className={styles.vehicleModel}>
-                                                {currentUser.vehicle.model} ({currentUser.vehicle.year})
-                                            </p>
-                                            <p className={styles.vehiclePlate}>
-                                                {currentUser.vehicle.plateNumber}
-                                            </p>
-                                            <p className={styles.vehicleCapacity}>
-                                                Capacity: {currentUser.vehicle.capacity} seats
-                                            </p>
-                                        </div>
+                                <div className={styles.vehicleItem}>
+                                    <Car className={styles.vehicleIcon} />
+                                    <div>
+                                        <p className={styles.vehicleModel}>
+                                            {currentUser.vehicle.model} ({currentUser.vehicle.year})
+                                        </p>
+                                        <p className={styles.vehiclePlate}>
+                                            {currentUser.vehicle.plateNumber}
+                                        </p>
+                                        <p className={styles.vehicleCapacity}>
+                                            Capacity: {currentUser.vehicle.capacity} seats
+                                        </p>
                                     </div>
-                                </>
+                                </div>
                             ) : (
                                 <div className={styles.noVehicle}>
                                     <p>Please add a vehicle in your profile first</p>
@@ -251,60 +288,50 @@ const OfferRide = () => {
                     animate={{ opacity: 1, x: 0 }}
                     className={styles.stepContent}
                 >
-                    <Form.Item
-                        label="Departure Date"
-                        required
-                        className={styles.formItem}
-                    >
-                        <DatePicker
-                            className={styles.datePicker}
-                            value={offerData.departureDate}
-                            onChange={(date) => setOfferData({ ...offerData, departureDate: date })}
-                            disabledDate={(current) => current && current < moment().startOf('day')}
-                        />
-                    </Form.Item>
+                    <div className={styles.datetimeContainer}>
+                        <Form.Item
+                            label="Departure Date"
+                            required
+                            className={styles.formItem}
+                        >
+                            <DatePicker
+                                format="YYYY-MM-DD"
+                                className={styles.dateInput}
+                                value={selectedDate}
+                                onChange={handleDateChange}
+                                disabledDate={(current) =>
+                                    current && current < moment().startOf('day')
+                                }
+                            />
+                        </Form.Item>
 
-                    <Form.Item
-                        label="Departure Time"
-                        required
-                        className={styles.formItem}
-                    >
-                        <div className={styles.timeSelectionContainer}>
-                            <Select
-                                placeholder="Hour"
-                                className={styles.timeSelect}
-                                value={offerData.departureTime ? offerData.departureTime.split(':')[0] : undefined}
-                                onChange={(value) => {
-                                    const currentTime = offerData.departureTime || '';
-                                    const newTime = `${value}:${currentTime.split(':')[1] || '00'}`;
-                                    setOfferData({ ...offerData, departureTime: newTime });
+                        <Form.Item
+                            label="Departure Time"
+                            required
+                            className={styles.formItem}
+                        >
+                            <DatePicker
+                                picker="time"
+                                format="HH:mm"
+                                className={styles.timeInput}
+                                value={selectedTime}
+                                onChange={handleTimeChange}
+                                disabledTime={(current) => {
+                                    if (selectedDate?.isSame(moment(), 'day')) {
+                                        const now = moment();
+                                        return {
+                                            disabledHours: () =>
+                                                Array.from({ length: now.hour() }, (_, i) => i),
+                                            disabledMinutes: (selectedHour) =>
+                                                selectedHour === now.hour() ?
+                                                    Array.from({ length: now.minute() + 1 }, (_, i) => i) : []
+                                        };
+                                    }
+                                    return {};
                                 }}
-                            >
-                                {Array.from({ length: 24 }, (_, i) => (
-                                    <Option key={i} value={i.toString().padStart(2, '0')}>
-                                        {i.toString().padStart(2, '0')}
-                                    </Option>
-                                ))}
-                            </Select>
-                            <span className={styles.timeSeparator}>:</span>
-                            <Select
-                                placeholder="Minute"
-                                className={styles.timeSelect}
-                                value={offerData.departureTime ? offerData.departureTime.split(':')[1] : undefined}
-                                onChange={(value) => {
-                                    const currentTime = offerData.departureTime || '';
-                                    const newTime = `${currentTime.split(':')[0] || '00'}:${value}`;
-                                    setOfferData({ ...offerData, departureTime: newTime });
-                                }}
-                            >
-                                {Array.from({ length: 12 }, (_, i) => i * 5).map(minute => (
-                                    <Option key={minute} value={minute.toString().padStart(2, '0')}>
-                                        {minute.toString().padStart(2, '0')}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </div>
-                    </Form.Item>
+                            />
+                        </Form.Item>
+                    </div>
 
                     <Form.Item
                         label="Estimated Duration (minutes)"
@@ -444,11 +471,13 @@ const OfferRide = () => {
                 return;
             }
 
+            const departureUTC = moment(offerData.departureDateTime)
+                .utc()
+                .format();
+
             const formattedData = {
                 ...offerData,
-                departureDate: offerData.departureDate?.format('YYYY-MM-DD'),
-                departureTime: offerData.departureTime,
-                // Send vehicle details from currentUser
+                departureDateTime: departureUTC,
                 vehicle: {
                     model: currentUser.vehicle.model,
                     year: currentUser.vehicle.year,
@@ -473,6 +502,7 @@ const OfferRide = () => {
             message.error('An error occurred while creating the ride offer');
         }
     };
+
     return (
         <>
             <Navbar />

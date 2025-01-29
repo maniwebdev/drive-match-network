@@ -1,4 +1,3 @@
-// pages/ride/my-offers.js
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
@@ -22,6 +21,7 @@ import Navbar from '../../components/Navigation/Navbar';
 import styles from '../../styles/Rides/myOffers.module.css';
 import LoadingAnimation from '../../components/LoadingAnimation';
 import EditRideOfferModal from '../../components/Rides/EditRideOfferModal';
+import moment from 'moment';
 
 const MyOffers = () => {
     const router = useRouter();
@@ -38,7 +38,6 @@ const MyOffers = () => {
     useEffect(() => {
         if (!currentUser?.isDriver) {
             message.error('Only drivers can access this page');
-            // router.push('/user/profile');
             return;
         }
         fetchOffers();
@@ -77,21 +76,15 @@ const MyOffers = () => {
         return offers.filter(offer => offer.status === status);
     };
 
-    const formatDate = (date) => {
-        return new Date(date).toLocaleDateString('en-US', {
-            weekday: 'short',
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
+    const formatDate = (dateTime) => {
+        return moment(dateTime).format('ddd, MMM D, YYYY');
     };
 
-    const formatTime = (time) => {
-        return time.padStart(5, '0');
+    const formatTime = (dateTime) => {
+        return moment(dateTime).format('HH:mm');
     };
 
     const handleCancelOffer = async (offerId) => {
-        // Add cancel logic here when implementing the feature
         message.info('Cancel feature coming soon');
     };
 
@@ -100,15 +93,10 @@ const MyOffers = () => {
     };
 
     const handleCompleteOffer = async (offerId, e) => {
-        // Prevent the click from bubbling up to the card
-        // e.stopPropagation();
-
         try {
             const result = await completeRideOffer(offerId);
-
             if (result.success) {
                 message.success('Ride completed successfully');
-                // Refresh the offers list
                 await fetchOffers();
             } else {
                 throw new Error(result.message || 'Failed to complete ride');
@@ -122,7 +110,6 @@ const MyOffers = () => {
     const handleManageOffer = (offerId) => {
         router.push(`/ride/offers/${offerId}/manage`);
     };
-
 
     const OfferCard = ({ offer }) => {
         return (
@@ -160,11 +147,11 @@ const MyOffers = () => {
                 <div className={styles.offerDetails}>
                     <div className={styles.detailItem}>
                         <Calendar className={styles.icon} />
-                        <span>{formatDate(offer.departureDate)}</span>
+                        <span>{formatDate(offer.departureDateTime)}</span>
                     </div>
                     <div className={styles.detailItem}>
                         <Clock className={styles.icon} />
-                        <span>{formatTime(offer.departureTime)}</span>
+                        <span>{formatTime(offer.departureDateTime)}</span>
                     </div>
                     <div className={styles.detailItem}>
                         <Users className={styles.icon} />
@@ -220,7 +207,7 @@ const MyOffers = () => {
                                 onCancel={() => setIsEditModalVisible(false)}
                                 onSuccess={() => {
                                     setIsEditModalVisible(false);
-                                    fetchOffers(); // Refresh the offers list
+                                    fetchOffers();
                                 }}
                             />
                         </>
@@ -228,7 +215,10 @@ const MyOffers = () => {
                     {offer.status === 'full' && (
                         <Button
                             type="primary"
-                            onClick={() => handleCompleteOffer(offer._id)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleCompleteOffer(offer._id);
+                            }}
                             className={styles.completeButton}
                             icon={<CheckCircle className={styles.buttonIcon} />}
                         >
@@ -236,20 +226,10 @@ const MyOffers = () => {
                         </Button>
                     )}
                 </div>
-                {offer.status === 'completed' && (
-                    <Button
-                        type="primary"
-                        onClick={() => handleReviewClick(offer)}
-                        icon={<Star className={styles.buttonIcon} />}
-                    >
-                        Review Passenger
-                    </Button>
-                )}
             </motion.div>
         );
     };
 
-    // Tab items configuration
     const tabItems = [
         {
             key: 'active',
@@ -318,6 +298,7 @@ const MyOffers = () => {
             )
         }
     ];
+
     return (
         <>
             <Navbar />

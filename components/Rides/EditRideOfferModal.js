@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Modal, Steps, Button, Form, DatePicker, InputNumber, Select, Input, message } from 'antd';
-import { MapPin, Calendar, Users, Package, Info, Clock, DollarSign } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Modal, Steps, Button, Form, DatePicker, InputNumber, Select, message } from 'antd';
+import { MapPin, Calendar, Users, Package, DollarSign } from 'lucide-react';
 import moment from 'moment';
 import LocationInput from '../../components/Rides/LocationInput';
 import styles from '../../styles/Trips/EditTripModal.module.css';
@@ -8,7 +8,6 @@ import { useRide } from '../../context/Ride/RideContext';
 
 const { Step } = Steps;
 const { Option } = Select;
-const { TextArea } = Input;
 
 const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
     const [form] = Form.useForm();
@@ -17,8 +16,7 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
     const [rideData, setRideData] = useState({
         origin: offer.origin,
         destination: offer.destination,
-        departureDate: moment(offer.departureDate),
-        departureTime: offer.departureTime,
+        departureDateTime: moment(offer.departureDateTime),
         availableSeats: offer.availableSeats,
         pricePerSeat: offer.pricePerSeat,
         allowedLuggage: offer.allowedLuggage,
@@ -26,48 +24,73 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
         pets: offer.pets,
     });
 
-    // Location change handlers
+    // Update form when offer changes
+    useEffect(() => {
+        if (offer) {
+            setRideData({
+                origin: offer.origin,
+                destination: offer.destination,
+                departureDateTime: moment(offer.departureDateTime),
+                availableSeats: offer.availableSeats,
+                pricePerSeat: offer.pricePerSeat,
+                allowedLuggage: offer.allowedLuggage,
+                smoking: offer.smoking,
+                pets: offer.pets,
+            });
+        }
+    }, [offer]);
+
+    // Location handlers
     const handleOriginChange = (location) => {
-        setRideData({
-            ...rideData,
-            origin: location
-        });
+        setRideData(prev => ({
+            ...prev,
+            origin: {
+                address: location.address,
+                city: location.city,
+                coordinates: location.coordinates
+            }
+        }));
     };
 
     const handleDestinationChange = (location) => {
-        setRideData({
-            ...rideData,
-            destination: location
-        });
+        setRideData(prev => ({
+            ...prev,
+            destination: {
+                address: location.address,
+                city: location.city,
+                coordinates: location.coordinates
+            }
+        }));
     };
 
-    // Validation functions
+    // Validation
     const validateCurrentStep = () => {
         switch (currentStep) {
-            case 0: // Route
-                if (!rideData.origin.address || !rideData.origin.coordinates.length ||
-                    !rideData.destination.address || !rideData.destination.coordinates.length) {
-                    message.error('Please fill in both pickup and drop-off locations');
+            case 0:
+                if (!rideData.origin?.coordinates?.length || !rideData.destination?.coordinates?.length) {
+                    message.error('Please select valid locations');
                     return false;
                 }
                 return true;
 
-            case 1: // Schedule
-                if (!rideData.departureDate || !rideData.departureTime) {
-                    message.error('Please fill in departure date and time');
+            case 1:
+                if (!rideData.departureDateTime || !rideData.departureDateTime.isValid()) {
+                    message.error('Invalid departure date/time');
                     return false;
                 }
-                const selectedDate = moment(rideData.departureDate).startOf('day');
-                const today = moment().startOf('day');
-                if (selectedDate.isBefore(today)) {
-                    message.error('Departure date cannot be in the past');
+                if (rideData.departureDateTime.isBefore(moment())) {
+                    message.error('Departure must be in the future');
                     return false;
                 }
                 return true;
 
-            case 2: // Details
-                if (!rideData.availableSeats || !rideData.pricePerSeat) {
-                    message.error('Please specify available seats and price per seat');
+            case 2:
+                if (rideData.availableSeats < 1 || rideData.availableSeats > 8) {
+                    message.error('Seats must be between 1-8');
+                    return false;
+                }
+                if (rideData.pricePerSeat < 0) {
+                    message.error('Price must be positive');
                     return false;
                 }
                 return true;
@@ -77,53 +100,52 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
         }
     };
 
-    const handleNext = () => {
-        if (validateCurrentStep()) {
-            setCurrentStep(currentStep + 1);
-        }
-    };
+    // Navigation
+    const handleNext = () => validateCurrentStep() && setCurrentStep(prev => prev + 1);
+    const handlePrev = () => setCurrentStep(prev => prev - 1);
 
-    const handlePrev = () => {
-        setCurrentStep(currentStep - 1);
-    };
-
+    // Form submission
     const handleSubmit = async () => {
-        try {
-            if (!validateCurrentStep()) {
-                return;
-            }
+        if (!validateCurrentStep()) return;
 
-            const formattedData = {
+        try {
+            const updatePayload = {
                 ...rideData,
-                departureDate: rideData.departureDate?.format('YYYY-MM-DD')
+                departureDateTime: rideData.departureDateTime.toISOString(),
+                origin: {
+                    address: rideData.origin.address,
+                    city: rideData.origin.city,
+                    coordinates: rideData.origin.coordinates
+                },
+                destination: {
+                    address: rideData.destination.address,
+                    city: rideData.destination.city,
+                    coordinates: rideData.destination.coordinates
+                }
             };
 
-            // Call the updateRideOffer function from your context
-            const result = await updateRideOffer(offer._id, formattedData);
+            const result = await updateRideOffer(offer._id, updatePayload);
 
             if (result.success) {
-                message.success('Ride offer updated successfully!');
+                message.success('Ride updated successfully!');
                 onSuccess();
             } else {
-                message.error(result.message || 'Failed to update ride offer');
+                message.error(result.message || 'Update failed');
             }
         } catch (error) {
-            console.error('Submit error:', error);
-            message.error('An error occurred while updating the ride offer');
+            message.error('Error updating ride');
+            console.error('Update error:', error);
         }
     };
 
+    // Step configurations
     const steps = [
         {
             title: 'Route',
             icon: <MapPin className={styles.stepIcon} />,
             content: (
                 <div className={styles.stepContent}>
-                    <Form.Item
-                        label="Pickup Location"
-                        required
-                        className={styles.formItem}
-                    >
+                    <Form.Item label="Pickup Location" required>
                         <LocationInput
                             value={rideData.origin}
                             onChange={handleOriginChange}
@@ -131,11 +153,7 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                         />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Drop-off Location"
-                        required
-                        className={styles.formItem}
-                    >
+                    <Form.Item label="Drop-off Location" required>
                         <LocationInput
                             value={rideData.destination}
                             onChange={handleDestinationChange}
@@ -150,59 +168,18 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
             icon: <Calendar className={styles.stepIcon} />,
             content: (
                 <div className={styles.stepContent}>
-                    <Form.Item
-                        label="Departure Date"
-                        required
-                        className={styles.formItem}
-                    >
+                    <Form.Item label="Departure Date & Time" required>
                         <DatePicker
-                            className={styles.datePicker}
-                            value={rideData.departureDate}
-                            onChange={(date) => setRideData({ ...rideData, departureDate: date })}
-                            disabledDate={(current) => current && current < moment().startOf('day')}
+                            showTime
+                            format="YYYY-MM-DD HH:mm"
+                            className={styles.dateTimePicker}
+                            value={rideData.departureDateTime}
+                            onChange={datetime => setRideData(prev => ({
+                                ...prev,
+                                departureDateTime: datetime
+                            }))}
+                            disabledDate={current => current && current < moment().startOf('day')}
                         />
-                    </Form.Item>
-
-                    <Form.Item
-                        label="Departure Time"
-                        required
-                        className={styles.formItem}
-                    >
-                        <div className={styles.timeSelectionContainer}>
-                            <Select
-                                placeholder="Hour"
-                                className={styles.timeSelect}
-                                value={rideData.departureTime ? rideData.departureTime.split(':')[0] : undefined}
-                                onChange={(value) => {
-                                    const currentTime = rideData.departureTime || '';
-                                    const newTime = `${value}:${currentTime.split(':')[1] || '00'}`;
-                                    setRideData({ ...rideData, departureTime: newTime });
-                                }}
-                            >
-                                {Array.from({ length: 24 }, (_, i) => (
-                                    <Option key={i} value={i.toString().padStart(2, '0')}>
-                                        {i.toString().padStart(2, '0')}
-                                    </Option>
-                                ))}
-                            </Select>
-                            <span className={styles.timeSeparator}>:</span>
-                            <Select
-                                placeholder="Minute"
-                                className={styles.timeSelect}
-                                value={rideData.departureTime ? rideData.departureTime.split(':')[1] : undefined}
-                                onChange={(value) => {
-                                    const currentTime = rideData.departureTime || '';
-                                    const newTime = `${currentTime.split(':')[0] || '00'}:${value}`;
-                                    setRideData({ ...rideData, departureTime: newTime });
-                                }}
-                            >
-                                {Array.from({ length: 12 }, (_, i) => i * 5).map(minute => (
-                                    <Option key={minute} value={minute.toString().padStart(2, '0')}>
-                                        {minute.toString().padStart(2, '0')}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </div>
                     </Form.Item>
                 </div>
             )
@@ -212,71 +189,64 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
             icon: <Users className={styles.stepIcon} />,
             content: (
                 <div className={styles.stepContent}>
-                    <Form.Item
-                        label="Available Seats"
-                        required
-                        className={styles.formItem}
-                    >
+                    <Form.Item label="Available Seats" required>
                         <InputNumber
                             min={1}
                             max={8}
-                            className={styles.seatsInput}
                             value={rideData.availableSeats}
-                            onChange={(value) => setRideData({ ...rideData, availableSeats: value })}
+                            onChange={value => setRideData(prev => ({
+                                ...prev,
+                                availableSeats: value
+                            }))}
                         />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Price Per Seat"
-                        required
-                        className={styles.formItem}
-                    >
+                    <Form.Item label="Price Per Seat" required>
                         <InputNumber
                             min={0}
-                            className={styles.priceInput}
                             value={rideData.pricePerSeat}
-                            onChange={(value) => setRideData({ ...rideData, pricePerSeat: value })}
+                            onChange={value => setRideData(prev => ({
+                                ...prev,
+                                pricePerSeat: value
+                            }))}
                             prefix={<DollarSign className={styles.icon} />}
                         />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Luggage Size"
-                        className={styles.formItem}
-                    >
+                    <Form.Item label="Luggage Size">
                         <Select
                             value={rideData.allowedLuggage}
-                            onChange={(value) => setRideData({ ...rideData, allowedLuggage: value })}
-                            className={styles.select}
+                            onChange={value => setRideData(prev => ({
+                                ...prev,
+                                allowedLuggage: value
+                            }))}
                         >
-                            <Option value="small">Small (Backpack)</Option>
-                            <Option value="medium">Medium (Carry-on)</Option>
-                            <Option value="large">Large (Suitcase)</Option>
+                            <Option value="small">Small</Option>
+                            <Option value="medium">Medium</Option>
+                            <Option value="large">Large</Option>
                         </Select>
                     </Form.Item>
 
-                    <Form.Item
-                        label="Smoking Allowed"
-                        className={styles.formItem}
-                    >
+                    <Form.Item label="Smoking Allowed">
                         <Select
                             value={rideData.smoking}
-                            onChange={(value) => setRideData({ ...rideData, smoking: value })}
-                            className={styles.select}
+                            onChange={value => setRideData(prev => ({
+                                ...prev,
+                                smoking: value
+                            }))}
                         >
                             <Option value={true}>Yes</Option>
                             <Option value={false}>No</Option>
                         </Select>
                     </Form.Item>
 
-                    <Form.Item
-                        label="Pets Allowed"
-                        className={styles.formItem}
-                    >
+                    <Form.Item label="Pets Allowed">
                         <Select
                             value={rideData.pets}
-                            onChange={(value) => setRideData({ ...rideData, pets: value })}
-                            className={styles.select}
+                            onChange={value => setRideData(prev => ({
+                                ...prev,
+                                pets: value
+                            }))}
                         >
                             <Option value={true}>Yes</Option>
                             <Option value={false}>No</Option>
@@ -293,54 +263,32 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
             open={visible}
             onCancel={onCancel}
             footer={null}
-            className={styles.editModal}
             width={800}
+            className={styles.modal}
         >
-            <div className={styles.stepsContainer}>
-                <Steps current={currentStep}>
-                    {steps.map(step => (
-                        <Step
-                            key={step.title}
-                            title={step.title}
-                            icon={step.icon}
-                            className={styles.step}
-                        />
-                    ))}
-                </Steps>
-            </div>
+            <Steps current={currentStep} className={styles.steps}>
+                {steps.map(step => (
+                    <Step key={step.title} title={step.title} icon={step.icon} />
+                ))}
+            </Steps>
 
-            <Form
-                form={form}
-                layout="vertical"
-                className={styles.form}
-            >
+            <Form form={form} layout="vertical" className={styles.form}>
                 {steps[currentStep].content}
 
-                <div className={styles.buttonContainer}>
+                <div className={styles.actions}>
                     {currentStep > 0 && (
-                        <Button
-                            onClick={handlePrev}
-                            className={styles.prevButton}
-                        >
-                            Previous
+                        <Button onClick={handlePrev} className={styles.prevButton}>
+                            Back
                         </Button>
                     )}
-                    {currentStep < steps.length - 1 && (
-                        <Button
-                            type="primary"
-                            onClick={handleNext}
-                            className={styles.nextButton}
-                        >
+
+                    {currentStep < steps.length - 1 ? (
+                        <Button type="primary" onClick={handleNext}>
                             Next
                         </Button>
-                    )}
-                    {currentStep === steps.length - 1 && (
-                        <Button
-                            type="primary"
-                            onClick={handleSubmit}
-                            className={styles.submitButton}
-                        >
-                            Update Ride Offer
+                    ) : (
+                        <Button type="primary" onClick={handleSubmit}>
+                            Save Changes
                         </Button>
                     )}
                 </div>

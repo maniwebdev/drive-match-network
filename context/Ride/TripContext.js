@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 require('dotenv').config();
 import { useRouter } from 'next/router';
 import { message } from 'antd';
+import moment from 'moment';
 
 const TripContext = createContext();
 
@@ -108,32 +109,40 @@ export const TripProvider = ({ children }) => {
     const getAvailableTrips = async (filters = {}) => {
         setLoading(true);
         setError(null);
-
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) {
-            message.error("You're not logged in");
-            return { success: false };
-        }
 
         try {
             const queryParams = new URLSearchParams();
-            if (filters.city) queryParams.append('city', filters.city);
-            if (filters.date) queryParams.append('date', filters.date);
+
+            // Basic filters
+            if (filters.originCity) queryParams.append('originCity', filters.originCity);
+            if (filters.destinationCity) queryParams.append('destinationCity', filters.destinationCity);
+            if (filters.seats) queryParams.append('seats', filters.seats);
+            if (filters.luggageSize) queryParams.append('luggageSize', filters.luggageSize);
+            if (filters.lat) queryParams.append('lat', filters.lat);
+            if (filters.lng) queryParams.append('lng', filters.lng);
+
+            // Handle urgent time filter
+            if (filters.urgent) {
+                const now = moment();
+                queryParams.append('urgent', 'true');
+                queryParams.append('urgentTime', now.format());
+            } else if (filters.date) {
+                const localDate = moment(filters.date).format('YYYY-MM-DD');
+                queryParams.append('date', localDate);
+            }
 
             const response = await fetch(
                 `${API_URL}/api/tripRequestRoutes/trips/available?${queryParams}`,
-                {
-                    headers: {
-                        'auth-token': authToken,
-                    },
-                }
+                { headers: { 'auth-token': authToken } }
             );
 
             const data = await response.json();
 
             if (response.ok) {
-                setAvailableTrips(data.requests);
-                return { success: true, trips: data.requests };
+                const trips = data.requests;
+                setAvailableTrips(trips);
+                return { success: true, trips };
             } else {
                 throw new Error(data.message || 'Failed to fetch available trips');
             }

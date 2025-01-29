@@ -77,6 +77,7 @@
 }
 
 /* Filter Section */
+/* Filter Section */
 .filtersSection {
   border-top: 1px solid #e9ecef;
   padding-top: 16px;
@@ -90,6 +91,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: color 0.3s ease;
 }
 
 .filterToggle:hover {
@@ -98,14 +100,42 @@
 
 .filtersContainer {
   display: flex;
+  flex-wrap: wrap;
   gap: 24px;
   margin-top: 16px;
+  padding: 8px 0;
 }
 
 .filterField {
-  flex: 1;
+  flex: 1 1 250px;
   margin-bottom: 0;
 }
+
+/* Clear Filters */
+.clearFilters {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.clearFiltersButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #2a9d8f;
+  border-color: #2a9d8f;
+  padding: 6px 16px;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+}
+
+.clearFiltersButton:hover {
+  color: #fff !important;
+  background: #2a9d8f !important;
+  border-color: #2a9d8f !important;
+}
+
 
 .inputIcon {
   color: #2a9d8f;

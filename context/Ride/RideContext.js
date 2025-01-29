@@ -74,32 +74,25 @@ export const RideProvider = ({ children }) => {
             const data = await response.json();
 
             if (response.ok) {
-                message.success('Ride offer updated successfully');
                 return { success: true, rideOffer: data.rideOffer };
             } else {
-                setError(data.message || 'Failed to update ride offer');
-                message.error(data.message || 'Failed to update ride offer');
                 return { success: false, message: data.message };
             }
         } catch (err) {
-            setError('Network or server error');
-            message.error('Network or server error');
-            return { success: false, message: 'Network or server error' };
+            return { success: false, message: 'Network error' };
         } finally {
             setLoading(false);
         }
     };
-
     // Search ride offers
     const searchRideOffers = async (searchParams, userLocation = null) => {
         setLoading(true);
         setError(null);
 
         try {
-            // Convert search params to URLSearchParams
             const params = new URLSearchParams();
 
-            // Add search parameters only if they have valid values
+            // Add core search parameters
             if (searchParams.originCity?.trim()) {
                 params.append('originCity', searchParams.originCity.trim());
             }
@@ -119,11 +112,16 @@ export const RideProvider = ({ children }) => {
                 params.append('allowedLuggage', searchParams.allowedLuggage);
             }
 
-            // Add location parameters if available
+            // Add time filter if specified
+            if (searchParams.timeFilter) {
+                params.append('timeFilter', searchParams.timeFilter);
+            }
+
+            // Add location parameters
             if (userLocation?.lat && userLocation?.lng) {
                 params.append('lat', userLocation.lat);
                 params.append('lng', userLocation.lng);
-                params.append('maxDistance', '20000'); // 20km radius
+                params.append('maxDistance', '20000');
             }
 
             const response = await fetch(
@@ -151,11 +149,14 @@ export const RideProvider = ({ children }) => {
         } catch (err) {
             console.error('Search error:', err);
             setError(err.message || 'Failed to search rides');
-            return { success: false, message: err.message || 'Failed to search rides' };
+            return {
+                success: false,
+                message: err.message || 'Failed to search rides'
+            };
         } finally {
             setLoading(false);
         }
-    }; 
+    };
 
     // Create ride request
     const createRideRequest = async (requestData) => {

@@ -21,7 +21,9 @@ import {
     Package,
     MapPin,
     ArrowRight,
-    Filter
+    Filter,
+    Clock,
+    X
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import moment from 'moment';
@@ -33,19 +35,17 @@ import LoadingAnimation from '../../components/LoadingAnimation';
 const { Option } = Select;
 
 const FindRide = () => {
-    // Router and context hooks
     const router = useRouter();
     const { currentUser } = useAuth();
     const { searchRideOffers, loading } = useRide();
     const [form] = Form.useForm();
 
-    // Location and loading states
     const [userLocation, setUserLocation] = useState(null);
     const [searchResults, setSearchResults] = useState([]);
     const [loadingLocation, setLoadingLocation] = useState(false);
     const [isSearched, setIsSearched] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
 
-    // Search parameters state
     const [searchParams, setSearchParams] = useState({
         origin: {
             address: '',
@@ -60,13 +60,10 @@ const FindRide = () => {
         departureDate: null,
         seats: 1,
         maxPrice: null,
-        luggageSize: ''
+        luggageSize: '',
+        timeFilter: null
     });
 
-    // UI state for showing/hiding filters
-    const [showFilters, setShowFilters] = useState(false);
-
-    // Fetch user location and nearby rides on initial load
     useEffect(() => {
         const getUserLocation = async () => {
             if (!navigator.geolocation) {
@@ -86,7 +83,6 @@ const FindRide = () => {
                 };
                 setUserLocation(location);
 
-                // Fetch nearby rides
                 const result = await searchRideOffers({}, location);
                 if (result.success) {
                     setSearchResults(result.rideOffers);
@@ -103,7 +99,6 @@ const FindRide = () => {
         getUserLocation();
     }, []);
 
-    // Handle search
     const handleSearch = async (overrideParams) => {
         const searchData = overrideParams || {
             originCity: searchParams.origin?.city,
@@ -111,10 +106,10 @@ const FindRide = () => {
             departureDate: searchParams.departureDate?.format('YYYY-MM-DD'),
             seats: searchParams.seats,
             maxPrice: searchParams.maxPrice,
-            allowedLuggage: searchParams.luggageSize
+            allowedLuggage: searchParams.luggageSize,
+            timeFilter: searchParams.timeFilter
         };
 
-        // Only require the pickup location to be filled
         if (!searchData.originCity) {
             message.error('Please fill in the pickup location');
             return;
@@ -134,7 +129,32 @@ const FindRide = () => {
         }
     };
 
-    // Handle location change
+    const handleClearFilters = async () => {
+        // Reset all search parameters to initial state
+        setSearchParams({
+            origin: { address: '', city: '', coordinates: [] },
+            destination: { address: '', city: '', coordinates: [] },
+            departureDate: null,
+            seats: 1,
+            maxPrice: null,
+            luggageSize: '',
+            timeFilter: null
+        });
+
+        try {
+            // Perform new search with cleared filters
+            const result = await searchRideOffers({}, userLocation);
+            if (result.success) {
+                setSearchResults(result.rideOffers);
+                setIsSearched(true);
+                message.success('Filters cleared successfully');
+            }
+        } catch (error) {
+            console.error('Error clearing filters:', error);
+            message.error('Failed to clear filters');
+        }
+    };
+
     const handleLocationChange = (field, value) => {
         setSearchParams(prev => ({
             ...prev,
@@ -142,29 +162,19 @@ const FindRide = () => {
         }));
     };
 
-    // Handle ride selection
     const handleRideSelect = (rideId) => {
         router.push(`/ride/details/${rideId}`);
     };
 
-    // Render search form
     const renderSearchForm = () => (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className={styles.searchFormContainer}
         >
-            <Form
-                form={form}
-                layout="vertical"
-                className={styles.searchForm}
-            >
+            <Form form={form} layout="vertical" className={styles.searchForm}>
                 <div className={styles.mainSearchFields}>
-                    <Form.Item
-                        label="From"
-                        required
-                        className={styles.locationField}
-                    >
+                    <Form.Item label="From" required className={styles.locationField}>
                         <LocationInput
                             value={searchParams.origin}
                             onChange={(value) => handleLocationChange('origin', value)}
@@ -176,10 +186,7 @@ const FindRide = () => {
                         <ArrowRight />
                     </div>
 
-                    <Form.Item
-                        label="To"
-                        className={styles.locationField}
-                    >
+                    <Form.Item label="To" className={styles.locationField}>
                         <LocationInput
                             value={searchParams.destination}
                             onChange={(value) => handleLocationChange('destination', value)}
@@ -187,24 +194,23 @@ const FindRide = () => {
                         />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Date"
-                        className={styles.dateField}
-                    >
+                    <Form.Item label="Date" className={styles.dateField}>
                         <DatePicker
                             value={searchParams.departureDate}
-                            onChange={(date) => setSearchParams(prev => ({ ...prev, departureDate: date }))}
+                            onChange={(date) => setSearchParams(prev => ({
+                                ...prev,
+                                departureDate: date,
+                                timeFilter: null // Clear time filter when date changes
+                            }))}
                             disabledDate={(current) => current && current < moment().startOf('day')}
                             format="YYYY-MM-DD"
                             className={styles.datePicker}
                             placeholder="Select date (optional)"
+                            disabled={!!searchParams.timeFilter}
                         />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Seats"
-                        className={styles.seatsField}
-                    >
+                    <Form.Item label="Seats" className={styles.seatsField}>
                         <InputNumber
                             min={1}
                             max={8}
@@ -225,7 +231,6 @@ const FindRide = () => {
                     </Button>
                 </div>
 
-                {/* Advanced Filters Section */}
                 <div className={styles.filtersSection}>
                     <Button
                         type="text"
@@ -243,10 +248,25 @@ const FindRide = () => {
                             exit={{ opacity: 0, height: 0 }}
                             className={styles.filtersContainer}
                         >
-                            <Form.Item
-                                label="Maximum Price"
-                                className={styles.filterField}
-                            >
+                            <Form.Item label="Time Filter" className={styles.filterField}>
+                                <Select
+                                    value={searchParams.timeFilter}
+                                    onChange={(value) => setSearchParams(prev => ({
+                                        ...prev,
+                                        timeFilter: value,
+                                        departureDate: null // Clear date when time filter is set
+                                    }))}
+                                    placeholder="Select time filter"
+                                    className={styles.select}
+                                    allowClear
+                                >
+                                    <Option value="next30mins">
+                                        <Clock size={16} /> Next 30 minutes
+                                    </Option>
+                                </Select>
+                            </Form.Item>
+
+                            <Form.Item label="Maximum Price" className={styles.filterField}>
                                 <InputNumber
                                     prefix={<DollarSign className={styles.inputIcon} />}
                                     min={0}
@@ -259,10 +279,7 @@ const FindRide = () => {
                                 />
                             </Form.Item>
 
-                            <Form.Item
-                                label="Luggage Size"
-                                className={styles.filterField}
-                            >
+                            <Form.Item label="Luggage Size" className={styles.filterField}>
                                 <Select
                                     value={searchParams.luggageSize}
                                     onChange={(value) => setSearchParams(prev => ({
@@ -276,6 +293,17 @@ const FindRide = () => {
                                     <Option value="large">Large (Suitcase)</Option>
                                 </Select>
                             </Form.Item>
+
+                            <div className={styles.clearFilters}>
+                                <Button
+                                    type="default"
+                                    icon={<X size={16} />}
+                                    onClick={handleClearFilters}
+                                    className={styles.clearFiltersButton}
+                                >
+                                    Clear All Filters
+                                </Button>
+                            </div>
                         </motion.div>
                     )}
                 </div>
@@ -283,7 +311,6 @@ const FindRide = () => {
         </motion.div>
     );
 
-    // Render search results
     const renderSearchResults = () => {
         if (loadingLocation) {
             return (
@@ -413,9 +440,9 @@ const FindRide = () => {
 
                                 <div className={styles.rideInfo}>
                                     <div className={styles.infoItem}>
-                                        <Calendar className={styles.infoIcon} />
+                                        <Clock className={styles.infoIcon} />
                                         <span>
-                                            {moment(ride.departureDate).format('ddd, MMM D, YYYY')} at {ride.departureTime}
+                                            {moment(ride.departureDateTime).format('MMM D, YYYY h:mm A')}
                                         </span>
                                     </div>
                                     <div className={styles.infoItem}>
