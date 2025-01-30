@@ -188,11 +188,10 @@ const RequestTrip = () => {
                                 placeholder="Hour"
                                 className={styles.timeSelect}
                                 value={tripData.departureTime ? tripData.departureTime.split(':')[0] : undefined}
-                                onChange={(value) => {
-                                    const currentTime = tripData.departureTime || '';
-                                    const newTime = `${value}:${currentTime.split(':')[1] || '00'}`;
-                                    setTripData({ ...tripData, departureTime: newTime });
-                                }}
+                                onChange={(value) => updateDepartureTime(
+                                    value,
+                                    tripData.departureTime?.split(':')[1] || '00'
+                                )}
                             >
                                 {Array.from({ length: 24 }, (_, i) => (
                                     <Option key={i} value={i.toString().padStart(2, '0')}>
@@ -205,11 +204,10 @@ const RequestTrip = () => {
                                 placeholder="Minute"
                                 className={styles.timeSelect}
                                 value={tripData.departureTime ? tripData.departureTime.split(':')[1] : undefined}
-                                onChange={(value) => {
-                                    const currentTime = tripData.departureTime || '';
-                                    const newTime = `${currentTime.split(':')[0] || '00'}:${value}`;
-                                    setTripData({ ...tripData, departureTime: newTime });
-                                }}
+                                onChange={(value) => updateDepartureTime(
+                                    tripData.departureTime?.split(':')[0] || '00',
+                                    value
+                                )}
                             >
                                 {Array.from({ length: 12 }, (_, i) => i * 5).map(minute => (
                                     <Option key={minute} value={minute.toString().padStart(2, '0')}>
@@ -364,12 +362,14 @@ const RequestTrip = () => {
 
     const handleSubmit = async () => {
         try {
-            if (!validateCurrentStep()) {
-                return;
-            }
+            if (!validateCurrentStep()) return;
+
+            // Get client's timezone
+            const timezone = moment.tz.guess();
 
             const formattedData = {
                 ...tripData,
+                timezone,  // Send client's timezone to server
                 departureDate: tripData.departureDate?.format('YYYY-MM-DD'),
                 recurrence: tripData.recurrence.pattern !== 'none' ? tripData.recurrence : undefined
             };
@@ -386,6 +386,11 @@ const RequestTrip = () => {
             console.error('Submit error:', error);
             message.error('An error occurred while creating the trip request');
         }
+    };
+
+    const updateDepartureTime = (hours, minutes) => {
+        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        setTripData({ ...tripData, departureTime: timeString });
     };
 
     return (

@@ -14,6 +14,7 @@ const API_URL = process.env.NEXT_PUBLIC_Car_API_URL;
 export const RideProvider = ({ children }) => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+
     const [error, setError] = useState(null);
     const [rideOffers, setRideOffers] = useState([]);
     const [rideRequests, setRideRequests] = useState([]);
@@ -62,6 +63,12 @@ export const RideProvider = ({ children }) => {
         setError(null);
 
         try {
+          //  console.log('Updating ride offer:', offerId);
+           // console.log('Update data:', updateData);
+
+            if (!offerId) {
+                throw new Error('Ride offer ID is required for update');
+            }
             const response = await fetch(`${API_URL}/api/rideRoute/offer/${offerId}`, {
                 method: 'PATCH',
                 headers: {

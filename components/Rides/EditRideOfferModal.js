@@ -1,3 +1,4 @@
+//component/EditRideOfferModal.js
 import React, { useState, useEffect } from 'react';
 import { Modal, Steps, Button, Form, DatePicker, InputNumber, Select, message } from 'antd';
 import { MapPin, Calendar, Users, Package, DollarSign } from 'lucide-react';
@@ -13,10 +14,13 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
     const [form] = Form.useForm();
     const { updateRideOffer } = useRide();
     const [currentStep, setCurrentStep] = useState(0);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTime, setSelectedTime] = useState(null);
+
     const [rideData, setRideData] = useState({
         origin: offer.origin,
         destination: offer.destination,
-        departureDateTime: moment(offer.departureDateTime),
+        departureDateTime: null,
         availableSeats: offer.availableSeats,
         pricePerSeat: offer.pricePerSeat,
         allowedLuggage: offer.allowedLuggage,
@@ -24,13 +28,20 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
         pets: offer.pets,
     });
 
-    // Update form when offer changes
+    // Initialize date and time when modal opens
     useEffect(() => {
-        if (offer) {
+        if (offer && offer.departureDateTime) {
+            const departureMoment = moment(offer.departureDateTime);
+
+            // Reset all state when offer changes
+            setCurrentStep(0);
+            setSelectedDate(departureMoment);
+            setSelectedTime(departureMoment);
             setRideData({
+                offerId: offer._id,
                 origin: offer.origin,
                 destination: offer.destination,
-                departureDateTime: moment(offer.departureDateTime),
+                departureDateTime: departureMoment,
                 availableSeats: offer.availableSeats,
                 pricePerSeat: offer.pricePerSeat,
                 allowedLuggage: offer.allowedLuggage,
@@ -38,7 +49,42 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                 pets: offer.pets,
             });
         }
-    }, [offer]);
+    }, [offer._id]);
+
+    const handleDateTimeChange = (date, time) => {
+        if (date && time) {
+            // Create a new moment object from the selected date
+            const combinedDateTime = moment(date.format('YYYY-MM-DD'))
+                .set({
+                    hour: time.hour(),
+                    minute: time.minute(),
+                    second: 0
+                });
+
+            if (combinedDateTime.isValid()) {
+                setRideData(prev => ({
+                    ...prev,
+                    departureDateTime: combinedDateTime
+                }));
+            }
+        }
+    };
+
+    const handleDateChange = date => {
+       // console.log('Selected date:', date?.format('YYYY-MM-DD'));
+        setSelectedDate(date);
+        if (date && selectedTime) {
+            handleDateTimeChange(date, selectedTime);
+        }
+    };
+
+    const handleTimeChange = time => {
+      //  console.log('Selected time:', time?.format('HH:mm'));
+        setSelectedTime(time);
+        if (selectedDate && time) {
+            handleDateTimeChange(selectedDate, time);
+        }
+    };
 
     // Location handlers
     const handleOriginChange = (location) => {
@@ -74,12 +120,21 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                 return true;
 
             case 1:
-                if (!rideData.departureDateTime || !rideData.departureDateTime.isValid()) {
-                    message.error('Invalid departure date/time');
+                if (!selectedDate || !selectedTime) {
+                    message.error('Please select both date and time');
                     return false;
                 }
-                if (rideData.departureDateTime.isBefore(moment())) {
-                    message.error('Departure must be in the future');
+
+                // Create a new moment object for validation
+                const selectedDateTime = moment(selectedDate.format('YYYY-MM-DD'))
+                    .set({
+                        hour: selectedTime.hour(),
+                        minute: selectedTime.minute(),
+                        second: 0
+                    });
+
+                if (selectedDateTime.isBefore(moment().subtract(5, 'minutes'))) {
+                    message.error('Departure time must be at least 5 minutes in the future');
                     return false;
                 }
                 return true;
@@ -109,9 +164,25 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
         if (!validateCurrentStep()) return;
 
         try {
+            if (!offer._id) {
+                throw new Error('No ride offer ID available');
+            }
+
+          //  console.log('Updating ride offer with ID:', offer._id);
+
+            // Create a new moment object for submission
+            const submissionDateTime = moment(selectedDate.format('YYYY-MM-DD'))
+                .set({
+                    hour: selectedTime.hour(),
+                    minute: selectedTime.minute(),
+                    second: 0
+                });
+
+          //  console.log('Submitting datetime:', submissionDateTime.format('YYYY-MM-DD HH:mm:ss'));
+
             const updatePayload = {
                 ...rideData,
-                departureDateTime: rideData.departureDateTime.toISOString(),
+                departureDateTime: submissionDateTime.toISOString(),
                 origin: {
                     address: rideData.origin.address,
                     city: rideData.origin.city,
@@ -124,17 +195,19 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                 }
             };
 
+           // console.log('Update payload:', updatePayload);
+
             const result = await updateRideOffer(offer._id, updatePayload);
 
             if (result.success) {
                 message.success('Ride updated successfully!');
                 onSuccess();
             } else {
-                message.error(result.message || 'Update failed');
+                throw new Error(result.message || 'Update failed');
             }
         } catch (error) {
-            message.error('Error updating ride');
             console.error('Update error:', error);
+            message.error(error.message || 'Error updating ride');
         }
     };
 
@@ -168,19 +241,42 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
             icon: <Calendar className={styles.stepIcon} />,
             content: (
                 <div className={styles.stepContent}>
-                    <Form.Item label="Departure Date & Time" required>
-                        <DatePicker
-                            showTime
-                            format="YYYY-MM-DD HH:mm"
-                            className={styles.dateTimePicker}
-                            value={rideData.departureDateTime}
-                            onChange={datetime => setRideData(prev => ({
-                                ...prev,
-                                departureDateTime: datetime
-                            }))}
-                            disabledDate={current => current && current < moment().startOf('day')}
-                        />
-                    </Form.Item>
+                    <div className={styles.datetimeContainer}>
+                        <Form.Item label="Departure Date" required>
+                            <DatePicker
+                                format="YYYY-MM-DD"
+                                className={styles.dateInput}
+                                value={selectedDate}
+                                onChange={handleDateChange}
+                                disabledDate={(current) =>
+                                    current && current < moment().startOf('day')
+                                }
+                            />
+                        </Form.Item>
+
+                        <Form.Item label="Departure Time" required>
+                            <DatePicker
+                                picker="time"
+                                format="HH:mm"
+                                className={styles.timeInput}
+                                value={selectedTime}
+                                onChange={handleTimeChange}
+                                disabledTime={(current) => {
+                                    if (selectedDate?.isSame(moment(), 'day')) {
+                                        const now = moment();
+                                        return {
+                                            disabledHours: () =>
+                                                Array.from({ length: now.hour() }, (_, i) => i),
+                                            disabledMinutes: (selectedHour) =>
+                                                selectedHour === now.hour() ?
+                                                    Array.from({ length: now.minute() + 1 }, (_, i) => i) : []
+                                        };
+                                    }
+                                    return {};
+                                }}
+                            />
+                        </Form.Item>
+                    </div>
                 </div>
             )
         },
@@ -259,6 +355,7 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
 
     return (
         <Modal
+            key={offer._id}
             title="Edit Ride Offer"
             open={visible}
             onCancel={onCancel}

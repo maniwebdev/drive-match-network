@@ -29,7 +29,6 @@ const MyOffers = () => {
     const { getUserRideOffers, completeRideOffer, loading } = useRide();
     const [offers, setOffers] = useState([]);
     const [activeTab, setActiveTab] = useState('active');
-    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
     useEffect(() => {
         fetchCurrentUser();
@@ -88,10 +87,6 @@ const MyOffers = () => {
         message.info('Cancel feature coming soon');
     };
 
-    const handleEditOffer = () => {
-        setIsEditModalVisible(true);
-    };
-
     const handleCompleteOffer = async (offerId, e) => {
         try {
             const result = await completeRideOffer(offerId);
@@ -112,6 +107,10 @@ const MyOffers = () => {
     };
 
     const OfferCard = ({ offer }) => {
+        const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+        const handleEditOffer = () => {
+            setIsEditModalVisible(true);
+        };
         return (
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -202,6 +201,7 @@ const MyOffers = () => {
                                 Cancel Ride
                             </Button>
                             <EditRideOfferModal
+                                key={offer._id}
                                 offer={offer}
                                 visible={isEditModalVisible}
                                 onCancel={() => setIsEditModalVisible(false)}

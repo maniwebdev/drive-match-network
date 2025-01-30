@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 require('dotenv').config();
 import { useRouter } from 'next/router';
 import { message } from 'antd';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 const TripContext = createContext();
 
@@ -23,30 +23,61 @@ export const TripProvider = ({ children }) => {
     const createTripRequest = async (tripData) => {
         setLoading(true);
         setError(null);
-
+    
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             message.error("You're not logged in");
             return { success: false };
         }
-
+    
         try {
+            // Add timezone and normalize time format
+            const timezone = moment.tz.guess();
+            const payload = {
+                ...tripData,
+                timezone,  // Add client's timezone to payload
+                departureTime: tripData.departureTime.padStart(5, '0'), // Ensure HH:mm format
+                departureDate: moment(tripData.departureDate)
+                    .tz(timezone)
+                    .format('YYYY-MM-DD')
+            };
+    
+            // Convert recurrence dates to ISO format
+            if (tripData.recurrence?.endDate) {
+                payload.recurrence = {
+                    ...tripData.recurrence,
+                    endDate: moment(tripData.recurrence.endDate)
+                        .tz(timezone)
+                        .format('YYYY-MM-DD')
+                };
+            }
+    
             const response = await fetch(`${API_URL}/api/tripRequestRoutes/trip/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'auth-token': authToken,
                 },
-                body: JSON.stringify(tripData),
+                body: JSON.stringify(payload),
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
                 message.success('Trip request created successfully');
-                // Update myTrips state with new trip
-                setMyTrips(prev => [data.tripRequest, ...prev]);
-                return { success: true, trip: data.tripRequest };
+                // Update myTrips state with UTC-normalized trip
+                const normalizedTrip = {
+                    ...data.tripRequest,
+                    departureDate: new Date(data.tripRequest.departureDate),
+                    ...(data.tripRequest.recurrence?.endDate && {
+                        recurrence: {
+                            ...data.tripRequest.recurrence,
+                            endDate: new Date(data.tripRequest.recurrence.endDate)
+                        }
+                    })
+                };
+                setMyTrips(prev => [normalizedTrip, ...prev]);
+                return { success: true, trip: normalizedTrip };
             } else {
                 throw new Error(data.message || 'Failed to create trip request');
             }

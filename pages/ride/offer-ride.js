@@ -44,7 +44,6 @@ const OfferRide = () => {
         pets: false,
         vehicle: currentUser?.vehicle || null
     });
-
     useEffect(() => {
         fetchCurrentUser();
     }, []);
@@ -56,16 +55,10 @@ const OfferRide = () => {
         }
     }, [currentUser, router]);
 
-    useEffect(() => {
-        if (offerData.departureDateTime) {
-            setSelectedDate(moment(offerData.departureDateTime).startOf('day'));
-            setSelectedTime(moment(offerData.departureDateTime));
-        }
-    }, [offerData.departureDateTime]);
-
     const handleDateTimeChange = (date, time) => {
         if (date && time) {
-            const combinedDateTime = moment(date)
+            // Create new moment object from the selected date
+            const combinedDateTime = moment(date.format('YYYY-MM-DD'))
                 .set({
                     hour: time.hour(),
                     minute: time.minute(),
@@ -73,6 +66,7 @@ const OfferRide = () => {
                 });
 
             if (combinedDateTime.isValid()) {
+                //console.log('Setting combined datetime:', combinedDateTime.format('YYYY-MM-DD HH:mm:ss'));
                 setOfferData(prev => ({
                     ...prev,
                     departureDateTime: combinedDateTime
@@ -82,13 +76,19 @@ const OfferRide = () => {
     };
 
     const handleDateChange = date => {
+        //   console.log('Selected date:', date?.format('YYYY-MM-DD'));
         setSelectedDate(date);
-        handleDateTimeChange(date, selectedTime);
+        if (date && selectedTime) {
+            handleDateTimeChange(date, selectedTime);
+        }
     };
 
     const handleTimeChange = time => {
+        //  console.log('Selected time:', time?.format('HH:mm'));
         setSelectedTime(time);
-        handleDateTimeChange(selectedDate, time);
+        if (selectedDate && time) {
+            handleDateTimeChange(selectedDate, time);
+        }
     };
 
     const handleOriginChange = (location) => {
@@ -134,13 +134,15 @@ const OfferRide = () => {
                     return false;
                 }
 
-                const combinedDateTime = moment(selectedDate)
+                // Create a new moment object for validation
+                const selectedDateTime = moment(selectedDate.format('YYYY-MM-DD'))
                     .set({
                         hour: selectedTime.hour(),
-                        minute: selectedTime.minute()
+                        minute: selectedTime.minute(),
+                        second: 0
                     });
 
-                if (combinedDateTime.isBefore(moment().subtract(5, 'minutes'))) {
+                if (selectedDateTime.isBefore(moment().subtract(5, 'minutes'))) {
                     message.error('Departure time must be at least 5 minutes in the future');
                     return false;
                 }
@@ -171,7 +173,6 @@ const OfferRide = () => {
     const handlePrev = () => {
         setCurrentStep(currentStep - 1);
     };
-
     const steps = [
         {
             title: 'Route',
@@ -471,13 +472,19 @@ const OfferRide = () => {
                 return;
             }
 
-            const departureUTC = moment(offerData.departureDateTime)
-                .utc()
-                .format();
+            // Create submission datetime using the selected date and time
+            const submissionDateTime = moment(selectedDate.format('YYYY-MM-DD'))
+                .set({
+                    hour: selectedTime.hour(),
+                    minute: selectedTime.minute(),
+                    second: 0
+                });
+
+            //  console.log('Submitting datetime:', submissionDateTime.format('YYYY-MM-DD HH:mm:ss'));
 
             const formattedData = {
                 ...offerData,
-                departureDateTime: departureUTC,
+                departureDateTime: submissionDateTime.toISOString(),
                 vehicle: {
                     model: currentUser.vehicle.model,
                     year: currentUser.vehicle.year,
@@ -488,6 +495,8 @@ const OfferRide = () => {
                     wp.address && wp.coordinates.length > 0
                 )
             };
+
+            //console.log('Submitting offer data:', formattedData);
 
             const result = await createRideOffer(formattedData);
 
