@@ -17,19 +17,20 @@ export const TripProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const [myTrips, setMyTrips] = useState([]);
     const [availableTrips, setAvailableTrips] = useState([]);
+    const [availableRequests, setAvailableRequests] = useState([]);
     const router = useRouter();
 
     // Create a new trip request
     const createTripRequest = async (tripData) => {
         setLoading(true);
         setError(null);
-    
+
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             message.error("You're not logged in");
             return { success: false };
         }
-    
+
         try {
             // Add timezone and normalize time format
             const timezone = moment.tz.guess();
@@ -41,7 +42,7 @@ export const TripProvider = ({ children }) => {
                     .tz(timezone)
                     .format('YYYY-MM-DD')
             };
-    
+
             // Convert recurrence dates to ISO format
             if (tripData.recurrence?.endDate) {
                 payload.recurrence = {
@@ -51,7 +52,7 @@ export const TripProvider = ({ children }) => {
                         .format('YYYY-MM-DD')
                 };
             }
-    
+
             const response = await fetch(`${API_URL}/api/tripRequestRoutes/trip/create`, {
                 method: 'POST',
                 headers: {
@@ -60,9 +61,9 @@ export const TripProvider = ({ children }) => {
                 },
                 body: JSON.stringify(payload),
             });
-    
+
             const data = await response.json();
-    
+
             if (response.ok) {
                 message.success('Trip request created successfully');
                 // Update myTrips state with UTC-normalized trip
@@ -181,6 +182,79 @@ export const TripProvider = ({ children }) => {
             const errorMessage = err.message || 'Error fetching available trips';
             setError(errorMessage);
             return { success: false, error: errorMessage };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    //public route for finding the trip requests from the users
+    const searchPublicRequests = async (searchParams = {}, page = 1, limit = 10) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const params = new URLSearchParams();
+
+            // Add pagination parameters
+            params.append('page', page);
+            params.append('limit', limit);
+
+            // Add search parameters
+            if (searchParams.originCity?.trim()) {
+                params.append('originCity', searchParams.originCity.trim());
+            }
+            if (searchParams.destinationCity?.trim()) {
+                params.append('destinationCity', searchParams.destinationCity.trim());
+            }
+            if (searchParams.departureDate) {
+                params.append('departureDate', searchParams.departureDate);
+            }
+            if (searchParams.seats && !isNaN(searchParams.seats)) {
+                params.append('seats', searchParams.seats);
+            }
+            if (searchParams.luggageSize) {
+                params.append('luggageSize', searchParams.luggageSize);
+            }
+
+            const response = await fetch(
+                `${API_URL}/api/tripRequestRoutes/requests/public?${params.toString()}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch public requests');
+            }
+
+            // Update state with new data
+            if (page === 1) {
+                setAvailableRequests(data.tripRequests);
+            } else {
+                setAvailableRequests(prevRequests => [...prevRequests, ...data.tripRequests]);
+            }
+
+            return {
+                success: true,
+                requests: data.tripRequests,
+                totalCount: data.totalCount,
+                hasMore: data.hasMore,
+                currentPage: data.currentPage,
+                filters: data.filters
+            };
+
+        } catch (err) {
+            console.error('Public requests search error:', err);
+            setError(err.message || 'Failed to fetch public requests');
+            return {
+                success: false,
+                message: err.message || 'Failed to fetch public requests'
+            };
         } finally {
             setLoading(false);
         }
@@ -306,8 +380,10 @@ export const TripProvider = ({ children }) => {
         editTripRequest,
         getAvailableTrips,
         acceptTripRequest,
+        availableRequests,
         getMyTrips,
         getTripDetails,
+        searchPublicRequests,
     };
 
     return (

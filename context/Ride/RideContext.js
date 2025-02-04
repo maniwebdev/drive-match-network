@@ -19,6 +19,10 @@ export const RideProvider = ({ children }) => {
     const [rideOffers, setRideOffers] = useState([]);
     const [rideRequests, setRideRequests] = useState([]);
     const [nearbyRides, setNearbyRides] = useState([]);
+    const [publicRides, setPublicRides] = useState([]);
+    const [totalRides, setTotalRides] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMore, setHasMore] = useState(false);
 
     // Create a new ride offer
     const createRideOffer = async (offerData) => {
@@ -63,8 +67,8 @@ export const RideProvider = ({ children }) => {
         setError(null);
 
         try {
-          //  console.log('Updating ride offer:', offerId);
-           // console.log('Update data:', updateData);
+            //  console.log('Updating ride offer:', offerId);
+            // console.log('Update data:', updateData);
 
             if (!offerId) {
                 throw new Error('Ride offer ID is required for update');
@@ -163,6 +167,108 @@ export const RideProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Add this new function in the RideProvider
+    const searchPublicRides = async (searchParams = {}, userLocation = null, page = 1, limit = 10) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const params = new URLSearchParams();
+
+            // Add pagination parameters
+            params.append('page', page);
+            params.append('limit', limit);
+
+            // Add core search parameters
+            if (searchParams.originCity?.trim()) {
+                params.append('originCity', searchParams.originCity.trim());
+            }
+            if (searchParams.destinationCity?.trim()) {
+                params.append('destinationCity', searchParams.destinationCity.trim());
+            }
+            if (searchParams.departureDate) {
+                params.append('departureDate', searchParams.departureDate);
+            }
+            if (searchParams.seats && !isNaN(searchParams.seats)) {
+                params.append('seats', searchParams.seats);
+            }
+            if (searchParams.maxPrice && !isNaN(searchParams.maxPrice)) {
+                params.append('maxPrice', searchParams.maxPrice);
+            }
+            if (searchParams.allowedLuggage) {
+                params.append('allowedLuggage', searchParams.allowedLuggage);
+            }
+
+            // Add time filter if specified
+            if (searchParams.timeFilter) {
+                params.append('timeFilter', searchParams.timeFilter);
+            }
+
+            // Add location parameters if available
+            if (userLocation?.lat && userLocation?.lng) {
+                params.append('lat', userLocation.lat);
+                params.append('lng', userLocation.lng);
+                params.append('maxDistance', '20000');
+            }
+
+            const response = await fetch(
+                `${API_URL}/api/rideRoute/offers/public?${params.toString()}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch public rides');
+            }
+
+            // Update state with new data
+            if (page === 1) {
+                setPublicRides(data.rideOffers);
+            } else {
+                setPublicRides(prevRides => [...prevRides, ...data.rideOffers]);
+            }
+
+            // Update pagination state
+            setTotalRides(data.totalCount);
+            setCurrentPage(data.currentPage);
+            setHasMore(data.hasMore);
+
+            return {
+                success: true,
+                rideOffers: data.rideOffers,
+                totalCount: data.totalCount,
+                hasMore: data.hasMore,
+                currentPage: data.currentPage,
+                filters: data.filters,
+                nearbyCount: userLocation ? data.rideOffers.length : 0
+            };
+
+        } catch (err) {
+            console.error('Public rides search error:', err);
+            setError(err.message || 'Failed to fetch public rides');
+            return {
+                success: false,
+                message: err.message || 'Failed to fetch public rides'
+            };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Add loadMorePublicRides function for pagination
+    const loadMorePublicRides = async (searchParams = {}, userLocation = null) => {
+        if (!hasMore || loading) return;
+
+        const nextPage = currentPage + 1;
+        return await searchPublicRides(searchParams, userLocation, nextPage);
     };
 
     // Create ride request
@@ -563,6 +669,12 @@ export const RideProvider = ({ children }) => {
         completeRideOffer,
         acceptRideRequest,
         rejectRideRequest,
+        publicRides,
+        totalRides,
+        currentPage,
+        hasMore,
+        searchPublicRides,
+        loadMorePublicRides
     };
 
     return (

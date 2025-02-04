@@ -1,0 +1,270 @@
+/* styles/Privacy.module.css */
+
+.pageContainer {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    margin-top: 30px;
+}
+
+.mainContent {
+    padding: 40px 20px 80px;
+}
+
+.contentWrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e9ecef;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.pageTitle {
+    font-size: 32px;
+    color: #264653;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.lastUpdated {
+    color: #666666;
+    font-size: 14px;
+    margin: 0 0 32px 0;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Sections */
+.section {
+    position: relative;
+    margin-bottom: 40px;
+    padding-left: 36px;
+}
+
+.section:last-child {
+    margin-bottom: 0;
+}
+
+.sectionIcon {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 24px;
+    height: 24px;
+    color: #2a9d8f;
+}
+
+.icon {
+    width: 100%;
+    height: 100%;
+}
+
+.section h2 {
+    font-size: 24px;
+    color: #264653;
+    margin: 0 0 20px 0;
+    font-weight: 600;
+}
+
+.section h3 {
+    font-size: 18px;
+    color: #264653;
+    margin: 24px 0 16px 0;
+    font-weight: 500;
+}
+
+.section p {
+    color: #4a5568;
+    line-height: 1.6;
+    margin: 0 0 16px 0;
+    font-size: 16px;
+}
+
+/* Bullet Lists */
+.bulletList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+}
+
+.bulletList li {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 12px;
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+.bulletList li:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2a9d8f;
+}
+
+.bulletList li:last-child {
+    margin-bottom: 0;
+}
+
+/* Note Box */
+.noteBox {
+    background: #f8f9fa;
+    border-left: 4px solid #2a9d8f;
+    padding: 16px;
+    margin-top: 16px;
+    border-radius: 0 8px 8px 0;
+}
+
+.noteBox p {
+    margin: 0;
+    font-size: 14px;
+    color: #666666;
+}
+
+.noteBox strong {
+    color: #264653;
+}
+
+/* Contact Information */
+.contactInfo {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    margin-top: 16px;
+}
+
+.contactInfo p {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+}
+
+.contactInfo p:last-child {
+    margin-bottom: 0;
+}
+
+/* Links */
+.link {
+    color: #2a9d8f;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.link:hover {
+    color: #264653;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .mainContent {
+        padding: 20px;
+    }
+
+    .contentWrapper {
+        padding: 24px;
+    }
+
+    .pageTitle {
+        font-size: 28px;
+    }
+
+    .section {
+        padding-left: 28px;
+    }
+
+    .section h2 {
+        font-size: 22px;
+    }
+
+    .section h3 {
+        font-size: 16px;
+    }
+
+    .sectionIcon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .mainContent {
+        padding: 16px;
+    }
+
+    .contentWrapper {
+        padding: 20px;
+    }
+
+    .pageTitle {
+        font-size: 24px;
+    }
+
+    .section {
+        padding-left: 24px;
+    }
+
+    .section h2 {
+        font-size: 20px;
+    }
+
+    .section p,
+    .bulletList li {
+        font-size: 15px;
+    }
+
+    .contactInfo {
+        padding: 16px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .pageContainer {
+        background: white;
+    }
+
+    .contentWrapper {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+    }
+
+    .section {
+        page-break-inside: avoid;
+    }
+
+    .link {
+        text-decoration: underline;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Section Hover Effects */
+.section:hover .sectionIcon {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+.section:hover h2 {
+    color: #2a9d8f;
+    transition: color 0.3s ease;
+}

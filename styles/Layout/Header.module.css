@@ -4,7 +4,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 80px;
+  height: 55px;
   background-color: transparent;
   transition: all 0.3s ease;
   z-index: 1000;
@@ -195,7 +195,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .desktopNav,
   .authButtons {
     display: none;

@@ -1,4 +1,4 @@
-/* styles/FindRide.module.css */
+/* styles/RideRequests.module.css */
 
 /* Base Layout */
 .pageContainer {
@@ -21,6 +21,12 @@
 .searchSection {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.inputIcon {
+  color: #2a9d8f;
+  width: 16px;
+  height: 16px;
 }
 
 .searchFormContainer {
@@ -110,6 +116,26 @@
   border-color: #2a9d8f;
   box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1);
 }
+
+.searchFormContainer :global(.ant-input-number) {
+  width: 100%;
+  border-color: #e9ecef;
+  border-radius: 8px;
+}
+
+.searchFormContainer :global(.ant-input-number-input) {
+  height: 38px;
+}
+
+.searchFormContainer :global(.ant-input-number):hover {
+  border-color: #2a9d8f;
+}
+
+.searchFormContainer :global(.ant-input-number-focused),
+.searchFormContainer :global(.ant-input-number):focus {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1);
+}
 /* Filters Section */
 .filtersSection {
   border-top: 1px solid #e9ecef;
@@ -149,27 +175,7 @@
   margin-bottom: 0;
 }
 
-/* Input Number and Select Overrides */
-.searchFormContainer :global(.ant-input-number) {
-  width: 100%;
-  border-color: #e9ecef;
-  border-radius: 8px;
-}
-
-.searchFormContainer :global(.ant-input-number-input) {
-  height: 38px;
-}
-
-.searchFormContainer :global(.ant-input-number):hover {
-  border-color: #2a9d8f;
-}
-
-.searchFormContainer :global(.ant-input-number-focused),
-.searchFormContainer :global(.ant-input-number):focus {
-  border-color: #2a9d8f;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1);
-}
-
+/* Select Input Override */
 .searchFormContainer :global(.ant-select) {
   width: 100%;
 }
@@ -196,7 +202,7 @@
   box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1) !important;
 }
 
-/* Buttons */
+/* Search Button */
 .searchButton {
   height: 40px;
   background: #2a9d8f;
@@ -215,19 +221,11 @@
   background: #248277;
 }
 
-.inputIcon {
-  color: #2a9d8f;
-  width: 16px;
-  height: 16px;
-}
 /* Results Section */
 .resultsSection {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 20px;
+  margin-top: 40px;
 }
 
-/* Loading State */
 .loadingState {
   display: flex;
   flex-direction: column;
@@ -243,7 +241,6 @@
   border: 1px solid #e9ecef;
 }
 
-/* Initial State */
 .initialState {
   padding: 60px 20px;
 }
@@ -294,8 +291,7 @@
   margin: 0;
   line-height: 1.5;
 }
-
-/* Search Results */
+/* Request Cards */
 .searchResults {
   background: #ffffff;
   border-radius: 12px;
@@ -318,36 +314,7 @@
   gap: 16px;
 }
 
-/* No Results State */
-.noResults {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 300px;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e9ecef;
-}
-
-.noResultsContent {
-  text-align: center;
-}
-
-.noResultsContent h3 {
-  font-size: 20px;
-  color: #264653;
-  margin-bottom: 8px;
-}
-
-.noResultsContent p {
-  color: #666666;
-  font-size: 16px;
-  margin: 0;
-}
-/* Ride Card Styles */
-.rideCard {
+.requestCard {
   background: #ffffff;
   border-radius: 12px;
   padding: 24px;
@@ -356,40 +323,73 @@
   transition: all 0.3s ease;
 }
 
-.rideCard:hover {
+.requestCard:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-color: #2a9d8f;
 }
 
-/* Ride Header */
-.rideHeader {
+.requestHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.ridePrice {
-  text-align: right;
+.passengerInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.priceAmount {
-  display: block;
-  font-size: 24px;
-  font-weight: 600;
-  color: #2a9d8f;
+.passengerAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.priceLabel {
-  font-size: 12px;
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  font-size: 20px;
   color: #666666;
+  text-transform: uppercase;
 }
 
-.rideSeats {
+.passengerDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.passengerName {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin: 0;
+}
+
+.rating {
+  font-size: 14px;
+  color: #666666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.seatsRequired {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #666666;
+  color: #2a9d8f;
   font-size: 14px;
   padding: 6px 12px;
   background: rgba(42, 157, 143, 0.1);
@@ -399,11 +399,10 @@
 .seatIcon {
   width: 16px;
   height: 16px;
-  color: #2a9d8f;
 }
 
-/* Ride Details */
-.rideDetails {
+/* Request Details */
+.requestDetails {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -441,20 +440,23 @@
   font-size: 20px;
   font-weight: 500;
 }
-
-.rideInfo {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+/* Trip Information */
+.tripInfo {
   padding: 16px;
   background: #f8f9fa;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .datetime {
   font-size: 14px;
   color: #264653;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .preferences {
@@ -480,6 +482,12 @@
   color: #e9ecef;
 }
 
+.notes {
+  color: #666666;
+  font-size: 14px;
+}
+
+/* View Details Button */
 .viewDetailsButton {
   margin-top: 16px;
   width: 100%;
@@ -496,134 +504,6 @@
   color: #ffffff;
   border-color: #2a9d8f;
 }
-/* Trust Section */
-.trustSection {
-  padding: 80px 20px;
-  background: #ffffff;
-}
-
-.trustContent {
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.trustContent h2 {
-  font-size: 32px;
-  color: #264653;
-  margin-bottom: 40px;
-  font-weight: 600;
-}
-
-.trustGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  justify-content: center;
-}
-
-.trustItem {
-  flex: 1 1 300px;
-  max-width: 350px;
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  transition: transform 0.3s ease;
-}
-
-.trustItem:hover {
-  transform: translateY(-4px);
-}
-
-.trustIcon {
-  font-size: 48px;
-  margin-bottom: 8px;
-}
-
-.trustItem h3 {
-  font-size: 20px;
-  color: #264653;
-  margin: 0;
-  font-weight: 600;
-}
-
-.trustItem p {
-  color: #666666;
-  margin: 0;
-  line-height: 1.6;
-  font-size: 16px;
-}
-
-/* How It Works Section */
-.howItWorksSection {
-  padding: 80px 20px;
-  background: #f8f9fa;
-  text-align: center;
-}
-
-.howItWorksSection h2 {
-  font-size: 32px;
-  color: #264653;
-  margin-bottom: 48px;
-  font-weight: 600;
-}
-
-.stepsGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  justify-content: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.step {
-  flex: 1 1 300px;
-  max-width: 350px;
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: transform 0.3s ease;
-}
-
-.step:hover {
-  transform: translateY(-4px);
-}
-
-.stepNumber {
-  width: 48px;
-  height: 48px;
-  background: #2a9d8f;
-  color: #ffffff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.step h3 {
-  font-size: 20px;
-  color: #264653;
-  margin: 0;
-  font-weight: 600;
-}
-
-.step p {
-  color: #666666;
-  margin: 0;
-  line-height: 1.6;
-  font-size: 16px;
-}
 
 /* CTA Section */
 .ctaSection {
@@ -631,10 +511,11 @@
   padding: 80px 20px;
   text-align: center;
   color: #ffffff;
+  margin-top: 60px;
 }
 
 .ctaSection h2 {
-  font-size: 36px;
+  font-size: 32px;
   margin-bottom: 16px;
   font-weight: 600;
 }
@@ -642,7 +523,7 @@
 .ctaSection p {
   font-size: 18px;
   margin-bottom: 32px;
-  color: rgba(255, 255, 255, 0.9);
+  opacity: 0.9;
 }
 
 .ctaButtons {
@@ -654,10 +535,10 @@
 .signupButton {
   height: 48px;
   padding: 0 32px;
-  font-size: 16px;
   background: #ffffff;
   color: #2a9d8f;
   border: none;
+  font-size: 16px;
   border-radius: 8px;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -665,16 +546,15 @@
 
 .signupButton:hover {
   background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-2px);
 }
 
 .loginButton {
   height: 48px;
   padding: 0 32px;
-  font-size: 16px;
   background: transparent;
   color: #ffffff;
   border: 2px solid #ffffff;
+  font-size: 16px;
   border-radius: 8px;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -682,9 +562,27 @@
 
 .loginButton:hover {
   background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
 }
 
+/* No Results State */
+.noResults {
+  padding: 40px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.noResultsContent h3 {
+  font-size: 20px;
+  color: #264653;
+  margin-bottom: 8px;
+}
+
+.noResultsContent p {
+  color: #666666;
+  font-size: 16px;
+}
 /* Responsive Design */
 @media (max-width: 1200px) {
   .searchFormContainer,
@@ -718,10 +616,6 @@
   .filterField {
     width: 100%;
   }
-
-  .routeInfo {
-    padding: 12px;
-  }
 }
 
 @media (max-width: 768px) {
@@ -741,12 +635,10 @@
     font-size: 14px;
   }
 
-  .rideHeader {
+  .requestHeader {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 12px;
-  }
-
-  .ridePrice {
-    text-align: left;
   }
 
   .routeInfo {
@@ -755,38 +647,17 @@
   }
 
   .arrow {
-    align-self: center;
     transform: rotate(90deg);
     margin: 8px 0;
-  }
-
-  .rideInfo {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .preferences {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .trustSection,
-  .howItWorksSection {
-    padding: 60px 20px;
-  }
-
-  .trustContent h2,
-  .howItWorksSection h2,
-  .ctaSection h2 {
-    font-size: 28px;
-  }
-
-  .trustItem,
-  .step {
-    padding: 24px;
+    align-self: center;
   }
 
   .ctaSection {
-    padding: 60px 20px;
+    padding: 40px 20px;
+  }
+
+  .ctaSection h2 {
+    font-size: 24px;
   }
 
   .ctaSection p {
@@ -795,7 +666,7 @@
 
   .ctaButtons {
     flex-direction: column;
-    max-width: 280px;
+    max-width: 300px;
     margin: 0 auto;
   }
 }
@@ -809,60 +680,39 @@
     flex: 1 1 100%;
   }
 
-  .luggageInfo {
-    width: 100%;
-    justify-content: center;
+  .preferences {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .separator {
     display: none;
   }
 
-  .priceAmount {
-    font-size: 20px;
+  .luggageInfo {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tripInfo {
+    padding: 12px;
   }
 
   .datetime {
-    font-size: 13px;
-  }
-  .trustContent h2,
-  .howItWorksSection h2,
-  .ctaSection h2 {
-    font-size: 24px;
-  }
-
-  .trustIcon {
-    font-size: 40px;
-  }
-
-  .stepNumber {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-  }
-
-  .trustItem h3,
-  .step h3 {
-    font-size: 18px;
-  }
-
-  .trustItem p,
-  .step p {
-    font-size: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
   .pageContainer {
     padding: 0px;
   }
-  .resultsSection {
-    padding: 0 0px;
+  .mainContent {
+    padding: 10px;
   }
   .searchResults {
     padding: 14px;
   }
-  .mainContent {
-    padding: 10px;
-  }
-  .rideCard {
+  .requestCard {
     padding: 14px;
   }
   .routeInfo {
@@ -898,7 +748,7 @@
   animation: fadeIn 0.5s ease-out;
 }
 
-.rideCard {
+.requestCard {
   animation: slideIn 0.5s ease-out;
 }
 
@@ -912,9 +762,8 @@
     transform: none;
   }
 
-  .rideCard:hover {
+  .requestCard:hover {
     box-shadow: none;
-    border-color: #e9ecef;
   }
 
   .viewDetailsButton:active {
@@ -923,7 +772,7 @@
   }
 }
 
-/* Loading and Empty State Overrides */
+/* Loading Spinner Override */
 .loadingState :global(.ant-spin) {
   color: #2a9d8f;
 }
@@ -932,25 +781,11 @@
   background-color: #2a9d8f;
 }
 
-.noResults :global(.ant-empty) {
-  margin: 32px 0;
-}
-
+/* Empty State Override */
 .noResults :global(.ant-empty-image) {
   height: 80px;
 }
 
 .noResults :global(.ant-empty-description) {
   color: #666666;
-}
-
-/* Additional Button States */
-.searchButton:focus,
-.viewDetailsButton:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
-}
-
-.searchButton:active {
-  background: #1f7268;
 }

@@ -1,0 +1,226 @@
+/* components/Footer/Footer.module.css */
+
+.footer {
+  background-color: #ffffff;
+  border-top: 1px solid #e9ecef;
+  padding: 60px 0 0;
+}
+
+.footerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+/* Company Info Section */
+.companyInfo {
+  flex: 1 1 250px;
+}
+
+.companyLogo {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2a9d8f;
+  margin-bottom: 16px;
+}
+
+.companyDescription {
+  color: #666666;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Links Sections */
+.linksSection {
+  flex: 1 1 180px;
+}
+
+.linksSection h3 {
+  font-size: 16px;
+  color: #264653;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.link {
+  color: #666666;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.link:hover {
+  color: #2a9d8f;
+}
+
+/* Social Section */
+.socialSection {
+  flex: 1 1 200px;
+}
+
+.socialSection h3 {
+  font-size: 16px;
+  color: #264653;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 16px;
+}
+
+.socialLink {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2a9d8f;
+  transition: all 0.3s ease;
+}
+
+.socialLink:hover {
+  background: #2a9d8f;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* Bottom Bar */
+.bottomBar {
+  border-top: 1px solid #e9ecef;
+  padding: 20px 0;
+  background: #f8f9fa;
+}
+
+.bottomContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.copyright {
+  color: #666666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.credit {
+  color: #666666;
+  font-size: 14px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.heartIcon {
+  color: #e74c3c;
+  animation: heartBeat 1.5s ease infinite;
+}
+
+.creditLink {
+  color: #2a9d8f;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.creditLink:hover {
+  color: #264653;
+}
+
+/* Animations */
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer {
+    padding: 40px 0 0;
+  }
+
+  .footerContent {
+    gap: 32px;
+  }
+
+  .companyInfo {
+    flex: 1 1 100%;
+  }
+
+  .linksSection {
+    flex: 1 1 40%;
+  }
+
+  .socialSection {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .footerContent {
+    gap: 24px;
+  }
+
+  .linksSection {
+    flex: 1 1 100%;
+  }
+
+  .bottomContent {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .socialLinks {
+    justify-content: center;
+  }
+}
+
+/* Optional: Add fade-in animation for footer content */
+.footerContent {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

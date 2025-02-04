@@ -24,11 +24,10 @@ const Header = () => {
 
     // Navigation Links
     const navigationLinks = [
-        { title: 'Home', href: '/' },
+        { title: 'Find Rides', href: '/' },
+        { title: 'Ride Requests', href: '/ride-requests' },
         { title: 'How It Works', href: '#how-it-works' },
-        { title: 'Benefits', href: '#benefits' },
-        { title: 'Faq', href: '#faq' },
-        //  { title: 'Contact', href: '#contact' },
+        { title: 'Why Choose', href: '#choose' },
     ];
 
     return (
