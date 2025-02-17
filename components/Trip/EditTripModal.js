@@ -1,9 +1,434 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+// import { Modal, Steps, Button, Form, DatePicker, InputNumber, Select, Input, message } from 'antd';
+// import { MapPin, Calendar, Users, Package, Info, Clock } from 'lucide-react';
+// import moment from 'moment';
+// import { useTrip } from '../../context/Ride/TripContext';
+// import LocationInput from '../../components/Rides/LocationInput';
+// import styles from '../../styles/Trips/EditTripModal.module.css';
+
+// const { Step } = Steps;
+// const { Option } = Select;
+// const { TextArea } = Input;
+
+// const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
+//     const [form] = Form.useForm();
+//     const { editTripRequest, loading } = useTrip();
+//     const [currentStep, setCurrentStep] = useState(0);
+
+//     // Initialize tripData with proper moment objects
+//     const [tripData, setTripData] = useState({
+//         origin: trip.origin,
+//         destination: trip.destination,
+//         departureDate: moment(trip.departureDate),
+//         departureTime: trip.departureTime,
+//         numberOfSeats: trip.numberOfSeats,
+//         luggageSize: trip.luggageSize,
+//         additionalNotes: trip.additionalNotes,
+//         recurrence: {
+//             pattern: trip.recurrence?.pattern || 'none',
+//             endDate: trip.recurrence?.endDate ? moment(trip.recurrence.endDate) : null,
+//             customDays: trip.recurrence?.customDays || []
+//         }
+//     });
+
+//     // Location change handlers
+//     const handleOriginChange = (location) => {
+//         setTripData({
+//             ...tripData,
+//             origin: location
+//         });
+//     };
+
+//     const handleDestinationChange = (location) => {
+//         setTripData({
+//             ...tripData,
+//             destination: location
+//         });
+//     };
+
+//     // Validation functions
+//     const validateCurrentStep = () => {
+//         switch (currentStep) {
+//             case 0: // Route
+//                 if (!tripData.origin.address || !tripData.origin.coordinates.length ||
+//                     !tripData.destination.address || !tripData.destination.coordinates.length) {
+//                     message.error('Please fill in both pickup and drop-off locations');
+//                     return false;
+//                 }
+//                 return true;
+
+//             case 1: // Schedule
+//                 if (!tripData.departureDate || !tripData.departureTime) {
+//                     message.error('Please fill in departure date and time');
+//                     return false;
+//                 }
+//                 const selectedDate = moment(tripData.departureDate).startOf('day');
+//                 const today = moment().startOf('day');
+//                 if (selectedDate.isBefore(today)) {
+//                     message.error('Departure date cannot be in the past');
+//                     return false;
+//                 }
+//                 return true;
+
+//             case 2: // Details
+//                 if (!tripData.numberOfSeats) {
+//                     message.error('Please specify number of seats needed');
+//                     return false;
+//                 }
+//                 return true;
+
+//             case 3: // Recurrence
+//                 if (tripData.recurrence.pattern !== 'none') {
+//                     if (!tripData.recurrence.endDate) {
+//                         message.error('Please specify an end date for the recurring trip');
+//                         return false;
+//                     }
+//                     if (tripData.recurrence.pattern === 'custom' && tripData.recurrence.customDays.length === 0) {
+//                         message.error('Please select at least one day for custom recurrence');
+//                         return false;
+//                     }
+//                 }
+//                 return true;
+
+//             default:
+//                 return true;
+//         }
+//     };
+
+//     const handleNext = () => {
+//         if (validateCurrentStep()) {
+//             setCurrentStep(currentStep + 1);
+//         }
+//     };
+
+//     const handlePrev = () => {
+//         setCurrentStep(currentStep - 1);
+//     };
+
+//     const handleSubmit = async () => {
+//         try {
+//             if (!validateCurrentStep()) {
+//                 return;
+//             }
+
+//             const formattedData = {
+//                 ...tripData,
+//                 departureDate: tripData.departureDate?.format('YYYY-MM-DD'),
+//                 recurrence: tripData.recurrence.pattern !== 'none' ? {
+//                     ...tripData.recurrence,
+//                     endDate: tripData.recurrence.endDate?.format('YYYY-MM-DD')
+//                 } : undefined
+//             };
+
+//             const result = await editTripRequest(trip._id, formattedData);
+
+//             if (result.success) {
+//                 message.success('Trip request updated successfully!');
+//                 onSuccess();
+//             } else {
+//                 message.error(result.message || 'Failed to update trip request');
+//             }
+//         } catch (error) {
+//             console.error('Submit error:', error);
+//             message.error('An error occurred while updating the trip request');
+//         }
+//     };
+
+//     const steps = [
+//         {
+//             title: 'Route',
+//             icon: <MapPin className={styles.stepIcon} />,
+//             content: (
+//                 <div className={styles.stepContent}>
+//                     <Form.Item
+//                         label="Pickup Location"
+//                         required
+//                         className={styles.formItem}
+//                     >
+//                         <LocationInput
+//                             value={tripData.origin}
+//                             onChange={handleOriginChange}
+//                             placeholder="Enter pickup address"
+//                         />
+//                     </Form.Item>
+
+//                     <Form.Item
+//                         label="Drop-off Location"
+//                         required
+//                         className={styles.formItem}
+//                     >
+//                         <LocationInput
+//                             value={tripData.destination}
+//                             onChange={handleDestinationChange}
+//                             placeholder="Enter drop-off address"
+//                         />
+//                     </Form.Item>
+//                 </div>
+//             )
+//         },
+//         {
+//             title: 'Schedule',
+//             icon: <Calendar className={styles.stepIcon} />,
+//             content: (
+//                 <div className={styles.stepContent}>
+//                     <Form.Item
+//                         label="Departure Date"
+//                         required
+//                         className={styles.formItem}
+//                     >
+//                         <DatePicker
+//                             className={styles.datePicker}
+//                             value={tripData.departureDate}
+//                             onChange={(date) => setTripData({ ...tripData, departureDate: date })}
+//                             disabledDate={(current) => current && current < moment().startOf('day')}
+//                         />
+//                     </Form.Item>
+
+//                     <Form.Item
+//                         label="Departure Time"
+//                         required
+//                         className={styles.formItem}
+//                     >
+//                         <div className={styles.timeSelectionContainer}>
+//                             <Select
+//                                 placeholder="Hour"
+//                                 className={styles.timeSelect}
+//                                 value={tripData.departureTime ? tripData.departureTime.split(':')[0] : undefined}
+//                                 onChange={(value) => {
+//                                     const currentTime = tripData.departureTime || '';
+//                                     const newTime = `${value}:${currentTime.split(':')[1] || '00'}`;
+//                                     setTripData({ ...tripData, departureTime: newTime });
+//                                 }}
+//                             >
+//                                 {Array.from({ length: 24 }, (_, i) => (
+//                                     <Option key={i} value={i.toString().padStart(2, '0')}>
+//                                         {i.toString().padStart(2, '0')}
+//                                     </Option>
+//                                 ))}
+//                             </Select>
+//                             <span className={styles.timeSeparator}>:</span>
+//                             <Select
+//                                 placeholder="Minute"
+//                                 className={styles.timeSelect}
+//                                 value={tripData.departureTime ? tripData.departureTime.split(':')[1] : undefined}
+//                                 onChange={(value) => {
+//                                     const currentTime = tripData.departureTime || '';
+//                                     const newTime = `${currentTime.split(':')[0] || '00'}:${value}`;
+//                                     setTripData({ ...tripData, departureTime: newTime });
+//                                 }}
+//                             >
+//                                 {Array.from({ length: 12 }, (_, i) => i * 5).map(minute => (
+//                                     <Option key={minute} value={minute.toString().padStart(2, '0')}>
+//                                         {minute.toString().padStart(2, '0')}
+//                                     </Option>
+//                                 ))}
+//                             </Select>
+//                         </div>
+//                     </Form.Item>
+//                 </div>
+//             )
+//         },
+//         {
+//             title: 'Details',
+//             icon: <Users className={styles.stepIcon} />,
+//             content: (
+//                 <div className={styles.stepContent}>
+//                     <Form.Item
+//                         label="Number of Seats Needed"
+//                         required
+//                         className={styles.formItem}
+//                     >
+//                         <InputNumber
+//                             min={1}
+//                             max={8}
+//                             className={styles.seatsInput}
+//                             value={tripData.numberOfSeats}
+//                             onChange={(value) => setTripData({ ...tripData, numberOfSeats: value })}
+//                         />
+//                     </Form.Item>
+
+//                     <Form.Item
+//                         label="Luggage Size"
+//                         className={styles.formItem}
+//                     >
+//                         <Select
+//                             value={tripData.luggageSize}
+//                             onChange={(value) => setTripData({ ...tripData, luggageSize: value })}
+//                             className={styles.select}
+//                         >
+//                             <Option value="small">Small (Backpack)</Option>
+//                             <Option value="medium">Medium (Carry-on)</Option>
+//                             <Option value="large">Large (Suitcase)</Option>
+//                         </Select>
+//                     </Form.Item>
+
+//                     <Form.Item
+//                         label="Additional Notes"
+//                         className={styles.formItem}
+//                     >
+//                         <TextArea
+//                             placeholder="Any special requirements or notes for the driver"
+//                             value={tripData.additionalNotes}
+//                             onChange={(e) => setTripData({ ...tripData, additionalNotes: e.target.value })}
+//                             rows={4}
+//                             maxLength={500}
+//                             className={styles.textArea}
+//                         />
+//                     </Form.Item>
+//                 </div>
+//             )
+//         },
+//         {
+//             title: 'Recurrence',
+//             icon: <Calendar className={styles.stepIcon} />,
+//             content: (
+//                 <div className={styles.stepContent}>
+//                     <Form.Item
+//                         label="Recurrence Pattern"
+//                         className={styles.formItem}
+//                     >
+//                         <Select
+//                             value={tripData.recurrence.pattern}
+//                             onChange={(value) => setTripData({
+//                                 ...tripData,
+//                                 recurrence: {
+//                                     ...tripData.recurrence,
+//                                     pattern: value
+//                                 }
+//                             })}
+//                             className={styles.select}
+//                         >
+//                             <Option value="none">No Recurrence</Option>
+//                             <Option value="daily">Daily</Option>
+//                             <Option value="weekly">Weekly</Option>
+//                             <Option value="weekdays">Weekdays (Mon-Fri)</Option>
+//                             <Option value="custom">Custom</Option>
+//                         </Select>
+//                     </Form.Item>
+
+//                     {tripData.recurrence.pattern !== 'none' && (
+//                         <Form.Item
+//                             label="End Date"
+//                             required
+//                             className={styles.formItem}
+//                         >
+//                             <DatePicker
+//                                 className={styles.datePicker}
+//                                 value={tripData.recurrence.endDate}
+//                                 onChange={(date) => setTripData({
+//                                     ...tripData,
+//                                     recurrence: {
+//                                         ...tripData.recurrence,
+//                                         endDate: date
+//                                     }
+//                                 })}
+//                                 disabledDate={(current) => current && current < moment(tripData.departureDate).startOf('day')}
+//                             />
+//                         </Form.Item>
+//                     )}
+
+//                     {tripData.recurrence.pattern === 'custom' && (
+//                         <Form.Item
+//                             label="Select Days"
+//                             required
+//                             className={styles.formItem}
+//                         >
+//                             <Select
+//                                 mode="multiple"
+//                                 value={tripData.recurrence.customDays}
+//                                 onChange={(value) => setTripData({
+//                                     ...tripData,
+//                                     recurrence: {
+//                                         ...tripData.recurrence,
+//                                         customDays: value
+//                                     }
+//                                 })}
+//                                 className={styles.select}
+//                             >
+//                                 <Option value="Monday">Monday</Option>
+//                                 <Option value="Tuesday">Tuesday</Option>
+//                                 <Option value="Wednesday">Wednesday</Option>
+//                                 <Option value="Thursday">Thursday</Option>
+//                                 <Option value="Friday">Friday</Option>
+//                                 <Option value="Saturday">Saturday</Option>
+//                                 <Option value="Sunday">Sunday</Option>
+//                             </Select>
+//                         </Form.Item>
+//                     )}
+//                 </div>
+//             )
+//         }
+//     ];
+
+//     return (
+//         <Modal
+//             title="Edit Trip Request"
+//             open={visible}
+//             onCancel={onCancel}
+//             footer={null}
+//             className={styles.editModal}
+//             width={800}
+//         >
+//             <div className={styles.stepsContainer}>
+//                 <Steps current={currentStep}>
+//                     {steps.map(step => (
+//                         <Step
+//                             key={step.title}
+//                             title={step.title}
+//                             icon={step.icon}
+//                             className={styles.step}
+//                         />
+//                     ))}
+//                 </Steps>
+//             </div>
+
+//             <Form
+//                 form={form}
+//                 layout="vertical"
+//                 className={styles.form}
+//             >
+//                 {steps[currentStep].content}
+
+//                 <div className={styles.buttonContainer}>
+//                     {currentStep > 0 && (
+//                         <Button
+//                             onClick={handlePrev}
+//                             className={styles.prevButton}
+//                         >
+//                             Previous
+//                         </Button>
+//                     )}
+//                     {currentStep < steps.length - 1 && (
+//                         <Button
+//                             type="primary"
+//                             onClick={handleNext}
+//                             className={styles.nextButton}
+//                         >
+//                             Next
+//                         </Button>
+//                     )}
+//                     {currentStep === steps.length - 1 && (
+//                         <Button
+//                             type="primary"
+//                             onClick={handleSubmit}
+//                             loading={loading}
+//                             className={styles.submitButton}
+//                         >
+//                             Update Trip
+//                         </Button>
+//                     )}
+//                 </div>
+//             </Form>
+//         </Modal>
+//     );
+// };
+
+// export default EditTripModal;
+import React, { useState, useEffect } from 'react';
 import { Modal, Steps, Button, Form, DatePicker, InputNumber, Select, Input, message } from 'antd';
-import { MapPin, Calendar, Users, Package, Info, Clock } from 'lucide-react';
+import { MapPin, Calendar, Users, Package, Info, Clock, AlertCircle } from 'lucide-react';
 import moment from 'moment';
 import { useTrip } from '../../context/Ride/TripContext';
-import LocationInput from '../../components/Rides/LocationInput';
 import styles from '../../styles/Trips/EditTripModal.module.css';
 
 const { Step } = Steps;
@@ -15,108 +440,226 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
     const { editTripRequest, loading } = useTrip();
     const [currentStep, setCurrentStep] = useState(0);
 
-    // Initialize tripData with proper moment objects
+    // Initialize trip data state
     const [tripData, setTripData] = useState({
-        origin: trip.origin,
-        destination: trip.destination,
-        departureDate: moment(trip.departureDate),
-        departureTime: trip.departureTime,
-        numberOfSeats: trip.numberOfSeats,
-        luggageSize: trip.luggageSize,
-        additionalNotes: trip.additionalNotes,
+        origin: {
+            address: '',
+            city: '',
+            zipCode: ''
+        },
+        destination: {
+            address: '',
+            city: '',
+            zipCode: ''
+        },
+        departureDate: null,
+        departureTime: '',
+        numberOfSeats: 1,
+        luggageSize: 'small',
+        additionalNotes: '',
         recurrence: {
-            pattern: trip.recurrence?.pattern || 'none',
-            endDate: trip.recurrence?.endDate ? moment(trip.recurrence.endDate) : null,
-            customDays: trip.recurrence?.customDays || []
+            pattern: 'none',
+            endDate: null,
+            customDays: []
         }
     });
 
-    // Location change handlers
-    const handleOriginChange = (location) => {
-        setTripData({
-            ...tripData,
-            origin: location
-        });
+    // Initialize data when modal opens or trip changes
+    useEffect(() => {
+        if (trip && visible) {
+            setTripData({
+                origin: {
+                    address: trip.origin.address || '',
+                    city: trip.origin.city || '',
+                    zipCode: trip.origin.zipCode || ''
+                },
+                destination: {
+                    address: trip.destination.address || '',
+                    city: trip.destination.city || '',
+                    zipCode: trip.destination.zipCode || ''
+                },
+                departureDate: moment(trip.departureDate),
+                departureTime: trip.departureTime || '',
+                numberOfSeats: trip.numberOfSeats || 1,
+                luggageSize: trip.luggageSize || 'small',
+                additionalNotes: trip.additionalNotes || '',
+                recurrence: {
+                    pattern: trip.recurrence?.pattern || 'none',
+                    endDate: trip.recurrence?.endDate ? moment(trip.recurrence.endDate) : null,
+                    customDays: trip.recurrence?.customDays || []
+                }
+            });
+            setCurrentStep(0);
+        }
+    }, [trip, visible]);
+    // Location handlers
+    const handleLocationChange = (type, field, value) => {
+        setTripData(prev => ({
+            ...prev,
+            [type]: {
+                ...prev[type],
+                [field]: value
+            }
+        }));
     };
 
-    const handleDestinationChange = (location) => {
-        setTripData({
-            ...tripData,
-            destination: location
-        });
+    // Validate zip code format
+    const validateZipCode = (zipCode) => {
+        return /^\d{5}(-\d{4})?$/.test(zipCode);
     };
 
-    // Validation functions
+    // Location validation
+    const validateLocation = (location, type) => {
+        if (!location.address?.trim()) {
+            message.error(`${type} address is required`);
+            return false;
+        }
+        if (!location.city?.trim()) {
+            message.error(`${type} city is required`);
+            return false;
+        }
+        if (!location.zipCode?.trim() || !validateZipCode(location.zipCode)) {
+            message.error(`Valid ${type} zip code is required`);
+            return false;
+        }
+        return true;
+    };
+
+    // Date and time validation
+    const validateDateTime = () => {
+        if (!tripData.departureDate) {
+            message.error('Departure date is required');
+            return false;
+        }
+
+        if (!tripData.departureTime) {
+            message.error('Departure time is required');
+            return false;
+        }
+
+        const now = moment();
+        const [hours, minutes] = tripData.departureTime.split(':').map(Number);
+        const selectedDateTime = moment(tripData.departureDate)
+            .hour(hours)
+            .minute(minutes)
+            .second(0);
+
+        // If date is in future, any time is valid
+        if (selectedDateTime.isAfter(now, 'day')) {
+            return true;
+        }
+
+        // If it's today, check if time is at least 15 minutes from now
+        // if (selectedDateTime.isSame(now, 'day')) {
+        //     const minimumTime = moment().add(15, 'minutes');
+        //     if (selectedDateTime.isBefore(minimumTime)) {
+        //         message.error('For today, departure time must be at least 15 minutes from now');
+        //         return false;
+        //     }
+        // }
+
+        // If date is in past
+        if (selectedDateTime.isBefore(now, 'day')) {
+            message.error('Departure date cannot be in the past');
+            return false;
+        }
+
+        return true;
+    };
+
+    // Recurrence validation
+    const validateRecurrence = () => {
+        if (tripData.recurrence.pattern !== 'none') {
+            if (!tripData.recurrence.endDate) {
+                message.error('End date is required for recurring trips');
+                return false;
+            }
+
+            if (tripData.recurrence.endDate.isBefore(tripData.departureDate)) {
+                message.error('End date must be after departure date');
+                return false;
+            }
+
+            if (tripData.recurrence.pattern === 'custom' &&
+                (!tripData.recurrence.customDays || tripData.recurrence.customDays.length === 0)) {
+                message.error('Please select at least one day for custom recurrence');
+                return false;
+            }
+        }
+        return true;
+    };
+
+    // Step validation
     const validateCurrentStep = () => {
         switch (currentStep) {
             case 0: // Route
-                if (!tripData.origin.address || !tripData.origin.coordinates.length ||
-                    !tripData.destination.address || !tripData.destination.coordinates.length) {
-                    message.error('Please fill in both pickup and drop-off locations');
-                    return false;
-                }
+                if (!validateLocation(tripData.origin, 'Origin')) return false;
+                if (!validateLocation(tripData.destination, 'Destination')) return false;
                 return true;
 
             case 1: // Schedule
-                if (!tripData.departureDate || !tripData.departureTime) {
-                    message.error('Please fill in departure date and time');
-                    return false;
-                }
-                const selectedDate = moment(tripData.departureDate).startOf('day');
-                const today = moment().startOf('day');
-                if (selectedDate.isBefore(today)) {
-                    message.error('Departure date cannot be in the past');
-                    return false;
-                }
-                return true;
+                return validateDateTime();
 
             case 2: // Details
-                if (!tripData.numberOfSeats) {
-                    message.error('Please specify number of seats needed');
+                if (!tripData.numberOfSeats || tripData.numberOfSeats < 1 || tripData.numberOfSeats > 8) {
+                    message.error('Number of seats must be between 1 and 8');
+                    return false;
+                }
+                if (tripData.additionalNotes?.length > 500) {
+                    message.error('Additional notes must not exceed 500 characters');
                     return false;
                 }
                 return true;
 
             case 3: // Recurrence
-                if (tripData.recurrence.pattern !== 'none') {
-                    if (!tripData.recurrence.endDate) {
-                        message.error('Please specify an end date for the recurring trip');
-                        return false;
-                    }
-                    if (tripData.recurrence.pattern === 'custom' && tripData.recurrence.customDays.length === 0) {
-                        message.error('Please select at least one day for custom recurrence');
-                        return false;
-                    }
-                }
-                return true;
+                return validateRecurrence();
 
             default:
                 return true;
         }
     };
 
+    // Navigation handlers
     const handleNext = () => {
         if (validateCurrentStep()) {
-            setCurrentStep(currentStep + 1);
+            setCurrentStep(prev => prev + 1);
         }
     };
 
     const handlePrev = () => {
-        setCurrentStep(currentStep - 1);
+        setCurrentStep(prev => prev - 1);
     };
 
+    // Form submission
     const handleSubmit = async () => {
         try {
-            if (!validateCurrentStep()) {
-                return;
-            }
+            if (!validateCurrentStep()) return;
 
+            // Get client's timezone
+            const timezone = moment.tz.guess();
+
+            // Format the data for submission
             const formattedData = {
-                ...tripData,
-                departureDate: tripData.departureDate?.format('YYYY-MM-DD'),
+                origin: {
+                    address: tripData.origin.address.trim(),
+                    city: tripData.origin.city.trim(),
+                    zipCode: tripData.origin.zipCode.trim()
+                },
+                destination: {
+                    address: tripData.destination.address.trim(),
+                    city: tripData.destination.city.trim(),
+                    zipCode: tripData.destination.zipCode.trim()
+                },
+                departureDate: tripData.departureDate.format('YYYY-MM-DD'),
+                departureTime: tripData.departureTime,
+                numberOfSeats: tripData.numberOfSeats,
+                luggageSize: tripData.luggageSize,
+                additionalNotes: tripData.additionalNotes?.trim(),
+                timezone,
                 recurrence: tripData.recurrence.pattern !== 'none' ? {
-                    ...tripData.recurrence,
-                    endDate: tripData.recurrence.endDate?.format('YYYY-MM-DD')
+                    pattern: tripData.recurrence.pattern,
+                    endDate: tripData.recurrence.endDate?.format('YYYY-MM-DD'),
+                    customDays: tripData.recurrence.customDays
                 } : undefined
             };
 
@@ -126,43 +669,97 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
                 message.success('Trip request updated successfully!');
                 onSuccess();
             } else {
-                message.error(result.message || 'Failed to update trip request');
+                throw new Error(result.error || 'Failed to update trip request');
             }
         } catch (error) {
             console.error('Submit error:', error);
-            message.error('An error occurred while updating the trip request');
+            message.error(error.message || 'Failed to update trip request');
         }
     };
-
+    // Step configurations
     const steps = [
         {
             title: 'Route',
             icon: <MapPin className={styles.stepIcon} />,
             content: (
                 <div className={styles.stepContent}>
-                    <Form.Item
-                        label="Pickup Location"
-                        required
-                        className={styles.formItem}
-                    >
-                        <LocationInput
-                            value={tripData.origin}
-                            onChange={handleOriginChange}
-                            placeholder="Enter pickup address"
-                        />
-                    </Form.Item>
+                    <div className={styles.section}>
+                        <h3 className={styles.sectionTitle}>Pickup Location</h3>
+                        <Form.Item
+                            label="Address"
+                            required
+                            className={styles.formItem}
+                        >
+                            <Input
+                                value={tripData.origin.address}
+                                onChange={e => handleLocationChange('origin', 'address', e.target.value)}
+                                placeholder="Enter pickup address"
+                            />
+                        </Form.Item>
 
-                    <Form.Item
-                        label="Drop-off Location"
-                        required
-                        className={styles.formItem}
-                    >
-                        <LocationInput
-                            value={tripData.destination}
-                            onChange={handleDestinationChange}
-                            placeholder="Enter drop-off address"
-                        />
-                    </Form.Item>
+                        <Form.Item
+                            label="City"
+                            required
+                            className={styles.formItem}
+                        >
+                            <Input
+                                value={tripData.origin.city}
+                                onChange={e => handleLocationChange('origin', 'city', e.target.value)}
+                                placeholder="Enter city"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="Zip Code"
+                            required
+                            className={styles.formItem}
+                        >
+                            <Input
+                                value={tripData.origin.zipCode}
+                                onChange={e => handleLocationChange('origin', 'zipCode', e.target.value)}
+                                placeholder="Enter zip code"
+                            />
+                        </Form.Item>
+                    </div>
+
+                    <div className={styles.section}>
+                        <h3 className={styles.sectionTitle}>Drop-off Location</h3>
+                        <Form.Item
+                            label="Address"
+                            required
+                            className={styles.formItem}
+                        >
+                            <Input
+                                value={tripData.destination.address}
+                                onChange={e => handleLocationChange('destination', 'address', e.target.value)}
+                                placeholder="Enter drop-off address"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="City"
+                            required
+                            className={styles.formItem}
+                        >
+                            <Input
+                                value={tripData.destination.city}
+                                onChange={e => handleLocationChange('destination', 'city', e.target.value)}
+                                placeholder="Enter city"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="Zip Code"
+                            required
+                            className={styles.formItem}
+                        >
+                            <Input
+                                value={tripData.destination.zipCode}
+                                onChange={e => handleLocationChange('destination', 'zipCode', e.target.value)}
+                                placeholder="Enter zip code"
+                            />
+                        </Form.Item>
+                    </div>
                 </div>
             )
         },
@@ -179,8 +776,12 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
                         <DatePicker
                             className={styles.datePicker}
                             value={tripData.departureDate}
-                            onChange={(date) => setTripData({ ...tripData, departureDate: date })}
+                            onChange={(date) => setTripData(prev => ({
+                                ...prev,
+                                departureDate: date
+                            }))}
                             disabledDate={(current) => current && current < moment().startOf('day')}
+                            format="YYYY-MM-DD"
                         />
                     </Form.Item>
 
@@ -193,35 +794,57 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
                             <Select
                                 placeholder="Hour"
                                 className={styles.timeSelect}
-                                value={tripData.departureTime ? tripData.departureTime.split(':')[0] : undefined}
+                                value={tripData.departureTime.split(':')[0]}
                                 onChange={(value) => {
-                                    const currentTime = tripData.departureTime || '';
-                                    const newTime = `${value}:${currentTime.split(':')[1] || '00'}`;
-                                    setTripData({ ...tripData, departureTime: newTime });
+                                    const minutes = tripData.departureTime.split(':')[1] || '00';
+                                    setTripData(prev => ({
+                                        ...prev,
+                                        departureTime: `${value}:${minutes}`
+                                    }));
                                 }}
                             >
-                                {Array.from({ length: 24 }, (_, i) => (
-                                    <Option key={i} value={i.toString().padStart(2, '0')}>
-                                        {i.toString().padStart(2, '0')}
-                                    </Option>
-                                ))}
+                                {Array.from({ length: 24 }, (_, i) => {
+                                    // Only apply time restrictions if it's today
+                                    if (tripData.departureDate?.isSame(moment(), 'day')) {
+                                        const currentHour = moment().hour();
+                                        const minimumHour = moment().add(15, 'minutes').hour();
+                                        if (i < minimumHour) return null;
+                                    }
+                                    return (
+                                        <Option key={i} value={i.toString().padStart(2, '0')}>
+                                            {i.toString().padStart(2, '0')}
+                                        </Option>
+                                    );
+                                }).filter(Boolean)}
                             </Select>
                             <span className={styles.timeSeparator}>:</span>
                             <Select
                                 placeholder="Minute"
                                 className={styles.timeSelect}
-                                value={tripData.departureTime ? tripData.departureTime.split(':')[1] : undefined}
+                                value={tripData.departureTime.split(':')[1]}
                                 onChange={(value) => {
-                                    const currentTime = tripData.departureTime || '';
-                                    const newTime = `${currentTime.split(':')[0] || '00'}:${value}`;
-                                    setTripData({ ...tripData, departureTime: newTime });
+                                    const hours = tripData.departureTime.split(':')[0] || '00';
+                                    setTripData(prev => ({
+                                        ...prev,
+                                        departureTime: `${hours}:${value}`
+                                    }));
                                 }}
                             >
-                                {Array.from({ length: 12 }, (_, i) => i * 5).map(minute => (
-                                    <Option key={minute} value={minute.toString().padStart(2, '0')}>
-                                        {minute.toString().padStart(2, '0')}
-                                    </Option>
-                                ))}
+                                {Array.from({ length: 12 }, (_, i) => {
+                                    const minute = i * 5;
+                                    // Only apply minute restrictions if it's today and current hour
+                                    if (tripData.departureDate?.isSame(moment(), 'day') &&
+                                        parseInt(tripData.departureTime.split(':')[0]) === moment().hour()) {
+                                        const currentMinute = moment().minute();
+                                        const minimumMinute = moment().add(15, 'minutes').minute();
+                                        if (minute <= minimumMinute) return null;
+                                    }
+                                    return (
+                                        <Option key={minute} value={minute.toString().padStart(2, '0')}>
+                                            {minute.toString().padStart(2, '0')}
+                                        </Option>
+                                    );
+                                }).filter(Boolean)}
                             </Select>
                         </div>
                     </Form.Item>
@@ -241,9 +864,12 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
                         <InputNumber
                             min={1}
                             max={8}
-                            className={styles.seatsInput}
                             value={tripData.numberOfSeats}
-                            onChange={(value) => setTripData({ ...tripData, numberOfSeats: value })}
+                            onChange={(value) => setTripData(prev => ({
+                                ...prev,
+                                numberOfSeats: value
+                            }))}
+                            className={styles.numberInput}
                         />
                     </Form.Item>
 
@@ -253,12 +879,24 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
                     >
                         <Select
                             value={tripData.luggageSize}
-                            onChange={(value) => setTripData({ ...tripData, luggageSize: value })}
+                            onChange={(value) => setTripData(prev => ({
+                                ...prev,
+                                luggageSize: value
+                            }))}
                             className={styles.select}
                         >
-                            <Option value="small">Small (Backpack)</Option>
-                            <Option value="medium">Medium (Carry-on)</Option>
-                            <Option value="large">Large (Suitcase)</Option>
+                            <Option value="small">
+                                <Package size={16} className={styles.optionIcon} />
+                                Small (Backpack)
+                            </Option>
+                            <Option value="medium">
+                                <Package size={16} className={styles.optionIcon} />
+                                Medium (Carry-on)
+                            </Option>
+                            <Option value="large">
+                                <Package size={16} className={styles.optionIcon} />
+                                Large (Suitcase)
+                            </Option>
                         </Select>
                     </Form.Item>
 
@@ -267,11 +905,15 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
                         className={styles.formItem}
                     >
                         <TextArea
-                            placeholder="Any special requirements or notes for the driver"
                             value={tripData.additionalNotes}
-                            onChange={(e) => setTripData({ ...tripData, additionalNotes: e.target.value })}
-                            rows={4}
+                            onChange={(e) => setTripData(prev => ({
+                                ...prev,
+                                additionalNotes: e.target.value
+                            }))}
+                            placeholder="Any special requirements or notes"
                             maxLength={500}
+                            showCount
+                            rows={4}
                             className={styles.textArea}
                         />
                     </Form.Item>
@@ -289,20 +931,21 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
                     >
                         <Select
                             value={tripData.recurrence.pattern}
-                            onChange={(value) => setTripData({
-                                ...tripData,
+                            onChange={(value) => setTripData(prev => ({
+                                ...prev,
                                 recurrence: {
-                                    ...tripData.recurrence,
-                                    pattern: value
+                                    ...prev.recurrence,
+                                    pattern: value,
+                                    customDays: value === 'custom' ? prev.recurrence.customDays : []
                                 }
-                            })}
+                            }))}
                             className={styles.select}
                         >
                             <Option value="none">No Recurrence</Option>
                             <Option value="daily">Daily</Option>
                             <Option value="weekly">Weekly</Option>
                             <Option value="weekdays">Weekdays (Mon-Fri)</Option>
-                            <Option value="custom">Custom</Option>
+                            <Option value="custom">Custom Days</Option>
                         </Select>
                     </Form.Item>
 
@@ -315,14 +958,16 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
                             <DatePicker
                                 className={styles.datePicker}
                                 value={tripData.recurrence.endDate}
-                                onChange={(date) => setTripData({
-                                    ...tripData,
+                                onChange={(date) => setTripData(prev => ({
+                                    ...prev,
                                     recurrence: {
-                                        ...tripData.recurrence,
+                                        ...prev.recurrence,
                                         endDate: date
                                     }
-                                })}
-                                disabledDate={(current) => current && current < moment(tripData.departureDate).startOf('day')}
+                                }))}
+                                disabledDate={(current) =>
+                                    current && current.isBefore(tripData.departureDate, 'day')
+                                }
                             />
                         </Form.Item>
                     )}
@@ -336,22 +981,23 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
                             <Select
                                 mode="multiple"
                                 value={tripData.recurrence.customDays}
-                                onChange={(value) => setTripData({
-                                    ...tripData,
+                                onChange={(values) => setTripData(prev => ({
+                                    ...prev,
                                     recurrence: {
-                                        ...tripData.recurrence,
-                                        customDays: value
+                                        ...prev.recurrence,
+                                        customDays: values
                                     }
-                                })}
+                                }))}
                                 className={styles.select}
+                                placeholder="Select days of the week"
                             >
-                                <Option value="Monday">Monday</Option>
-                                <Option value="Tuesday">Tuesday</Option>
-                                <Option value="Wednesday">Wednesday</Option>
-                                <Option value="Thursday">Thursday</Option>
-                                <Option value="Friday">Friday</Option>
-                                <Option value="Saturday">Saturday</Option>
-                                <Option value="Sunday">Sunday</Option>
+                                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                                    .map(day => (
+                                        <Option key={day} value={day}>
+                                            {day}
+                                        </Option>
+                                    ))
+                                }
                             </Select>
                         </Form.Item>
                     )}
@@ -359,66 +1005,68 @@ const EditTripModal = ({ trip, visible, onCancel, onSuccess }) => {
             )
         }
     ];
-
     return (
         <Modal
             title="Edit Trip Request"
             open={visible}
             onCancel={onCancel}
             footer={null}
-            className={styles.editModal}
             width={800}
+            className={styles.modal}
+            destroyOnClose
         >
-            <div className={styles.stepsContainer}>
-                <Steps current={currentStep}>
+            <div className={styles.modalContent}>
+                <Steps current={currentStep} className={styles.steps}>
                     {steps.map(step => (
                         <Step
                             key={step.title}
                             title={step.title}
                             icon={step.icon}
-                            className={styles.step}
                         />
                     ))}
                 </Steps>
+
+                <Form
+                    form={form}
+                    layout="vertical"
+                    className={styles.form}
+                >
+                    <div className={styles.formContent}>
+                        {steps[currentStep].content}
+                    </div>
+
+                    <div className={styles.buttonContainer}>
+                        {currentStep > 0 && (
+                            <Button
+                                onClick={handlePrev}
+                                className={styles.prevButton}
+                                icon={<AlertCircle size={16} />}
+                            >
+                                Previous
+                            </Button>
+                        )}
+
+                        {currentStep < steps.length - 1 ? (
+                            <Button
+                                type="primary"
+                                onClick={handleNext}
+                                className={styles.nextButton}
+                            >
+                                Next
+                            </Button>
+                        ) : (
+                            <Button
+                                type="primary"
+                                onClick={handleSubmit}
+                                loading={loading}
+                                className={styles.submitButton}
+                            >
+                                Update Trip
+                            </Button>
+                        )}
+                    </div>
+                </Form>
             </div>
-
-            <Form
-                form={form}
-                layout="vertical"
-                className={styles.form}
-            >
-                {steps[currentStep].content}
-
-                <div className={styles.buttonContainer}>
-                    {currentStep > 0 && (
-                        <Button
-                            onClick={handlePrev}
-                            className={styles.prevButton}
-                        >
-                            Previous
-                        </Button>
-                    )}
-                    {currentStep < steps.length - 1 && (
-                        <Button
-                            type="primary"
-                            onClick={handleNext}
-                            className={styles.nextButton}
-                        >
-                            Next
-                        </Button>
-                    )}
-                    {currentStep === steps.length - 1 && (
-                        <Button
-                            type="primary"
-                            onClick={handleSubmit}
-                            loading={loading}
-                            className={styles.submitButton}
-                        >
-                            Update Trip
-                        </Button>
-                    )}
-                </div>
-            </Form>
         </Modal>
     );
 };

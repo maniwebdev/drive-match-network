@@ -130,6 +130,69 @@
   color: #264653;
   margin: 0 0 16px 0;
 }
+
+/* Location Input Styles */
+.locationGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.locationGroup input:nth-child(1) {
+  flex: 2;
+  min-width: 200px;
+}
+
+.locationGroup input:nth-child(2),
+.locationGroup input:nth-child(3) {
+  flex: 1;
+  min-width: 150px;
+}
+
+.locationGroup input {
+  height: 40px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.locationGroup input:hover {
+  border-color: #2a9d8f;
+}
+
+.locationGroup input:focus {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+  outline: none;
+}
+
+.locationGroup input::placeholder {
+  color: #adb5bd;
+}
+
+/* Waypoint Styles */
+.waypointItem {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.waypointItem .locationGroup {
+  flex: 1;
+  margin-bottom: 8px;
+}
+
+.waypointItem button {
+  align-self: flex-end;
+  min-width: 100px;
+}
 /* Input and Location Picker Styles */
 .input {
   width: 100%;
@@ -209,7 +272,7 @@
 }
 
 /* Seats and Price Section */
-.seatsInput, 
+.seatsInput,
 .priceInput {
   width: 100%;
 }
@@ -270,12 +333,12 @@
 /* Animations */
 @keyframes slideIn {
   from {
-      opacity: 0;
-      transform: translateY(10px);
+    opacity: 0;
+    transform: translateY(10px);
   }
   to {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -323,8 +386,8 @@
   border-top: 1px solid #e9ecef;
 }
 
-.prevButton, 
-.nextButton, 
+.prevButton,
+.nextButton,
 .submitButton {
   display: flex;
   align-items: center;
@@ -425,87 +488,86 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .pageContainer {
-      padding: 20px 16px;
+    padding: 20px 16px;
   }
 
   .contentWrapper {
-      margin-top: 20px;
+    margin-top: 20px;
   }
 
   .pageTitle {
-      font-size: 24px;
-      margin-bottom: 24px;
+    font-size: 24px;
+    margin-bottom: 24px;
   }
 
   .formContainer {
-      padding: 20px;
+    padding: 20px;
   }
 
   .timeSelectionContainer {
-      flex-direction: column;
-      align-items: stretch;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .timeSelect {
-      max-width: 100%;
+    max-width: 100%;
   }
 
   .buttonContainer {
-      flex-direction: column-reverse;
-      gap: 12px;
+    flex-direction: column-reverse;
+    gap: 12px;
   }
 
-  .prevButton, 
-  .nextButton, 
+  .prevButton,
+  .nextButton,
   .submitButton {
-      width: 100%;
-      justify-content: center;
+    width: 100%;
+    justify-content: center;
   }
 
   .waypointItem {
-      flex-direction: column;
-      gap: 12px;
+    flex-direction: column;
+    gap: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .pageContainer {
-      padding: 16px;
+    padding: 16px;
   }
 
   .stepsContainer {
-      padding: 16px 12px;
+    padding: 16px 12px;
   }
 
   .formContainer {
-      padding: 16px;
+    padding: 16px;
   }
 
   .vehicleItem {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
   .driverVerificationRequired {
-      padding: 32px 20px;
+    padding: 32px 20px;
   }
 
   .driverVerificationRequired h2 {
-      font-size: 20px;
+    font-size: 20px;
   }
 }
 
 /* Touch Device Optimizations */
 @media (hover: none) {
   .addWaypointButton:hover {
-      color: #2a9d8f;
-      border-color: #2a9d8f;
+    color: #2a9d8f;
+    border-color: #2a9d8f;
   }
 
   .nextButton:hover,
   .submitButton:hover {
-      background: #2a9d8f;
+    background: #2a9d8f;
   }
 }
-

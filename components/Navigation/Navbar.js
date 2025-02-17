@@ -125,18 +125,6 @@ const Navbar = () => {
         })) : []),
 
         ...(isMobile ? [{ type: 'divider' }] : []),
-
-        // Add driver verification option for non-drivers
-        ...(!currentUser?.isDriver ? [{
-            key: 'becomeDriver',
-            label: (
-                <div className={styles.menuItem}>
-                    <Car size={16} />
-                    <span>Become a Driver</span>
-                </div>
-            ),
-            onClick: () => router.push('/user/profile')
-        }] : []),
         {
             key: 'help',
             label: (

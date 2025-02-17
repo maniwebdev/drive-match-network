@@ -1,42 +1,24 @@
-/* Modal Container */
-.editModal :global(.ant-modal-content) {
+/* EditTripModal.module.css */
+
+/* Modal Base Styles */
+.modal {
+  position: relative;
+}
+
+.modal :global(.ant-modal-content) {
   border-radius: 12px;
   padding: 24px;
   background-color: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Recurrence Step Styles */
-.recurrenceStep {
-  margin-top: 20px;
-}
-
-.recurrenceStep .ant-form-item {
-  margin-bottom: 16px;
-}
-
-.recurrenceStep .ant-select {
-  width: 100%;
-}
-
-.recurrenceStep .ant-picker {
-  width: 100%;
-}
-
-.customDaysSelect .ant-select-selection-item {
-  background-color: #f0f0f0;
-  border-radius: 4px;
-  padding: 2px 8px;
-  margin-right: 8px;
-}
-
-.editModal :global(.ant-modal-header) {
+.modal :global(.ant-modal-header) {
   border-bottom: none;
   padding-bottom: 0;
   background-color: transparent;
 }
 
-.editModal :global(.ant-modal-title) {
+.modal :global(.ant-modal-title) {
   font-size: 24px;
   font-weight: 600;
   color: #264653;
@@ -44,103 +26,114 @@
   margin-bottom: 16px;
 }
 
-.editModal :global(.ant-modal-body) {
+.modal :global(.ant-modal-body) {
   padding: 24px 0;
 }
 
-/* Steps Container */
-.stepsContainer {
-  margin-bottom: 24px;
+.modalContent {
+  position: relative;
 }
 
-.stepsContainer :global(.ant-steps) {
-  display: flex;
-  flex-direction: row; /* Ensure steps are always in a row */
-  justify-content: space-between;
+/* Steps Navigation */
+.steps {
+  margin-bottom: 32px;
+  padding: 0 16px;
 }
 
-.stepsContainer :global(.ant-steps-item) {
-  flex: 1;
-  margin-right: 8px; /* Add spacing between steps */
+.steps :global(.ant-steps-item) {
+  padding: 0 8px;
 }
 
-.stepsContainer :global(.ant-steps-item:last-child) {
-  margin-right: 0; /* Remove margin for the last step */
-}
-
-.stepsContainer :global(.ant-steps-item-title) {
+.steps :global(.ant-steps-item-title) {
   font-size: 14px;
   font-weight: 500;
   color: #666666;
 }
 
-.stepsContainer :global(.ant-steps-item-active .ant-steps-item-title) {
+.steps :global(.ant-steps-item-active .ant-steps-item-title) {
   color: #2a9d8f;
 }
 
-.stepsContainer :global(.ant-steps-icon) {
+.steps :global(.ant-steps-item-finish .ant-steps-item-icon) {
+  background-color: #2a9d8f;
+  border-color: #2a9d8f;
+}
+
+.stepIcon {
   color: #2a9d8f;
+  font-size: 18px;
 }
 
-.stepsContainer :global(.ant-steps-item-process .ant-steps-icon) {
-  color: #ffffff;
-  border-radius: 50%;
+/* Form Layout */
+.form {
+  position: relative;
+  padding: 0 16px;
 }
 
-.stepsContainer :global(.ant-steps-item-wait .ant-steps-icon) {
-  color: #666666;
+.formContent {
+  min-height: 400px;
 }
 
-.stepsContainer :global(.ant-steps-item-finish .ant-steps-icon) {
-  color: #2a9d8f;
-}
-
-/* Step Content */
 .stepContent {
-  padding: 16px;
   background-color: #f8f9fa;
   border-radius: 8px;
+  padding: 24px;
   margin-bottom: 24px;
 }
 
-.stepContent h4 {
-  font-size: 16px;
-  font-weight: 500;
-  color: #264653;
-  margin-bottom: 16px;
+/* Section Styling */
+.section {
+  margin-bottom: 32px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Form Items */
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #264653;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+/* Form Controls */
 .formItem {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .formItem :global(.ant-form-item-label) {
-  font-weight: 500;
-  color: #264653;
+  padding-bottom: 4px;
 }
 
 .formItem :global(.ant-form-item-label > label) {
   color: #264653;
+  font-weight: 500;
+  font-size: 14px;
+  height: unset;
 }
 
+.formItem :global(.ant-form-item-label > label.ant-form-item-required::before) {
+  color: #ff4d4f;
+}
+
+/* Input Styles */
 .formItem :global(.ant-input),
+.formItem :global(.ant-input-number),
 .formItem :global(.ant-picker),
-.formItem :global(.ant-select-selector),
-.formItem :global(.ant-input-number) {
+.formItem :global(.ant-select-selector) {
   border-radius: 6px;
   border: 1px solid #e9ecef;
   padding: 8px 12px;
-  width: 100%;
-  transition: border-color 0.3s ease;
-}
-
-.formItem :global(.ant-input):focus,
-.formItem :global(.ant-picker):focus,
-.formItem :global(.ant-select-selector):focus,
-.formItem :global(.ant-input-number):focus {
-  border-color: #2a9d8f;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+  height: 40px;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
 }
 
 .formItem :global(.ant-input-number) {
@@ -148,17 +141,35 @@
 }
 
 .formItem :global(.ant-select-selector) {
-  height: 40px;
   display: flex;
   align-items: center;
 }
 
-.formItem :global(.ant-select-selection-item) {
-  color: #264653;
+.formItem :global(.ant-input):hover,
+.formItem :global(.ant-input-number):hover,
+.formItem :global(.ant-picker):hover,
+.formItem :global(.ant-select-selector):hover {
+  border-color: #2a9d8f;
 }
 
-.formItem :global(.ant-select-arrow) {
-  color: #666666;
+.formItem :global(.ant-input):focus,
+.formItem :global(.ant-input-number-focused),
+.formItem :global(.ant-picker-focused),
+.formItem :global(.ant-select-focused .ant-select-selector) {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+/* TextArea Styles */
+.textArea {
+  resize: none;
+  border-radius: 6px;
+  min-height: 100px;
+}
+
+.textArea:global(.ant-input) {
+  height: auto;
+  padding: 12px;
 }
 
 /* Time Selection */
@@ -169,33 +180,60 @@
 }
 
 .timeSelect {
-  width: 80px;
+  width: 80px !important;
 }
 
 .timeSeparator {
   font-size: 16px;
   color: #666666;
+  line-height: 40px;
 }
 
-/* TextArea */
-.textArea {
-  resize: none;
+/* Select & Dropdown Styles */
+.select {
+  width: 100%;
 }
 
-/* Buttons */
+.optionIcon {
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Number Input */
+.numberInput {
+  width: 100% !important;
+}
+
+.numberInput :global(.ant-input-number-handler-wrap) {
+  border-radius: 0 6px 6px 0;
+  background-color: #f8f9fa;
+}
+
+/* Date Picker */
+.datePicker {
+  width: 100%;
+}
+
+/* Button Container */
 .buttonContainer {
   display: flex;
   justify-content: space-between;
-  margin-top: 24px;
+  margin-top: 32px;
+  padding: 16px 0;
+  border-top: 1px solid #e9ecef;
 }
 
+/* Button Styles */
 .prevButton,
 .nextButton,
 .submitButton {
-  width: 120px;
   height: 40px;
+  padding: 0 24px;
   border-radius: 6px;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   transition: all 0.3s ease;
 }
 
@@ -207,8 +245,7 @@
 
 .prevButton:hover {
   background-color: #e9ecef;
-  border-color: #e9ecef;
-  color: #264653; /* Darker text color on hover */
+  color: #264653;
 }
 
 .nextButton,
@@ -220,57 +257,64 @@
 
 .nextButton:hover,
 .submitButton:hover {
-  background-color: #248277; /* Darker shade of #2a9d8f for hover */
-  color: #ffffff; /* Ensure text color remains white */
-}
-
-/* Remove Ant Design's default blue hover styles */
-.buttonContainer :global(.ant-btn-primary):hover {
-  background-color: #248277 !important;
-  border-color: #248277 !important;
-  color: #ffffff !important;
-}
-
-.buttonContainer :global(.ant-btn-primary):focus {
-  background-color: #2a9d8f !important;
-  border-color: #2a9d8f !important;
-  color: #ffffff !important;
-}
-
-/* Icons */
-.stepIcon {
-  color: #2a9d8f; /* Ensure icons match your theme */
-  font-size: 18px; /* Adjust icon size */
-  margin-right: 8px; /* Add spacing between icon and text */
+  background-color: #248277;
 }
 
 /* Loading State */
-.loadingContainer {
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
+  z-index: 1000;
+  border-radius: 12px;
 }
 
-/* Error Message */
-.errorMessage {
+/* Error States */
+.formItem:global(.ant-form-item-has-error) :global(.ant-input),
+.formItem:global(.ant-form-item-has-error) :global(.ant-input-number),
+.formItem:global(.ant-form-item-has-error) :global(.ant-picker),
+.formItem:global(.ant-form-item-has-error) :global(.ant-select-selector) {
+  border-color: #ff4d4f;
+}
+
+.formItem:global(.ant-form-item-has-error) :global(.ant-form-item-explain) {
   color: #ff4d4f;
-  font-size: 14px;
-  margin-top: 8px;
+  margin-top: 4px;
+  font-size: 12px;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .editModal :global(.ant-modal-content) {
-    padding: 16px;
+  .modal {
+    margin: 0 12px;
   }
 
-  .stepsContainer :global(.ant-steps-item-title) {
+  .steps :global(.ant-steps-item-title) {
     display: none;
   }
 
-  .stepContent {
-    padding: 12px;
+  .section {
+    padding: 16px;
+  }
+
+  .timeSelectionContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .timeSelect {
+    width: 100% !important;
+  }
+
+  .timeSeparator {
+    text-align: center;
+    line-height: 24px;
   }
 
   .buttonContainer {
@@ -282,56 +326,35 @@
   .nextButton,
   .submitButton {
     width: 100%;
-  }
-
-  /* Adjust icons for smaller screens */
-  .stepIcon {
-    font-size: 16px; /* Smaller icons for mobile */
-    margin-right: 6px; /* Less spacing for mobile */
+    justify-content: center;
   }
 }
 
-@media (max-width: 575px) {
-  /* Further adjustments for very small screens */
-  .stepIcon {
-    font-size: 14px; /* Even smaller icons for very small screens */
-    margin-right: 4px; /* Minimal spacing */
+@media (max-width: 576px) {
+  .modal :global(.ant-modal-content) {
+    padding: 16px;
   }
 
-  .stepContent h4 {
-    font-size: 14px; /* Smaller font size for headings */
+  .steps :global(.ant-steps-item-icon) {
+    font-size: 12px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+  }
+
+  .stepContent {
+    padding: 16px;
+  }
+
+  .section {
+    padding: 12px;
+  }
+
+  .sectionTitle {
+    font-size: 14px;
   }
 
   .formItem :global(.ant-form-item-label > label) {
-    font-size: 14px; /* Smaller font size for labels */
-  }
-
-  .formItem :global(.ant-input),
-  .formItem :global(.ant-picker),
-  .formItem :global(.ant-select-selector),
-  .formItem :global(.ant-input-number) {
-    padding: 6px 10px; /* Smaller padding for inputs */
-  }
-
-  .timeSelect {
-    width: 70px; /* Smaller time select dropdowns */
-  }
-
-  .timeSeparator {
-    font-size: 14px; /* Smaller time separator */
-  }
-
-  /* Ensure steps stay in a row on very small screens */
-  .stepsContainer :global(.ant-steps) {
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 135%;
-    overflow-x: auto; /* Allow horizontal scrolling if needed */
-  }
-
-  .stepsContainer :global(.ant-steps-item) {
-    flex: none; /* Prevent steps from stretching */
-    min-width: 80px; /* Minimum width for each step */
+    font-size: 13px;
   }
 }

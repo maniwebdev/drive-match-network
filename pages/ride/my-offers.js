@@ -1,3 +1,4 @@
+// pages/my-offers.js
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
@@ -14,8 +15,7 @@ import {
     Package,
     Plus,
     Ban,
-    CheckCircle,
-    Star
+    CheckCircle
 } from 'lucide-react';
 import Navbar from '../../components/Navigation/Navbar';
 import styles from '../../styles/Rides/myOffers.module.css';
@@ -41,7 +41,6 @@ const MyOffers = () => {
         }
         fetchOffers();
     }, [currentUser]);
-
     const fetchOffers = async () => {
         try {
             const result = await getUserRideOffers();
@@ -106,11 +105,20 @@ const MyOffers = () => {
         router.push(`/ride/offers/${offerId}/manage`);
     };
 
+    const formatLocation = (location) => {
+        return {
+            address: location.address || '',
+            city: location.city || '',
+            zipCode: location.zipCode || ''
+        };
+    };
     const OfferCard = ({ offer }) => {
         const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+
         const handleEditOffer = () => {
             setIsEditModalVisible(true);
         };
+
         return (
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -123,7 +131,10 @@ const MyOffers = () => {
                             <MapPin className={styles.icon} />
                             <div>
                                 <h3>{offer.origin.city}</h3>
-                                <p className={styles.address}>{offer.origin.address}</p>
+                                <div className={styles.addressDetails}>
+                                    <p className={styles.address}>{offer.origin.address}</p>
+                                    <p className={styles.zipCode}>{offer.origin.zipCode}</p>
+                                </div>
                             </div>
                         </div>
                         <div className={styles.arrow}>→</div>
@@ -131,7 +142,10 @@ const MyOffers = () => {
                             <MapPin className={styles.icon} />
                             <div>
                                 <h3>{offer.destination.city}</h3>
-                                <p className={styles.address}>{offer.destination.address}</p>
+                                <div className={styles.addressDetails}>
+                                    <p className={styles.address}>{offer.destination.address}</p>
+                                    <p className={styles.zipCode}>{offer.destination.zipCode}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -161,6 +175,24 @@ const MyOffers = () => {
                         <span>${offer.pricePerSeat}/seat</span>
                     </div>
                 </div>
+
+                {offer.waypoints && offer.waypoints.length > 0 && (
+                    <div className={styles.waypointsSection}>
+                        <h4>Stops</h4>
+                        {offer.waypoints.map((waypoint, index) => (
+                            <div key={index} className={styles.waypointItem}>
+                                <MapPin className={styles.icon} />
+                                <div>
+                                    <span className={styles.waypointCity}>{waypoint.city}</span>
+                                    <div className={styles.addressDetails}>
+                                        <span className={styles.waypointAddress}>{waypoint.address}</span>
+                                        <span className={styles.waypointZip}>{waypoint.zipCode}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 <div className={styles.offerPreferences}>
                     <div className={styles.preferenceItem}>
@@ -200,16 +232,6 @@ const MyOffers = () => {
                             >
                                 Cancel Ride
                             </Button>
-                            <EditRideOfferModal
-                                key={offer._id}
-                                offer={offer}
-                                visible={isEditModalVisible}
-                                onCancel={() => setIsEditModalVisible(false)}
-                                onSuccess={() => {
-                                    setIsEditModalVisible(false);
-                                    fetchOffers();
-                                }}
-                            />
                         </>
                     )}
                     {offer.status === 'full' && (
@@ -226,10 +248,20 @@ const MyOffers = () => {
                         </Button>
                     )}
                 </div>
+
+                <EditRideOfferModal
+                    key={offer._id}
+                    offer={offer}
+                    visible={isEditModalVisible}
+                    onCancel={() => setIsEditModalVisible(false)}
+                    onSuccess={() => {
+                        setIsEditModalVisible(false);
+                        fetchOffers();
+                    }}
+                />
             </motion.div>
         );
     };
-
     const tabItems = [
         {
             key: 'active',

@@ -1,19 +1,4 @@
-/* styles/Rides/myOffers.module.css */
-.editButton {
-  background: #2a9d8f;
-  border: none;
-  color: #fff;
-  margin-right: 8px;
-}
-
-.editButton:hover {
-  background: #248277;
-}
-.offerActions :global(.ant-btn-primary):hover {
-  background-color: #248277 !important;
-  border-color: #248277 !important;
-  color: #ffffff !important;
-}
+/* Base Layout */
 .pageContainer {
   min-height: 100vh;
   background-color: #f8f9fa;
@@ -26,6 +11,7 @@
   margin-top: 40px;
 }
 
+/* Header Styles */
 .pageHeader {
   display: flex;
   justify-content: space-between;
@@ -61,6 +47,7 @@
   height: 16px;
 }
 
+/* Create Button */
 .createButton {
   display: flex;
   align-items: center;
@@ -76,6 +63,7 @@
   background: #248277;
 }
 
+/* Tabs Container */
 .tabsContainer {
   background: #ffffff;
   border-radius: 12px;
@@ -103,7 +91,7 @@
 .tabs :global(.ant-tabs-ink-bar) {
   background: #2a9d8f;
 }
-
+/* Offer Card Base */
 .offersGrid {
   display: flex;
   flex-direction: column;
@@ -117,6 +105,8 @@
   border: 1px solid #e9ecef;
   padding: 20px;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .offerCard:hover {
@@ -124,6 +114,23 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+.offerCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #2a9d8f;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.offerCard:hover::before {
+  opacity: 1;
+}
+
+/* Location Display */
 .offerHeader {
   display: flex;
   justify-content: space-between;
@@ -133,15 +140,16 @@
 
 .routeInfo {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
+  flex: 1;
 }
 
 .location {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  max-width: 200px;
+  max-width: 250px;
 }
 
 .icon {
@@ -164,24 +172,51 @@
   margin: 0;
 }
 
+/* Enhanced Location Details */
+.addressDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
 .address {
   font-size: 12px;
   color: #666666;
-  margin: 4px 0 0 0;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
+
+.zipCode {
+  font-size: 12px;
+  color: #2a9d8f;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Status Badge */
 .statusBadge {
-  background: #f8f9fa;
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 12px;
   font-weight: 500;
+  background: rgba(42, 157, 143, 0.1);
 }
 
+/* Hover Effects */
+.location:hover .address {
+  color: #264653;
+}
+
+.location:hover .zipCode {
+  color: #248277;
+}
+
+/* Card Details Section */
 .offerDetails {
   display: flex;
   align-items: center;
@@ -205,7 +240,62 @@
   height: 16px;
   color: #2a9d8f;
 }
+/* Waypoints Section */
+.waypointsSection {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
 
+.waypointsSection h4 {
+  font-size: 14px;
+  color: #264653;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+.waypointItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.waypointItem:last-child {
+  margin-bottom: 0;
+}
+
+.waypointItem:hover {
+  transform: translateX(4px);
+  background: rgba(42, 157, 143, 0.05);
+}
+
+.waypointCity {
+  font-size: 14px;
+  color: #264653;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.waypointAddress {
+  font-size: 12px;
+  color: #666666;
+}
+
+.waypointZip {
+  font-size: 12px;
+  color: #2a9d8f;
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+/* Preferences Section */
 .offerPreferences {
   display: flex;
   align-items: center;
@@ -223,8 +313,23 @@
   gap: 8px;
   font-size: 14px;
   color: #666666;
+  padding: 4px 12px;
+  background: #f8f9fa;
+  border-radius: 16px;
+  transition: all 0.3s ease;
 }
 
+.preferenceItem:hover {
+  background: rgba(42, 157, 143, 0.1);
+  color: #2a9d8f;
+}
+
+.preferenceItem .icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Vehicle Information */
 .vehicleInfo {
   display: flex;
   align-items: center;
@@ -234,14 +339,33 @@
   border-radius: 8px;
   color: #2a9d8f;
   margin-bottom: 20px;
+  transition: all 0.3s ease;
 }
 
+.vehicleInfo:hover {
+  background: rgba(42, 157, 143, 0.15);
+}
+
+.vehicleInfo .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.vehicleInfo span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Action Buttons Section */
 .offerActions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
 }
 
+.editButton,
 .cancelButton,
 .completeButton {
   display: flex;
@@ -253,6 +377,16 @@
   transition: all 0.3s ease;
 }
 
+.editButton {
+  background: #2a9d8f;
+  border: none;
+  color: white;
+}
+
+.editButton:hover {
+  background: #248277;
+}
+
 .cancelButton {
   color: #ff4d4f;
   border-color: #ff4d4f;
@@ -261,11 +395,13 @@
 .cancelButton:hover {
   color: #ff7875;
   border-color: #ff7875;
+  background: rgba(255, 77, 79, 0.1);
 }
 
 .completeButton {
   background: #2a9d8f;
   border: none;
+  color: white;
 }
 
 .completeButton:hover {
@@ -276,16 +412,21 @@
   width: 16px;
   height: 16px;
 }
-
+/* Loading States */
 .loadingContainer {
+  min-height: 300px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 200px;
+  justify-content: center;
+  padding: 40px;
 }
 
+/* Empty States */
 .emptyStateContainer {
-  padding: 48px;
+  padding: 48px 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   text-align: center;
 }
 
@@ -294,7 +435,7 @@
 }
 
 .emptyStateText h3 {
-  font-size: 16px;
+  font-size: 18px;
   color: #264653;
   margin-bottom: 8px;
 }
@@ -304,6 +445,7 @@
   margin: 0;
 }
 
+/* Driver Verification Required */
 .driverVerificationRequired {
   text-align: center;
   padding: 48px;
@@ -311,6 +453,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   border: 1px solid #e9ecef;
+  margin-top: 24px;
 }
 
 .verificationIcon {
@@ -329,6 +472,8 @@
 .driverVerificationRequired p {
   color: #666666;
   margin-bottom: 24px;
+  max-width: 400px;
+  margin: 0 auto 24px auto;
 }
 
 .verificationButton {
@@ -342,16 +487,18 @@
   background: #248277;
 }
 
-/* Global overrides for Ant Design components */
-.tabs :global(.ant-tabs-tab:hover) {
-  color: #2a9d8f;
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .contentWrapper {
+    max-width: 100%;
+    padding: 0 16px;
+  }
+
+  .location {
+    max-width: 200px;
+  }
 }
 
-.tabs :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
-  color: #2a9d8f !important;
-}
-
-/* Media Queries for Responsive Design */
 @media (max-width: 768px) {
   .pageContainer {
     padding: 20px 16px;
@@ -359,6 +506,7 @@
 
   .contentWrapper {
     margin-top: 20px;
+    padding: 0;
   }
 
   .pageHeader {
@@ -379,12 +527,16 @@
 
   .routeInfo {
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
   }
 
   .arrow {
+    align-self: center;
     transform: rotate(90deg);
-    margin: 4px 0;
+  }
+
+  .location {
+    max-width: 100%;
   }
 
   .offerDetails {
@@ -396,6 +548,30 @@
   .offerPreferences {
     flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
+  }
+
+  .offerActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .editButton,
+  .cancelButton,
+  .completeButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .waypointItem {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .waypointZip {
+    display: block;
+    margin-left: 0;
+    margin-top: 4px;
   }
 }
 
@@ -405,18 +581,141 @@
   }
 
   .tabs {
-    padding: 0 16px;
+    padding: 0 12px;
   }
 
   .tabs :global(.ant-tabs-tab) {
-    padding: 12px 16px;
+    padding: 12px;
   }
 
   .offerCard {
     padding: 16px;
   }
 
-  .location {
-    max-width: 100%;
+  .driverVerificationRequired {
+    padding: 32px 20px;
+  }
+
+  .driverVerificationRequired h2 {
+    font-size: 20px;
+  }
+
+  .vehicleInfo {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .offerCard:hover {
+    transform: none;
+  }
+
+  .waypointItem:hover {
+    transform: none;
+  }
+
+  .preferenceItem:hover {
+    background: #f8f9fa;
+    color: #666666;
+  }
+}
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Apply animations */
+.offerCard {
+  animation: slideIn 0.3s ease forwards;
+}
+
+.emptyStateContainer {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.driverVerificationRequired {
+  animation: scaleIn 0.3s ease forwards;
+}
+
+/* Stagger child animations */
+.offersGrid .offerCard {
+  opacity: 0;
+  animation: slideIn 0.3s ease forwards;
+}
+
+.offersGrid .offerCard:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.offersGrid .offerCard:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.offersGrid .offerCard:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.offersGrid .offerCard:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.offersGrid .offerCard:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Smooth transitions */
+.offerCard,
+.waypointItem,
+.preferenceItem,
+.vehicleInfo,
+.editButton,
+.cancelButton,
+.completeButton {
+  transition: all 0.3s ease;
+  will-change: transform, opacity, background-color;
+}
+
+/* Disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .offerCard,
+  .emptyStateContainer,
+  .driverVerificationRequired {
+    animation: none;
+  }
+
+  .offerCard,
+  .waypointItem,
+  .preferenceItem,
+  .vehicleInfo,
+  .editButton,
+  .cancelButton,
+  .completeButton {
+    transition: none;
   }
 }

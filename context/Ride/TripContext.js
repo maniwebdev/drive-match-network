@@ -20,6 +20,24 @@ export const TripProvider = ({ children }) => {
     const [availableRequests, setAvailableRequests] = useState([]);
     const router = useRouter();
 
+    // Helper function to validate location data
+    const validateLocation = (location) => {
+        if (!location.address?.trim()) {
+            throw new Error('Address is required');
+        }
+        if (!location.city?.trim()) {
+            throw new Error('City is required');
+        }
+        if (!location.zipCode?.trim() || !/^\d{5}(-\d{4})?$/.test(location.zipCode)) {
+            throw new Error('Valid zip code is required');
+        }
+        return {
+            address: location.address.trim(),
+            city: location.city.trim(),
+            zipCode: location.zipCode.trim()
+        };
+    };
+
     // Create a new trip request
     const createTripRequest = async (tripData) => {
         setLoading(true);
@@ -32,18 +50,26 @@ export const TripProvider = ({ children }) => {
         }
 
         try {
-            // Add timezone and normalize time format
+            // Validate location data
+            const origin = validateLocation(tripData.origin);
+            const destination = validateLocation(tripData.destination);
+
+            // Get client's timezone
             const timezone = moment.tz.guess();
+
+            // Prepare the request payload
             const payload = {
                 ...tripData,
-                timezone,  // Add client's timezone to payload
-                departureTime: tripData.departureTime.padStart(5, '0'), // Ensure HH:mm format
+                origin,
+                destination,
+                timezone,
+                departureTime: tripData.departureTime.padStart(5, '0'),
                 departureDate: moment(tripData.departureDate)
                     .tz(timezone)
                     .format('YYYY-MM-DD')
             };
 
-            // Convert recurrence dates to ISO format
+            // Handle recurrence dates if present
             if (tripData.recurrence?.endDate) {
                 payload.recurrence = {
                     ...tripData.recurrence,
@@ -64,26 +90,40 @@ export const TripProvider = ({ children }) => {
 
             const data = await response.json();
 
-            if (response.ok) {
-                message.success('Trip request created successfully');
-                // Update myTrips state with UTC-normalized trip
-                const normalizedTrip = {
-                    ...data.tripRequest,
-                    departureDate: new Date(data.tripRequest.departureDate),
-                    ...(data.tripRequest.recurrence?.endDate && {
-                        recurrence: {
-                            ...data.tripRequest.recurrence,
-                            endDate: new Date(data.tripRequest.recurrence.endDate)
-                        }
-                    })
-                };
-                setMyTrips(prev => [normalizedTrip, ...prev]);
-                return { success: true, trip: normalizedTrip };
-            } else {
+            if (!response.ok) {
                 throw new Error(data.message || 'Failed to create trip request');
             }
+
+            // Normalize the response data
+            const normalizedTrip = {
+                ...data.tripRequest,
+                departureDate: new Date(data.tripRequest.departureDate),
+                origin: {
+                    address: data.tripRequest.origin.address,
+                    city: data.tripRequest.origin.city,
+                    zipCode: data.tripRequest.origin.zipCode
+                },
+                destination: {
+                    address: data.tripRequest.destination.address,
+                    city: data.tripRequest.destination.city,
+                    zipCode: data.tripRequest.destination.zipCode
+                },
+                ...(data.tripRequest.recurrence?.endDate && {
+                    recurrence: {
+                        ...data.tripRequest.recurrence,
+                        endDate: new Date(data.tripRequest.recurrence.endDate)
+                    }
+                })
+            };
+
+            // Update state with the new trip
+            setMyTrips(prev => [normalizedTrip, ...prev]);
+            message.success('Trip request created successfully');
+
+            return { success: true, trip: normalizedTrip };
         } catch (err) {
             const errorMessage = err.message || 'Error creating trip request';
+            console.error('Create trip error:', err);
             message.error(errorMessage);
             setError(errorMessage);
             return { success: false, error: errorMessage };
@@ -93,7 +133,8 @@ export const TripProvider = ({ children }) => {
     };
 
     //edit the trip request
-    const editTripRequest = async (tripId, updatedData) => {
+    // Edit trip request function
+    const editTripRequest = async (tripId, updateData) => {
         setLoading(true);
         setError(null);
 
@@ -104,34 +145,134 @@ export const TripProvider = ({ children }) => {
         }
 
         try {
-            const response = await fetch(`${API_URL}/api/tripRequestRoutes/trip/${tripId}/edit`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'auth-token': authToken,
-                },
-                body: JSON.stringify(updatedData),
-            });
+            // Validate location data if provided
+            if (updateData.origin) {
+                updateData.origin = validateLocation(updateData.origin);
+            }
+            if (updateData.destination) {
+                updateData.destination = validateLocation(updateData.destination);
+            }
+
+            // Get client's timezone
+            const timezone = moment.tz.guess();
+
+            // Format the update payload
+            const payload = { ...updateData, timezone };
+
+            // Handle date formatting
+            if (payload.departureDate) {
+                payload.departureDate = moment(payload.departureDate)
+                    .tz(timezone)
+                    .format('YYYY-MM-DD');
+            }
+
+            // Ensure time format is correct
+            if (payload.departureTime) {
+                payload.departureTime = payload.departureTime.padStart(5, '0');
+            }
+
+            // Handle recurrence updates
+            if (payload.recurrence) {
+                if (payload.recurrence.pattern === 'none') {
+                    payload.recurrence = {
+                        pattern: 'none',
+                        endDate: null,
+                        customDays: []
+                    };
+                } else if (payload.recurrence.endDate) {
+                    payload.recurrence.endDate = moment(payload.recurrence.endDate)
+                        .tz(timezone)
+                        .format('YYYY-MM-DD');
+
+                    // Validate custom days for custom pattern
+                    if (payload.recurrence.pattern === 'custom') {
+                        if (!payload.recurrence.customDays?.length) {
+                            throw new Error('Custom days are required for custom recurrence pattern');
+                        }
+
+                        const validDays = [
+                            'Monday', 'Tuesday', 'Wednesday',
+                            'Thursday', 'Friday', 'Saturday', 'Sunday'
+                        ];
+
+                        if (!payload.recurrence.customDays.every(day => validDays.includes(day))) {
+                            throw new Error('Invalid custom days provided');
+                        }
+                    }
+                }
+            }
+
+            // Make the API request
+            const response = await fetch(
+                `${API_URL}/api/tripRequestRoutes/trip/${tripId}/edit`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'auth-token': authToken,
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
 
             const data = await response.json();
 
-            if (response.ok) {
-                message.success(data.message || 'Trip request updated successfully');
-                // Update the myTrips state with the edited trip
-                setMyTrips(prev =>
-                    prev.map(trip =>
-                        trip._id === tripId ? { ...trip, ...updatedData } : trip
-                    )
+            if (!response.ok) {
+                throw new Error(
+                    data.errors?.[0]?.msg ||
+                    data.message ||
+                    'Failed to update trip request'
                 );
-                return { success: true, trip: data.tripRequest };
-            } else {
-                throw new Error(data.message || 'Failed to update trip request');
             }
+
+            // Normalize the response data
+            const normalizedTrip = {
+                ...data.tripRequest,
+                departureDate: moment(data.tripRequest.departureDate).toDate(),
+                origin: {
+                    address: data.tripRequest.origin.address,
+                    city: data.tripRequest.origin.city,
+                    zipCode: data.tripRequest.origin.zipCode
+                },
+                destination: {
+                    address: data.tripRequest.destination.address,
+                    city: data.tripRequest.destination.city,
+                    zipCode: data.tripRequest.destination.zipCode
+                }
+            };
+
+            // Handle recurrence data in normalized trip
+            if (data.tripRequest.recurrence?.endDate) {
+                normalizedTrip.recurrence = {
+                    ...data.tripRequest.recurrence,
+                    endDate: moment(data.tripRequest.recurrence.endDate).toDate()
+                };
+            }
+
+            // Update local state
+            setMyTrips(prev =>
+                prev.map(trip =>
+                    trip._id === tripId ? normalizedTrip : trip
+                )
+            );
+
+            message.success('Trip request updated successfully');
+            return {
+                success: true,
+                trip: normalizedTrip
+            };
+
         } catch (err) {
             const errorMessage = err.message || 'Error updating trip request';
+            console.error('Edit trip error:', err);
             message.error(errorMessage);
             setError(errorMessage);
-            return { success: false, error: errorMessage };
+
+            return {
+                success: false,
+                error: errorMessage
+            };
+
         } finally {
             setLoading(false);
         }

@@ -1,40 +1,3 @@
-/* styles/Trips/myTrips.module.css */
-/* Recurrence Details */
-.recurrenceDetails {
-  margin-top: 16px;
-  padding: 12px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-}
-
-.recurrenceDetails h4 {
-  font-size: 14px;
-  font-weight: 500;
-  color: #264653;
-  margin-bottom: 8px;
-}
-
-.recurrenceDetails p {
-  font-size: 14px;
-  color: #666666;
-  margin: 0;
-}
-/* Edit Button */
-.editButton {
-  background: #2a9d8f;
-  border: none;
-  color: #fff;
-  margin-right: 8px;
-}
-
-.editButton:hover {
-  background: #248277;
-}
-.tripActions :global(.ant-btn-primary):hover {
-  background-color: #248277 !important;
-  border-color: #248277 !important;
-  color: #ffffff !important;
-}
 /* Base Layout */
 .pageContainer {
   min-height: 100vh;
@@ -69,6 +32,7 @@
   margin: 0;
 }
 
+/* Create Button */
 .createButton {
   display: flex;
   align-items: center;
@@ -82,10 +46,6 @@
 
 .createButton:hover {
   background: #248277;
-}
-
-.RequestButton {
-  background: #2a9d8f;
 }
 
 /* Tabs Container */
@@ -128,6 +88,9 @@
 .emptyStateContainer {
   padding: 48px;
   text-align: center;
+  background: #ffffff;
+  border-radius: 12px;
+  margin-top: 24px;
 }
 
 .emptyStateText h3 {
@@ -140,7 +103,7 @@
   color: #666666;
   margin: 0;
 }
-/* Trip Cards */
+/* Trip Cards Container */
 .tripsContainer {
   display: flex;
   flex-direction: column;
@@ -148,12 +111,15 @@
   padding: 24px;
 }
 
+/* Trip Card Base */
 .tripCard {
   background: #ffffff;
   border-radius: 12px;
   border: 1px solid #e9ecef;
   padding: 20px;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .tripCard:hover {
@@ -161,6 +127,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+/* Trip Header */
 .tripHeader {
   display: flex;
   justify-content: space-between;
@@ -168,17 +135,19 @@
   margin-bottom: 20px;
 }
 
+/* Route Information */
 .routeInfo {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex: 1;
 }
 
 .location {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  max-width: 200px;
+  max-width: 250px;
 }
 
 .icon {
@@ -192,8 +161,11 @@
   color: #666666;
   font-size: 20px;
   margin: 0 8px;
+  display: flex;
+  align-items: center;
 }
 
+/* Location Text Styles */
 .location h3 {
   font-size: 16px;
   font-weight: 500;
@@ -212,15 +184,23 @@
   -webkit-box-orient: vertical;
 }
 
+.zipCode {
+  font-size: 12px;
+  color: #2a9d8f;
+  margin: 2px 0 0 0;
+  font-weight: 500;
+}
+
+/* Status Badge */
 .statusBadge {
-  background: #f8f9fa;
+  background: rgba(42, 157, 143, 0.1);
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 12px;
   font-weight: 500;
 }
 
-/* Trip Details */
+/* Trip Details Section */
 .tripDetails {
   display: flex;
   align-items: center;
@@ -244,15 +224,50 @@
   height: 16px;
   color: #2a9d8f;
 }
-/* Driver Info */
+
+/* Location Hover Effects */
+.location:hover .address {
+  color: #264653;
+}
+
+.location:hover .zipCode {
+  color: #248277;
+}
+
+/* Animation for new cards */
+@keyframes slideIn {
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+.tripCard {
+  animation: slideIn 0.3s ease-out;
+}
+/* Driver Information */
 .driverInfo {
   border-top: 1px solid #e9ecef;
   padding-top: 20px;
   margin-top: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.driverInfo:hover {
+  background: rgba(42, 157, 143, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px -20px -20px -20px;
 }
 
 .driverInfo h4 {
   font-size: 14px;
+  font-weight: 500;
   color: #264653;
   margin: 0 0 12px 0;
 }
@@ -264,6 +279,11 @@
   padding: 12px;
   background: #f8f9fa;
   border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.driverDetails:hover {
+  transform: translateX(4px);
 }
 
 .driverAvatar {
@@ -271,6 +291,7 @@
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #2a9d8f;
 }
 
 .driverName {
@@ -293,6 +314,32 @@
   color: #ffd700;
 }
 
+/* Recurrence Details */
+.recurrenceDetails {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.recurrenceDetails h4 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #264653;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recurrenceDetails p {
+  font-size: 14px;
+  color: #666666;
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* Notes Section */
 .notes {
   border-top: 1px solid #e9ecef;
@@ -302,18 +349,55 @@
 
 .notes h4 {
   font-size: 14px;
+  font-weight: 500;
   color: #264653;
   margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .notes p {
-  color: #666666;
   font-size: 14px;
+  color: #666666;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.6;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
 }
 
-/* Action Buttons */
+/* Section Dividers */
+.sectionDivider {
+  height: 1px;
+  background: #e9ecef;
+  margin: 20px 0;
+}
+
+/* Hover Effects */
+.recurrenceDetails:hover,
+.notes p:hover {
+  background-color: rgba(42, 157, 143, 0.05);
+}
+
+/* Animation for sections */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(10px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+.driverInfo,
+.recurrenceDetails,
+.notes {
+  animation: fadeIn 0.3s ease-out;
+}
+/* Action Buttons Container */
 .tripActions {
   display: flex;
   justify-content: flex-end;
@@ -323,145 +407,199 @@
   border-top: 1px solid #e9ecef;
 }
 
+/* Button Base Styles */
+.editButton,
 .cancelButton,
 .reviewButton {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 8px 16px;
-  height: 36px;
+  height: 40px;
+  padding: 8px 24px;
   border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
   transition: all 0.3s ease;
 }
 
+/* Edit Button */
+.editButton {
+  background: #2a9d8f;
+  border: none;
+  color: #ffffff;
+}
+
+.editButton:hover {
+  background: #248277;
+}
+
+/* Cancel Button */
 .cancelButton {
   color: #ff4d4f;
-  border-color: #ff4d4f;
+  border: 1px solid #ff4d4f;
+  background: transparent;
 }
 
 .cancelButton:hover {
-  color: #ff7875;
-  border-color: #ff7875;
+  color: #ffffff;
+  background: #ff4d4f;
+  border-color: #ff4d4f;
 }
 
+/* Review Button */
 .reviewButton {
   background: #2a9d8f;
   border: none;
+  color: #ffffff;
 }
 
 .reviewButton:hover {
   background: #248277;
 }
 
+/* Button Icon */
 .buttonIcon {
   width: 16px;
   height: 16px;
 }
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .pageContainer {
-    padding: 20px 16px;
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .contentWrapper {
+      margin: 20px auto;
+      padding: 0 16px;
   }
 
-  .contentWrapper {
-    margin-top: 20px;
+  .location {
+      max-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+      padding: 20px 16px;
   }
 
   .pageHeader {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
   }
 
   .pageTitle {
-    font-size: 24px;
+      font-size: 24px;
   }
 
   .routeInfo {
-    flex-direction: column;
-    gap: 12px;
+      flex-direction: column;
+      gap: 16px;
   }
 
   .arrow {
-    transform: rotate(90deg);
-    margin: 4px 0;
+      transform: rotate(90deg);
+      margin: 4px 0;
+      align-self: center;
+  }
+
+  .location {
+      max-width: 100%;
   }
 
   .tripDetails {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
   }
 
   .tripActions {
-    flex-direction: column;
+      flex-direction: column;
+      gap: 8px;
   }
 
+  .editButton,
   .cancelButton,
   .reviewButton {
-    width: 100%;
-    justify-content: center;
+      width: 100%;
+  }
+
+  .driverDetails {
+      flex-direction: column;
+      text-align: center;
+      padding: 16px;
   }
 }
 
 @media (max-width: 480px) {
   .pageContainer {
-    padding: 16px;
+      padding: 16px;
   }
 
   .tripCard {
-    padding: 16px;
-  }
-
-  .driverDetails {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+      padding: 16px;
   }
 
   .tabs :global(.ant-tabs-tab) {
-    padding: 12px 16px;
-    font-size: 14px;
+      padding: 12px;
+      font-size: 14px;
   }
-}
 
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  .statusBadge {
+      font-size: 11px;
+      padding: 4px 8px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.tripCard {
-  animation: fadeIn 0.3s ease;
 }
 
 /* Touch Device Optimizations */
 @media (hover: none) {
   .tripCard:hover {
-    transform: none;
-    box-shadow: none;
+      transform: none;
+      box-shadow: none;
   }
 
-  .createButton:hover {
-    background: #2a9d8f;
+  .driverDetails:hover {
+      transform: none;
   }
 
-  .cancelButton:hover {
-    color: #ff4d4f;
-    border-color: #ff4d4f;
-  }
-
+  .editButton:hover,
+  .cancelButton:hover,
   .reviewButton:hover {
-    background: #2a9d8f;
+      transform: none;
   }
 }
 
+/* Loading States */
+.editButton:global(.ant-btn-loading),
+.cancelButton:global(.ant-btn-loading),
+.reviewButton:global(.ant-btn-loading) {
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* Focus States for Accessibility */
+.editButton:focus,
+.cancelButton:focus,
+.reviewButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.4);
+}
+
+/* Button Animations */
+@keyframes pulse {
+  0% {
+      transform: scale(1);
+  }
+  50% {
+      transform: scale(1.05);
+  }
+  100% {
+      transform: scale(1);
+  }
+}
+
+.createButton:hover {
+  animation: pulse 0.3s ease-in-out;
+}
 /* Ant Design Overrides */
 .tabs :global(.ant-tabs-tab:hover) {
   color: #2a9d8f;
@@ -469,4 +607,69 @@
 
 .tabs :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
   color: #2a9d8f !important;
+}
+
+.tripActions :global(.ant-btn-primary):hover {
+  background-color: #248277 !important;
+  border-color: #248277 !important;
+  color: #ffffff !important;
+}
+
+/* Print Styles */
+@media print {
+  .pageContainer {
+      background: none;
+      padding: 0;
+  }
+
+  .tripCard {
+      break-inside: avoid;
+      border: 1px solid #000000;
+      margin-bottom: 20px;
+  }
+
+  .tripActions,
+  .createButton {
+      display: none;
+  }
+}
+
+/* Accessibility Improvements */
+.tripCard {
+  position: relative;
+}
+
+.tripCard:focus-within {
+  outline: 2px solid #2a9d8f;
+  outline-offset: 2px;
+}
+
+/* Helper Classes */
+.mb16 {
+  margin-bottom: 16px;
+}
+
+.mt20 {
+  margin-top: 20px;
+}
+
+.textCenter {
+  text-align: center;
+}
+
+/* Motion Reduction */
+@media (prefers-reduced-motion: reduce) {
+  .tripCard,
+  .driverInfo,
+  .recurrenceDetails,
+  .notes,
+  .createButton {
+      animation: none;
+      transition: none;
+  }
+
+  .tripCard:hover,
+  .driverDetails:hover {
+      transform: none;
+  }
 }

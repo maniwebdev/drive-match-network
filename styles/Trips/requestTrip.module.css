@@ -1,5 +1,3 @@
-/* styles/Trips/requestTrip.module.css */
-
 /* Modal Container */
 .modalContainer {
   background-color: #ffffff;
@@ -8,6 +6,16 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   margin: 0 auto;
+}
+
+.tripRequestModal {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.modalContent {
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 /* Modal Header */
@@ -49,19 +57,59 @@
   flex-direction: column;
   gap: 20px;
 }
+/* Location Section Styles */
+.locationSection {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
 
-/* Form Item Styles */
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: #264653;
+  margin-bottom: 16px;
+}
+
+/* Location Group Layout */
+.locationGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* Form Item Base Styles */
 .formItem {
   margin-bottom: 20px;
 }
 
-.formItem :global(.ant-form-item-label) > label {
+.formItem label {
   font-weight: 500;
   color: #264653;
   font-size: 14px;
+  margin-bottom: 8px;
+  display: block;
 }
 
-/* Input Styles */
+/* Location Input Fields */
+.locationGroup .formItem:nth-child(1) {
+  flex: 2;
+  min-width: 240px;
+}
+
+.locationGroup .formItem:nth-child(2) {
+  flex: 1;
+  min-width: 160px;
+}
+
+.locationGroup .formItem:nth-child(3) {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Input Base Styles */
 .input {
   width: 100%;
   height: 40px;
@@ -69,20 +117,76 @@
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 14px;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
 }
 
-.input:hover,
+.input:hover {
+  border-color: #2a9d8f;
+}
+
 .input:focus {
   border-color: #2a9d8f;
   outline: none;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
 }
 
+/* Helper Text and Error States */
+.helperText {
+  font-size: 12px;
+  color: #666666;
+  margin-top: 4px;
+}
+
+.errorText {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.input.error {
+  border-color: #ff4d4f;
+}
+
+.input.error:focus {
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+/* Location Animations */
+.locationSection {
+  transition: all 0.3s ease;
+}
+
+.locationSection:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Location Group Responsive */
+@media (max-width: 768px) {
+  .locationGroup {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .locationGroup .formItem,
+  .locationGroup .formItem:nth-child(1),
+  .locationGroup .formItem:nth-child(2),
+  .locationGroup .formItem:nth-child(3) {
+    width: 100%;
+    min-width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .locationSection {
+    padding: 16px;
+  }
+}
 /* Time Selection Styles */
 .timeSelectionContainer {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-top: 8px;
 }
 
 .timeSelect {
@@ -90,10 +194,22 @@
   max-width: 120px;
 }
 
+.timeSelect :global(.ant-select-selector) {
+  height: 40px !important;
+  padding: 4px 12px !important;
+  border-color: #e9ecef !important;
+  font-size: 14px;
+}
+
+.timeSelect :global(.ant-select-selection-item) {
+  line-height: 32px !important;
+}
+
 .timeSeparator {
   color: #666666;
   font-weight: 500;
   font-size: 18px;
+  padding: 0 4px;
 }
 
 /* Date Picker Styles */
@@ -101,7 +217,22 @@
   width: 100%;
 }
 
-.datePicker :global(.ant-picker-input) > input {
+.datePicker :global(.ant-picker) {
+  width: 100%;
+  height: 40px;
+  border-color: #e9ecef;
+}
+
+.datePicker :global(.ant-picker:hover) {
+  border-color: #2a9d8f;
+}
+
+.datePicker :global(.ant-picker-focused) {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.datePicker :global(.ant-picker-input > input) {
   font-size: 14px;
 }
 
@@ -110,9 +241,23 @@
   width: 100%;
 }
 
+.seatsInput :global(.ant-input-number) {
+  width: 100%;
+  border-color: #e9ecef;
+}
+
 .seatsInput :global(.ant-input-number-input) {
   height: 40px;
   font-size: 14px;
+}
+
+.seatsInput :global(.ant-input-number:hover) {
+  border-color: #2a9d8f;
+}
+
+.seatsInput :global(.ant-input-number-focused) {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
 }
 
 /* Select Dropdown Styles */
@@ -131,6 +276,48 @@
   line-height: 32px !important;
 }
 
+.select :global(.ant-select:hover .ant-select-selector) {
+  border-color: #2a9d8f !important;
+}
+
+.select :global(.ant-select-focused .ant-select-selector) {
+  border-color: #2a9d8f !important;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .timeSelectionContainer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .timeSelect {
+    max-width: 100%;
+  }
+
+  .timeSeparator {
+    display: none;
+  }
+}
+
+/* Helper Classes */
+.fullWidth {
+  width: 100%;
+}
+
+.inlineBlock {
+  display: inline-block;
+}
+
+.mb16 {
+  margin-bottom: 16px;
+}
+
+.mt8 {
+  margin-top: 8px;
+}
 /* TextArea Styles */
 .textArea {
   width: 100%;
@@ -140,13 +327,17 @@
   border-radius: 8px;
   padding: 12px;
   font-size: 14px;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.textArea:hover,
+.textArea:hover {
+  border-color: #2a9d8f;
+}
+
 .textArea:focus {
   border-color: #2a9d8f;
   outline: none;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
 }
 
 /* Button Container */
@@ -159,6 +350,7 @@
   border-top: 1px solid #e9ecef;
 }
 
+/* Button Styles */
 .prevButton,
 .nextButton,
 .submitButton {
@@ -182,7 +374,8 @@
 
 .prevButton:hover {
   background: #f8f9fa;
-  border-color: #666666;
+  border-color: #2a9d8f;
+  color: #2a9d8f;
 }
 
 .nextButton,
@@ -197,23 +390,105 @@
   background: #248277;
 }
 
-/* Recurrence Step Styles */
+/* Recurrence Section Styles */
 .recurrenceStep {
   margin-top: 20px;
 }
 
-.recurrenceStep .ant-form-item {
+.recurrenceStep .formItem {
   margin-bottom: 16px;
 }
 
-.customDaysSelect .ant-select-selection-item {
-  background-color: #f0f0f0;
-  border-radius: 4px;
-  padding: 2px 8px;
-  margin-right: 8px;
+/* Custom Days Multi-Select */
+.customDaysSelect {
+  width: 100%;
 }
 
+.customDaysSelect :global(.ant-select-selection-item) {
+  background-color: rgba(42, 157, 143, 0.1);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin: 2px;
+  color: #2a9d8f;
+}
+
+.customDaysSelect :global(.ant-select-selection-item-remove) {
+  color: #2a9d8f;
+}
+
+/* Loading States */
+.submitButton:global(.ant-btn-loading) {
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* Additional Form Section Styles */
+.formSection {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.formSection:last-child {
+  margin-bottom: 0;
+}
+
+.sectionDivider {
+  margin: 24px 0;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .buttonContainer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .prevButton,
+  .nextButton,
+  .submitButton {
+    width: 100%;
+  }
+
+  .textArea {
+    min-height: 100px;
+  }
+
+  .formSection {
+    padding: 16px;
+  }
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.formSection {
+  animation: slideIn 0.3s ease;
+}
+
+/* Focus Styles for Accessibility */
+.nextButton:focus,
+.prevButton:focus,
+.submitButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.4);
+}
 /* Steps Override Styles */
+.step {
+  margin-bottom: 0;
+}
+
 .step :global(.ant-steps-item-title) {
   font-size: 14px;
   color: #666666;
@@ -235,6 +510,11 @@
 
 .step :global(.ant-steps-item-active .ant-steps-item-icon) {
   border-color: #2a9d8f;
+  background-color: #2a9d8f;
+}
+
+.step :global(.ant-steps-item-active .ant-steps-icon) {
+  color: #ffffff;
 }
 
 .step :global(.ant-steps-item-finish .ant-steps-item-icon) {
@@ -242,14 +522,38 @@
   border-color: #2a9d8f;
 }
 
-.step :global(.ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon) {
-  color: #ffffff;
+/* Form Validation Styles */
+.formItem :global(.ant-form-item-explain-error) {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
 }
 
-/* Responsive Adjustments */
+.formItem :global(.ant-form-item-has-error .ant-input),
+.formItem :global(.ant-form-item-has-error .ant-input-number),
+.formItem :global(.ant-form-item-has-error .ant-select-selector),
+.formItem :global(.ant-form-item-has-error .ant-picker) {
+  border-color: #ff4d4f;
+}
+
+/* Modal Responsive Styles */
+@media (max-width: 1024px) {
+  .modalContainer {
+    margin: 0 16px;
+  }
+
+  .stepContent {
+    gap: 16px;
+  }
+}
+
 @media (max-width: 768px) {
   .modalContainer {
     padding: 16px;
+  }
+
+  .step :global(.ant-steps-item-title) {
+    font-size: 12px;
   }
 
   .modalTitle {
@@ -260,14 +564,69 @@
     font-size: 12px;
   }
 
-  .buttonContainer {
-    flex-direction: column;
-    gap: 12px;
+  .formSection {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalContainer {
+    margin: 0 8px;
+    padding: 12px;
   }
 
-  .prevButton,
-  .nextButton,
-  .submitButton {
-    width: 100%;
+  .stepsContainer {
+    margin-bottom: 16px;
+  }
+
+  .step :global(.ant-steps-item-icon) {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+  }
+
+  .formItem {
+    margin-bottom: 12px;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .input:hover,
+  .textArea:hover,
+  .select:hover {
+    border-color: #e9ecef;
+  }
+
+  .prevButton:hover,
+  .nextButton:hover,
+  .submitButton:hover {
+    transform: none;
+  }
+}
+
+/* Accessibility Improvements */
+.input:focus-visible,
+.textArea:focus-visible,
+.select:focus-visible {
+  outline: 2px solid #2a9d8f;
+  outline-offset: 1px;
+}
+
+
+/* Print Styles */
+@media print {
+  .modalContainer {
+    box-shadow: none;
+  }
+
+  .buttonContainer {
+    display: none;
+  }
+
+  .input,
+  .textArea,
+  .select {
+    border: 1px solid #000000;
   }
 }

@@ -1,9 +1,8 @@
-//component/EditRideOfferModal.js
+// //component/EditRideOfferModal.js
 import React, { useState, useEffect } from 'react';
-import { Modal, Steps, Button, Form, DatePicker, InputNumber, Select, message } from 'antd';
-import { MapPin, Calendar, Users, Package, DollarSign } from 'lucide-react';
+import { Modal, Steps, Button, Form, DatePicker, InputNumber, Select, Input, message } from 'antd';
+import { MapPin, Calendar, Users, Package, DollarSign, Car } from 'lucide-react';
 import moment from 'moment';
-import LocationInput from '../../components/Rides/LocationInput';
 import styles from '../../styles/Trips/EditTripModal.module.css';
 import { useRide } from '../../context/Ride/RideContext';
 
@@ -18,42 +17,70 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
     const [selectedTime, setSelectedTime] = useState(null);
 
     const [rideData, setRideData] = useState({
-        origin: offer.origin,
-        destination: offer.destination,
+        origin: {
+            address: '',
+            city: '',
+            zipCode: ''
+        },
+        destination: {
+            address: '',
+            city: '',
+            zipCode: ''
+        },
+        vehicle: {
+            model: '',
+            year: null,
+            plateNumber: '',
+            capacity: null
+        },
         departureDateTime: null,
-        availableSeats: offer.availableSeats,
-        pricePerSeat: offer.pricePerSeat,
-        allowedLuggage: offer.allowedLuggage,
-        smoking: offer.smoking,
-        pets: offer.pets,
+        availableSeats: 1,
+        pricePerSeat: 0,
+        allowedLuggage: 'medium',
+        smoking: false,
+        pets: false,
+        estimatedDuration: 0
     });
 
-    // Initialize date and time when modal opens
+    // Initialize form data when modal opens
     useEffect(() => {
-        if (offer && offer.departureDateTime) {
+        if (offer && visible) {
             const departureMoment = moment(offer.departureDateTime);
 
-            // Reset all state when offer changes
             setCurrentStep(0);
             setSelectedDate(departureMoment);
             setSelectedTime(departureMoment);
+
             setRideData({
-                offerId: offer._id,
-                origin: offer.origin,
-                destination: offer.destination,
+                origin: {
+                    address: offer.origin.address || '',
+                    city: offer.origin.city || '',
+                    zipCode: offer.origin.zipCode || ''
+                },
+                destination: {
+                    address: offer.destination.address || '',
+                    city: offer.destination.city || '',
+                    zipCode: offer.destination.zipCode || ''
+                },
+                vehicle: {
+                    model: offer.vehicle?.model || '',
+                    year: offer.vehicle?.year || null,
+                    plateNumber: offer.vehicle?.plateNumber || '',
+                    capacity: offer.vehicle?.capacity || null
+                },
                 departureDateTime: departureMoment,
-                availableSeats: offer.availableSeats,
-                pricePerSeat: offer.pricePerSeat,
-                allowedLuggage: offer.allowedLuggage,
-                smoking: offer.smoking,
-                pets: offer.pets,
+                availableSeats: offer.availableSeats || 1,
+                pricePerSeat: offer.pricePerSeat || 0,
+                allowedLuggage: offer.allowedLuggage || 'medium',
+                smoking: offer.smoking || false,
+                pets: offer.pets || false,
+                estimatedDuration: offer.estimatedDuration || 0
             });
         }
-    }, [offer._id]);
-
+    }, [offer, visible]);
+    // Date and Time handlers
     const handleDateTimeChange = (date, time) => {
         if (date && time) {
-            // Create a new moment object from the selected date
             const combinedDateTime = moment(date.format('YYYY-MM-DD'))
                 .set({
                     hour: time.hour(),
@@ -71,7 +98,6 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
     };
 
     const handleDateChange = date => {
-       // console.log('Selected date:', date?.format('YYYY-MM-DD'));
         setSelectedDate(date);
         if (date && selectedTime) {
             handleDateTimeChange(date, selectedTime);
@@ -79,7 +105,6 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
     };
 
     const handleTimeChange = time => {
-      //  console.log('Selected time:', time?.format('HH:mm'));
         setSelectedTime(time);
         if (selectedDate && time) {
             handleDateTimeChange(selectedDate, time);
@@ -87,65 +112,112 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
     };
 
     // Location handlers
-    const handleOriginChange = (location) => {
+    const handleOriginChange = (field, value) => {
         setRideData(prev => ({
             ...prev,
             origin: {
-                address: location.address,
-                city: location.city,
-                coordinates: location.coordinates
+                ...prev.origin,
+                [field]: value
             }
         }));
     };
 
-    const handleDestinationChange = (location) => {
+    const handleDestinationChange = (field, value) => {
         setRideData(prev => ({
             ...prev,
             destination: {
-                address: location.address,
-                city: location.city,
-                coordinates: location.coordinates
+                ...prev.destination,
+                [field]: value
             }
         }));
     };
 
-    // Validation
+    // Vehicle handlers
+    const handleVehicleChange = (field, value) => {
+        setRideData(prev => ({
+            ...prev,
+            vehicle: {
+                ...prev.vehicle,
+                [field]: value
+            }
+        }));
+    };
+
+    // Validation functions
+    const validateLocation = (location, type) => {
+        if (!location.address?.trim()) {
+            message.error(`${type} address is required`);
+            return false;
+        }
+        if (!location.city?.trim()) {
+            message.error(`${type} city is required`);
+            return false;
+        }
+        if (!location.zipCode?.trim() || !/^\d{5}(-\d{4})?$/.test(location.zipCode)) {
+            message.error(`Valid ${type} zip code is required`);
+            return false;
+        }
+        return true;
+    };
+
+    const validateVehicle = () => {
+        const { vehicle } = rideData;
+        if (!vehicle.model?.trim()) {
+            message.error('Vehicle model is required');
+            return false;
+        }
+        if (!vehicle.year || vehicle.year < 1900 || vehicle.year > new Date().getFullYear() + 1) {
+            message.error('Invalid vehicle year');
+            return false;
+        }
+        if (!vehicle.plateNumber?.trim()) {
+            message.error('Vehicle plate number is required');
+            return false;
+        }
+        if (!vehicle.capacity || vehicle.capacity < 1 || vehicle.capacity > 8) {
+            message.error('Vehicle capacity must be between 1 and 8');
+            return false;
+        }
+        return true;
+    };
+
+    // Step validation
     const validateCurrentStep = () => {
         switch (currentStep) {
-            case 0:
-                if (!rideData.origin?.coordinates?.length || !rideData.destination?.coordinates?.length) {
-                    message.error('Please select valid locations');
-                    return false;
-                }
+            case 0: // Vehicle and Route
+                if (!validateVehicle()) return false;
+                if (!validateLocation(rideData.origin, 'Origin')) return false;
+                if (!validateLocation(rideData.destination, 'Destination')) return false;
                 return true;
 
-            case 1:
+            case 1: // Schedule
                 if (!selectedDate || !selectedTime) {
                     message.error('Please select both date and time');
                     return false;
                 }
-
-                // Create a new moment object for validation
                 const selectedDateTime = moment(selectedDate.format('YYYY-MM-DD'))
                     .set({
                         hour: selectedTime.hour(),
                         minute: selectedTime.minute(),
                         second: 0
                     });
-
                 if (selectedDateTime.isBefore(moment().subtract(5, 'minutes'))) {
                     message.error('Departure time must be at least 5 minutes in the future');
                     return false;
                 }
                 return true;
 
-            case 2:
-                if (rideData.availableSeats < 1 || rideData.availableSeats > 8) {
-                    message.error('Seats must be between 1-8');
+            case 2: // Details
+                if (rideData.availableSeats < 1 || rideData.availableSeats > rideData.vehicle.capacity) {
+                    message.error(`Available seats must be between 1 and ${rideData.vehicle.capacity}`);
                     return false;
                 }
                 if (rideData.pricePerSeat < 0) {
                     message.error('Price must be positive');
+                    return false;
+                }
+                if (!rideData.estimatedDuration || rideData.estimatedDuration < 1) {
+                    message.error('Please provide a valid estimated duration');
                     return false;
                 }
                 return true;
@@ -154,8 +226,7 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                 return true;
         }
     };
-
-    // Navigation
+    // Navigation handlers
     const handleNext = () => validateCurrentStep() && setCurrentStep(prev => prev + 1);
     const handlePrev = () => setCurrentStep(prev => prev - 1);
 
@@ -168,8 +239,6 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                 throw new Error('No ride offer ID available');
             }
 
-          //  console.log('Updating ride offer with ID:', offer._id);
-
             // Create a new moment object for submission
             const submissionDateTime = moment(selectedDate.format('YYYY-MM-DD'))
                 .set({
@@ -178,24 +247,10 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                     second: 0
                 });
 
-          //  console.log('Submitting datetime:', submissionDateTime.format('YYYY-MM-DD HH:mm:ss'));
-
             const updatePayload = {
                 ...rideData,
                 departureDateTime: submissionDateTime.toISOString(),
-                origin: {
-                    address: rideData.origin.address,
-                    city: rideData.origin.city,
-                    coordinates: rideData.origin.coordinates
-                },
-                destination: {
-                    address: rideData.destination.address,
-                    city: rideData.destination.city,
-                    coordinates: rideData.destination.coordinates
-                }
             };
-
-           // console.log('Update payload:', updatePayload);
 
             const result = await updateRideOffer(offer._id, updatePayload);
 
@@ -218,21 +273,59 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
             icon: <MapPin className={styles.stepIcon} />,
             content: (
                 <div className={styles.stepContent}>
-                    <Form.Item label="Pickup Location" required>
-                        <LocationInput
-                            value={rideData.origin}
-                            onChange={handleOriginChange}
-                            placeholder="Enter pickup address"
-                        />
-                    </Form.Item>
+                    <div className={styles.section}>
+                        <h3 className={styles.sectionTitle}>Pickup Location</h3>
+                        <Form.Item label="Address" required>
+                            <Input
+                                value={rideData.origin.address}
+                                onChange={e => handleOriginChange('address', e.target.value)}
+                                placeholder="Enter pickup address"
+                            />
+                        </Form.Item>
 
-                    <Form.Item label="Drop-off Location" required>
-                        <LocationInput
-                            value={rideData.destination}
-                            onChange={handleDestinationChange}
-                            placeholder="Enter drop-off address"
-                        />
-                    </Form.Item>
+                        <Form.Item label="City" required>
+                            <Input
+                                value={rideData.origin.city}
+                                onChange={e => handleOriginChange('city', e.target.value)}
+                                placeholder="Enter city"
+                            />
+                        </Form.Item>
+
+                        <Form.Item label="Zip Code" required>
+                            <Input
+                                value={rideData.origin.zipCode}
+                                onChange={e => handleOriginChange('zipCode', e.target.value)}
+                                placeholder="Enter zip code"
+                            />
+                        </Form.Item>
+                    </div>
+
+                    <div className={styles.section}>
+                        <h3 className={styles.sectionTitle}>Drop-off Location</h3>
+                        <Form.Item label="Address" required>
+                            <Input
+                                value={rideData.destination.address}
+                                onChange={e => handleDestinationChange('address', e.target.value)}
+                                placeholder="Enter drop-off address"
+                            />
+                        </Form.Item>
+
+                        <Form.Item label="City" required>
+                            <Input
+                                value={rideData.destination.city}
+                                onChange={e => handleDestinationChange('city', e.target.value)}
+                                placeholder="Enter city"
+                            />
+                        </Form.Item>
+
+                        <Form.Item label="Zip Code" required>
+                            <Input
+                                value={rideData.destination.zipCode}
+                                onChange={e => handleDestinationChange('zipCode', e.target.value)}
+                                placeholder="Enter zip code"
+                            />
+                        </Form.Item>
+                    </div>
                 </div>
             )
         },
@@ -276,6 +369,18 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                                 }}
                             />
                         </Form.Item>
+
+                        <Form.Item label="Estimated Duration (minutes)" required>
+                            <InputNumber
+                                min={1}
+                                value={rideData.estimatedDuration}
+                                onChange={value => setRideData(prev => ({
+                                    ...prev,
+                                    estimatedDuration: value
+                                }))}
+                                placeholder="Enter estimated duration"
+                            />
+                        </Form.Item>
                     </div>
                 </div>
             )
@@ -288,7 +393,7 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                     <Form.Item label="Available Seats" required>
                         <InputNumber
                             min={1}
-                            max={8}
+                            max={rideData.vehicle.capacity || 8}
                             value={rideData.availableSeats}
                             onChange={value => setRideData(prev => ({
                                 ...prev,

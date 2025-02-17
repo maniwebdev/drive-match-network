@@ -1,4 +1,4 @@
-// components/Trip/RequestTripModal.js
+// // components/Trip/RequestTripModal.js
 import React, { useState } from 'react';
 import { useAuth } from '../../context/Auth/AuthContext';
 import { useTrip } from '../../context/Ride/TripContext';
@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import { Steps, Button, Form, DatePicker, InputNumber, Select, Input, message, Modal } from 'antd';
 import { MapPin, Calendar, Users, Package, Info, Clock } from 'lucide-react';
 import moment from 'moment';
-import LocationInput from '../../components/Rides/LocationInput';
 import styles from '../../styles/Trips/requestTrip.module.css';
 
 const { Step } = Steps;
@@ -19,16 +18,17 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
     const [form] = Form.useForm();
     const [currentStep, setCurrentStep] = useState(0);
 
+    // Updated initial state with new location structure
     const [tripData, setTripData] = useState({
         origin: {
             address: '',
             city: '',
-            coordinates: []
+            zipCode: ''
         },
         destination: {
             address: '',
             city: '',
-            coordinates: []
+            zipCode: ''
         },
         departureDate: null,
         departureTime: '',
@@ -41,58 +41,88 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
             customDays: []
         }
     });
-
-    const handleOriginChange = (location) => {
-        setTripData({
-            ...tripData,
-            origin: location
-        });
+    // Location change handlers
+    const handleLocationChange = (type, field, value) => {
+        setTripData(prev => ({
+            ...prev,
+            [type]: {
+                ...prev[type],
+                [field]: value
+            }
+        }));
     };
 
-    const handleDestinationChange = (location) => {
-        setTripData({
-            ...tripData,
-            destination: location
-        });
+    // Validate zip code format
+    const validateZipCode = (zipCode) => {
+        return /^\d{5}(-\d{4})?$/.test(zipCode);
     };
 
+    // Update time handlers
+    const updateDepartureTime = (hours, minutes) => {
+        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        setTripData(prev => ({ ...prev, departureTime: timeString }));
+    };
+
+    // Validation functions
     const validateCurrentStep = () => {
         switch (currentStep) {
-            case 0:
-                if (!tripData.origin.address || !tripData.origin.coordinates.length ||
-                    !tripData.destination.address || !tripData.destination.coordinates.length) {
-                    message.error('Please fill in both pickup and drop-off locations');
+            case 0: // Route
+                if (!tripData.origin.address || !tripData.origin.city || !tripData.origin.zipCode ||
+                    !tripData.destination.address || !tripData.destination.city || !tripData.destination.zipCode) {
+                    message.error('Please fill in all location fields');
+                    return false;
+                }
+                if (!validateZipCode(tripData.origin.zipCode)) {
+                    message.error('Invalid origin zip code format');
+                    return false;
+                }
+                if (!validateZipCode(tripData.destination.zipCode)) {
+                    message.error('Invalid destination zip code format');
                     return false;
                 }
                 return true;
 
-            case 1:
+            case 1: // Schedule
                 if (!tripData.departureDate || !tripData.departureTime) {
                     message.error('Please fill in departure date and time');
                     return false;
                 }
-                const selectedDate = moment(tripData.departureDate).startOf('day');
-                const today = moment().startOf('day');
-                if (selectedDate.isBefore(today)) {
-                    message.error('Departure date cannot be in the past');
+
+                const selectedDateTime = moment(tripData.departureDate)
+                    .set({
+                        hour: parseInt(tripData.departureTime.split(':')[0]),
+                        minute: parseInt(tripData.departureTime.split(':')[1])
+                    });
+
+                if (selectedDateTime.isBefore(moment())) {
+                    message.error('Departure time must be in the future');
                     return false;
                 }
                 return true;
 
-            case 2:
-                if (!tripData.numberOfSeats) {
-                    message.error('Please specify number of seats needed');
+            case 2: // Details
+                if (!tripData.numberOfSeats || tripData.numberOfSeats < 1 || tripData.numberOfSeats > 8) {
+                    message.error('Please specify a valid number of seats (1-8)');
+                    return false;
+                }
+                if (tripData.additionalNotes && tripData.additionalNotes.length > 500) {
+                    message.error('Additional notes cannot exceed 500 characters');
                     return false;
                 }
                 return true;
 
-            case 3:
+            case 3: // Recurrence
                 if (tripData.recurrence.pattern !== 'none') {
                     if (!tripData.recurrence.endDate) {
                         message.error('Please specify an end date for the recurring trip');
                         return false;
                     }
-                    if (tripData.recurrence.pattern === 'custom' && tripData.recurrence.customDays.length === 0) {
+                    if (moment(tripData.recurrence.endDate).isBefore(tripData.departureDate)) {
+                        message.error('End date must be after the start date');
+                        return false;
+                    }
+                    if (tripData.recurrence.pattern === 'custom' &&
+                        (!tripData.recurrence.customDays || tripData.recurrence.customDays.length === 0)) {
                         message.error('Please select at least one day for custom recurrence');
                         return false;
                     }
@@ -113,7 +143,6 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
     const handlePrev = () => {
         setCurrentStep(currentStep - 1);
     };
-
     const steps = [
         {
             title: 'Route',
@@ -124,29 +153,93 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
                     animate={{ opacity: 1, x: 0 }}
                     className={styles.stepContent}
                 >
-                    <Form.Item
-                        label="Pickup Location"
-                        required
-                        className={styles.formItem}
-                    >
-                        <LocationInput
-                            value={tripData.origin}
-                            onChange={handleOriginChange}
-                            placeholder="Enter pickup address"
-                        />
-                    </Form.Item>
+                    <div className={styles.locationSection}>
+                        <h3 className={styles.sectionTitle}>Pickup Location</h3>
+                        <div className={styles.locationGroup}>
+                            <Form.Item
+                                label="Street Address"
+                                required
+                                className={styles.formItem}
+                            >
+                                <Input
+                                    placeholder="Enter street address"
+                                    value={tripData.origin.address}
+                                    onChange={(e) => handleLocationChange('origin', 'address', e.target.value)}
+                                    className={styles.input}
+                                />
+                            </Form.Item>
 
-                    <Form.Item
-                        label="Drop-off Location"
-                        required
-                        className={styles.formItem}
-                    >
-                        <LocationInput
-                            value={tripData.destination}
-                            onChange={handleDestinationChange}
-                            placeholder="Enter drop-off address"
-                        />
-                    </Form.Item>
+                            <Form.Item
+                                label="City"
+                                required
+                                className={styles.formItem}
+                            >
+                                <Input
+                                    placeholder="Enter city"
+                                    value={tripData.origin.city}
+                                    onChange={(e) => handleLocationChange('origin', 'city', e.target.value)}
+                                    className={styles.input}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Zip Code"
+                                required
+                                className={styles.formItem}
+                            >
+                                <Input
+                                    placeholder="Enter zip code"
+                                    value={tripData.origin.zipCode}
+                                    onChange={(e) => handleLocationChange('origin', 'zipCode', e.target.value)}
+                                    className={styles.input}
+                                />
+                            </Form.Item>
+                        </div>
+                    </div>
+
+                    <div className={styles.locationSection}>
+                        <h3 className={styles.sectionTitle}>Drop-off Location</h3>
+                        <div className={styles.locationGroup}>
+                            <Form.Item
+                                label="Street Address"
+                                required
+                                className={styles.formItem}
+                            >
+                                <Input
+                                    placeholder="Enter street address"
+                                    value={tripData.destination.address}
+                                    onChange={(e) => handleLocationChange('destination', 'address', e.target.value)}
+                                    className={styles.input}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="City"
+                                required
+                                className={styles.formItem}
+                            >
+                                <Input
+                                    placeholder="Enter city"
+                                    value={tripData.destination.city}
+                                    onChange={(e) => handleLocationChange('destination', 'city', e.target.value)}
+                                    className={styles.input}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Zip Code"
+                                required
+                                className={styles.formItem}
+                            >
+                                <Input
+                                    placeholder="Enter zip code"
+                                    value={tripData.destination.zipCode}
+                                    onChange={(e) => handleLocationChange('destination', 'zipCode', e.target.value)}
+                                    className={styles.input}
+                                />
+                            </Form.Item>
+                        </div>
+                    </div>
                 </motion.div>
             )
         },
@@ -182,11 +275,10 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
                                 placeholder="Hour"
                                 className={styles.timeSelect}
                                 value={tripData.departureTime ? tripData.departureTime.split(':')[0] : undefined}
-                                onChange={(value) => {
-                                    const currentTime = tripData.departureTime || '';
-                                    const newTime = `${value}:${currentTime.split(':')[1] || '00'}`;
-                                    setTripData({ ...tripData, departureTime: newTime });
-                                }}
+                                onChange={(value) => updateDepartureTime(
+                                    value,
+                                    tripData.departureTime?.split(':')[1] || '00'
+                                )}
                             >
                                 {Array.from({ length: 24 }, (_, i) => (
                                     <Option key={i} value={i.toString().padStart(2, '0')}>
@@ -199,11 +291,10 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
                                 placeholder="Minute"
                                 className={styles.timeSelect}
                                 value={tripData.departureTime ? tripData.departureTime.split(':')[1] : undefined}
-                                onChange={(value) => {
-                                    const currentTime = tripData.departureTime || '';
-                                    const newTime = `${currentTime.split(':')[0] || '00'}:${value}`;
-                                    setTripData({ ...tripData, departureTime: newTime });
-                                }}
+                                onChange={(value) => updateDepartureTime(
+                                    tripData.departureTime?.split(':')[0] || '00',
+                                    value
+                                )}
                             >
                                 {Array.from({ length: 12 }, (_, i) => i * 5).map(minute => (
                                     <Option key={minute} value={minute.toString().padStart(2, '0')}>
@@ -237,6 +328,9 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
                             value={tripData.numberOfSeats}
                             onChange={(value) => setTripData({ ...tripData, numberOfSeats: value })}
                         />
+                        <div className={styles.helperText}>
+                            Maximum 8 seats per request
+                        </div>
                     </Form.Item>
 
                     <Form.Item
@@ -265,6 +359,7 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
                             rows={4}
                             maxLength={500}
                             className={styles.textArea}
+                            showCount
                         />
                     </Form.Item>
                 </motion.div>
@@ -289,7 +384,9 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
                                 ...tripData,
                                 recurrence: {
                                     ...tripData.recurrence,
-                                    pattern: value
+                                    pattern: value,
+                                    customDays: value === 'custom' ? [] : tripData.recurrence.customDays,
+                                    endDate: value === 'none' ? null : tripData.recurrence.endDate
                                 }
                             })}
                             className={styles.select}
@@ -304,7 +401,7 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
 
                     {tripData.recurrence.pattern !== 'none' && (
                         <Form.Item
-                            label="End Date"
+                            label="Recurrence End Date"
                             required
                             className={styles.formItem}
                         >
@@ -318,7 +415,9 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
                                         endDate: date
                                     }
                                 })}
-                                disabledDate={(current) => current && current < moment(tripData.departureDate).startOf('day')}
+                                disabledDate={(current) =>
+                                    current && current < moment(tripData.departureDate).startOf('day')
+                                }
                             />
                         </Form.Item>
                     )}
@@ -341,13 +440,11 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
                                 })}
                                 className={styles.select}
                             >
-                                <Option value="Monday">Monday</Option>
-                                <Option value="Tuesday">Tuesday</Option>
-                                <Option value="Wednesday">Wednesday</Option>
-                                <Option value="Thursday">Thursday</Option>
-                                <Option value="Friday">Friday</Option>
-                                <Option value="Saturday">Saturday</Option>
-                                <Option value="Sunday">Sunday</Option>
+                                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                                    .map(day => (
+                                        <Option key={day} value={day}>{day}</Option>
+                                    ))
+                                }
                             </Select>
                         </Form.Item>
                     )}
@@ -358,14 +455,34 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
 
     const handleSubmit = async () => {
         try {
-            if (!validateCurrentStep()) {
-                return;
-            }
+            if (!validateCurrentStep()) return;
 
+            const timezone = moment.tz.guess();
+
+            // Format the data with the new location structure
             const formattedData = {
-                ...tripData,
+                origin: {
+                    address: tripData.origin.address.trim(),
+                    city: tripData.origin.city.trim(),
+                    zipCode: tripData.origin.zipCode.trim()
+                },
+                destination: {
+                    address: tripData.destination.address.trim(),
+                    city: tripData.destination.city.trim(),
+                    zipCode: tripData.destination.zipCode.trim()
+                },
                 departureDate: tripData.departureDate?.format('YYYY-MM-DD'),
-                recurrence: tripData.recurrence.pattern !== 'none' ? tripData.recurrence : undefined
+                departureTime: tripData.departureTime,
+                timezone,
+                numberOfSeats: tripData.numberOfSeats,
+                luggageSize: tripData.luggageSize,
+                additionalNotes: tripData.additionalNotes.trim(),
+                recurrence: tripData.recurrence.pattern !== 'none' ? {
+                    pattern: tripData.recurrence.pattern,
+                    endDate: tripData.recurrence.endDate?.format('YYYY-MM-DD'),
+                    customDays: tripData.recurrence.pattern === 'custom' ?
+                        tripData.recurrence.customDays : undefined
+                } : undefined
             };
 
             const result = await createTripRequest(formattedData);
@@ -373,28 +490,34 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
             if (result.success) {
                 message.success('Trip request created successfully!');
                 onSuccess();
+                onCancel();
             } else {
-                message.error(result.message || 'Failed to create trip request');
+                throw new Error(result.message || 'Failed to create trip request');
             }
         } catch (error) {
             console.error('Submit error:', error);
-            message.error('An error occurred while creating the trip request');
+            message.error(error.message || 'An error occurred while creating the trip request');
         }
     };
-
     return (
         <Modal
-            title="Request a Trip"
+            title={
+                <div className={styles.modalHeader}>
+                    <h2 className={styles.modalTitle}>Request a Trip</h2>
+                    <p className={styles.modalSubtitle}>Fill in your trip details to find a driver</p>
+                </div>
+            }
             open={visible}
             onCancel={onCancel}
             footer={null}
             width={800}
+            className={styles.tripRequestModal}
         >
-            <div className={styles.pageContainer}>
+            <div className={styles.modalContainer}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={styles.contentWrapper}
+                    className={styles.modalContent}
                 >
                     <div className={styles.stepsContainer}>
                         <Steps current={currentStep}>

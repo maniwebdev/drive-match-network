@@ -106,21 +106,6 @@ const RideDetails = () => {
         }
     };
 
-    const handleBookRide = () => {
-        if (!currentUser) {
-            message.info('Please login to book this ride');
-            router.push('/auth/login');
-            return;
-        }
-
-        if (currentUser._id === ride.driver._id) {
-            message.error("You can't book your own ride");
-            return;
-        }
-
-        setShowBookingModal(true);
-    };
-
     const handleBookingSubmit = async () => {
         try {
             setProcessing(true);
@@ -349,63 +334,6 @@ const RideDetails = () => {
         </Card>
     );
 
-    const renderBookingModal = () => (
-        <Modal
-            title="Book this Ride"
-            open={showBookingModal}
-            className={styles.modal}
-            onCancel={() => setShowBookingModal(false)}
-            footer={[
-                <Button
-                    key="cancel"
-                    onClick={() => setShowBookingModal(false)}
-                >
-                    Cancel
-                </Button>,
-                <Button
-                    key="submit"
-                    type="primary"
-                    loading={processing}
-                    onClick={handleBookingSubmit}
-                >
-                    Confirm Booking
-                </Button>
-            ]}
-        >
-            <Form form={form} layout="vertical">
-                <Form.Item
-                    label="Number of Seats"
-                    required
-                    className={styles.modalFormItem}
-                >
-                    <InputNumber
-                        min={1}
-                        max={ride?.availableSeats - ride?.bookedSeats}
-                        value={bookingSeats}
-                        onChange={value => setBookingSeats(value)}
-                        className={styles.seatsInput}
-                    />
-                </Form.Item>
-
-                <div className={styles.priceSummary}>
-                    <div className={styles.priceRow}>
-                        <span>Price per seat:</span>
-                        <span>${ride?.pricePerSeat}</span>
-                    </div>
-                    <div className={styles.priceRow}>
-                        <span>Number of seats:</span>
-                        <span>{bookingSeats}</span>
-                    </div>
-                    <Divider className={styles.divider} />
-                    <div className={styles.totalRow}>
-                        <span>Total:</span>
-                        <span>${calculateTotalPrice()}</span>
-                    </div>
-                </div>
-            </Form>
-        </Modal>
-    );
-
     // Main render
     if (loading || !ride) {
         return (
@@ -435,21 +363,8 @@ const RideDetails = () => {
                         </div>
                         <div className={styles.sidebar}>
                             {renderDriverInfo()}
-                            {isBookable() && (
-                                <Button
-                                    type="primary"
-                                    size="large"
-                                    onClick={handleBookRide}
-                                    className={styles.bookButton}
-                                    block
-                                >
-                                    Book this Ride
-                                </Button>
-                            )}
                         </div>
                     </div>
-
-                    {renderBookingModal()}
                 </motion.div>
             </div>
         </>
