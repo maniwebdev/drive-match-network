@@ -1,4 +1,5 @@
 // pages/trip/details/[tripId].js
+/* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../../context/Auth/AuthContext';
@@ -12,8 +13,8 @@ import {
     Form,
     Divider,
     message,
-    Spin,
-    Tooltip
+    Tooltip,
+    Alert
 } from 'antd';
 import {
     User,
@@ -25,15 +26,19 @@ import {
     MessageCircle,
     Star,
     ChevronLeft,
-    Car
+    Car,
+    AlertCircle,
+    Check,
+    X
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import moment from 'moment';
+import { motion, AnimatePresence } from 'framer-motion';
+import moment from 'moment-timezone';
 import Navbar from '../../../components/Navigation/Navbar';
-import styles from '../../../styles/Trips/tripDetails.module.css';
 import LoadingAnimation from '../../../components/LoadingAnimation';
+import styles from '../../../styles/Trips/tripDetails.module.css';
 
 const TripDetails = () => {
+    // Router and context hooks
     const router = useRouter();
     const { tripId } = router.query;
     const { currentUser } = useAuth();
@@ -41,33 +46,45 @@ const TripDetails = () => {
     const { createChat } = useChat();
     const [form] = Form.useForm();
 
-    // State
+    // State management
     const [trip, setTrip] = useState(null);
     const [showAcceptModal, setShowAcceptModal] = useState(false);
     const [processing, setProcessing] = useState(false);
+    const [error, setError] = useState(null);
+    const [showConfirmation, setShowConfirmation] = useState(false);
 
-    // Fetch trip details
+    // Fetch trip details on mount or tripId change
     useEffect(() => {
-        if (tripId) {
-            fetchTripDetails();
-        }
+        let mounted = true;
+
+        const fetchTrip = async () => {
+            if (!tripId) return;
+
+            try {
+                setError(null);
+                const result = await getTripDetails(tripId);
+
+                if (!mounted) return;
+
+                if (result.success) {
+                    setTrip(result.trip);
+                } else {
+                    throw new Error(result.message || 'Failed to fetch trip details');
+                }
+            } catch (err) {
+                console.error('Fetch trip error:', err);
+                setError('Unable to load trip details. Please try again.');
+                message.error('Error loading trip details');
+            }
+        };
+
+        fetchTrip();
+
+        return () => {
+            mounted = false;
+        };
     }, [tripId]);
 
-    const fetchTripDetails = async () => {
-        try {
-            const result = await getTripDetails(tripId);
-            if (result.success) {
-                setTrip(result.trip);
-            } else {
-                message.error('Failed to fetch trip details');
-                router.push('/trip/available-trips');
-            }
-        } catch (error) {
-            console.error('Fetch trip details error:', error);
-            message.error('Error loading trip details');
-            router.push('/trip/available-trips');
-        }
-    };
     // Helper functions
     const formatDate = (date) => {
         return moment(date).format('dddd, MMMM D, YYYY');
@@ -77,37 +94,79 @@ const TripDetails = () => {
         return moment(time, 'HH:mm').format('h:mm A');
     };
 
-    // Handler functions
+    const formatRecurrence = (recurrence) => {
+        if (!recurrence || recurrence.pattern === 'none') {
+            return null;
+        }
+
+        const patterns = {
+            daily: 'Repeats daily',
+            weekly: 'Repeats weekly',
+            weekdays: 'Repeats on weekdays',
+            custom: `Repeats on ${recurrence.customDays.join(', ')}`
+        };
+
+        let text = patterns[recurrence.pattern];
+        if (recurrence.endDate) {
+            text += ` until ${moment(recurrence.endDate).format('MMM D, YYYY')}`;
+        }
+
+        return text;
+    };
+
+    const isAcceptable = () => {
+        if (!trip || !currentUser) return false;
+
+        return (
+            trip.status === 'active' &&
+            currentUser.isDriver &&
+            currentUser.driverVerification?.isVerified &&
+            currentUser._id !== trip.requester._id &&
+            !trip.acceptedDriver
+        );
+    };
+
+    // Event Handlers
     const handleContactRequester = async () => {
         if (!currentUser) {
             message.info('Please login to contact the requester');
-            router.push('/auth/login');
+            router.push('/auth/login?redirect=/trip/details/${tripId}');
             return;
         }
 
         try {
-            const chat = await createChat(trip.requester._id);
-            if (chat) {
-                router.push(`/chat/${chat._id}`);
+            setProcessing(true);
+            const result = await createChat(trip.requester._id);
+
+            if (result.success) {
+                router.push(`/chat/${result.chat._id}`);
             } else {
-                message.error('Failed to create chat');
+                throw new Error(result.message || 'Failed to create chat');
             }
         } catch (error) {
             console.error('Create chat error:', error);
-            message.error('Error starting chat');
+            message.error('Unable to start chat. Please try again.');
+        } finally {
+            setProcessing(false);
         }
     };
 
     const handleAcceptTrip = () => {
         if (!currentUser) {
             message.info('Please login to accept this trip request');
-            router.push('/auth/login');
+            router.push('/auth/login?redirect=/trip/details/${tripId}');
             return;
         }
 
-        if (!currentUser.isDriver || !currentUser.driverVerification?.isVerified) {
+        if (!currentUser.isDriver) {
             message.error('Only verified drivers can accept trip requests');
-            router.push('/user/profile');
+            router.push('/user/become-driver');
+            return;
+        }
+
+        if (!currentUser.driverVerification?.isVerified) {
+            message.error('Please complete driver verification first');
+            router.push('/user/driver-verification');
             return;
         }
 
@@ -117,18 +176,21 @@ const TripDetails = () => {
     const handleAcceptSubmit = async () => {
         try {
             setProcessing(true);
+            setError(null);
 
             const result = await acceptTripRequest(tripId);
 
             if (result.success) {
-                message.success('Trip request accepted successfully!');
                 setShowAcceptModal(false);
+                setShowConfirmation(true);
                 await fetchTripDetails();
+                message.success('Trip request accepted successfully!');
             } else {
                 throw new Error(result.message || 'Failed to accept trip');
             }
         } catch (error) {
             console.error('Accept trip error:', error);
+            setError(error.message || 'Unable to accept trip request. Please try again.');
             message.error(error.message || 'Error accepting trip request');
         } finally {
             setProcessing(false);
@@ -138,34 +200,38 @@ const TripDetails = () => {
     const handleGoBack = () => {
         router.back();
     };
-
-    // Check if the trip is acceptable
-    const isAcceptable = () => {
-        if (!trip || !currentUser) return false;
-        return (
-            trip.status === 'active' &&
-            currentUser.isDriver &&
-            currentUser.driverVerification?.isVerified &&
-            currentUser._id !== trip.requester._id
-        );
-    };
-    // Render components
+    // Render Components
     const renderHeader = () => (
-        <div className={styles.header}>
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={styles.header}
+        >
             <Button
-                icon={<ChevronLeft />}
+                icon={<ChevronLeft className={styles.backIcon} />}
                 onClick={handleGoBack}
                 className={styles.backButton}
             >
                 Back to Trips
             </Button>
-            <Badge
-                status="default"
-                color={trip?.status === 'active' ? '#2a9d8f' : '#666666'}
-                text={trip?.status.toUpperCase()}
-                className={styles.statusBadge}
-            />
-        </div>
+
+            {trip?.status && (
+                <Badge
+                    status={trip.status === 'active' ? 'success' : 'default'}
+                    text={trip.status.toUpperCase()}
+                    className={styles.statusBadge}
+                />
+            )}
+
+            {trip?.recurrence?.pattern !== 'none' && (
+                <Tooltip title={formatRecurrence(trip.recurrence)}>
+                    <Badge
+                        count="Recurring"
+                        className={styles.recurringBadge}
+                    />
+                </Tooltip>
+            )}
+        </motion.div>
     );
 
     const renderRequesterInfo = () => (
@@ -184,12 +250,15 @@ const TripDetails = () => {
                         </div>
                     )}
                 </div>
+
                 <div className={styles.requesterDetails}>
-                    <h2 className={styles.requesterName}>{trip?.requester.fullName}</h2>
+                    <h2 className={styles.requesterName}>
+                        {trip?.requester.fullName}
+                    </h2>
                     <div className={styles.requesterStats}>
                         <span className={styles.rating}>
                             <Star className={styles.icon} />
-                            {trip?.requester.rating.toFixed(1)}
+                            {trip?.requester.rating?.toFixed(1)}
                         </span>
                         <span className={styles.trips}>
                             <Car className={styles.icon} />
@@ -197,10 +266,12 @@ const TripDetails = () => {
                         </span>
                     </div>
                 </div>
+
                 <Button
                     type="primary"
-                    icon={<MessageCircle />}
+                    icon={<MessageCircle className={styles.messageIcon} />}
                     onClick={handleContactRequester}
+                    loading={processing}
                     className={styles.contactButton}
                 >
                     Contact Requester
@@ -211,140 +282,103 @@ const TripDetails = () => {
                 <>
                     <Divider className={styles.divider} />
                     <div className={styles.notes}>
-                        <h3>Additional Notes</h3>
-                        <p>{trip.additionalNotes}</p>
+                        <h3 className={styles.notesTitle}>Additional Notes</h3>
+                        <p className={styles.notesContent}>
+                            "{trip.additionalNotes}"
+                        </p>
                     </div>
                 </>
             )}
         </Card>
     );
-    const renderTripDetails = () => {
-        // Function to format recurrence details
-        const formatRecurrence = (recurrence) => {
-            if (!recurrence || recurrence.pattern === 'none') {
-                return 'No recurrence';
-            }
 
-            let recurrenceText = '';
-            switch (recurrence.pattern) {
-                case 'daily':
-                    recurrenceText = 'Daily';
-                    break;
-                case 'weekly':
-                    recurrenceText = 'Weekly';
-                    break;
-                case 'weekdays':
-                    recurrenceText = 'Weekdays (Mon-Fri)';
-                    break;
-                case 'custom':
-                    recurrenceText = `Custom (${recurrence.customDays.join(', ')})`;
-                    break;
-                default:
-                    recurrenceText = 'No recurrence';
-            }
-
-            if (recurrence.endDate) {
-                recurrenceText += ` until ${moment(recurrence.endDate).format('MMM D, YYYY')}`;
-            }
-
-            return recurrenceText;
-        };
-
-        return (
-            <Card className={styles.tripCard}>
-                <div className={styles.routeInfo}>
-                    <div className={styles.location}>
-                        <MapPin className={styles.icon} />
-                        <div>
-                            <span className={styles.locationLabel}>Pickup</span>
-                            <h3 className={styles.locationName}>{trip?.origin.city}</h3>
-                            <p className={styles.locationAddress}>{trip?.origin.address}</p>
-                        </div>
+    const renderTripDetails = () => (
+        <Card className={styles.tripCard}>
+            <div className={styles.routeInfo}>
+                <div className={styles.location}>
+                    <div className={styles.locationIcon}>
+                        <MapPin />
                     </div>
-
-                    <div className={styles.routeDivider}>
-                        <div className={styles.dividerLine} />
-                    </div>
-
-                    <div className={styles.location}>
-                        <MapPin className={styles.icon} />
-                        <div>
-                            <span className={styles.locationLabel}>Dropoff</span>
-                            <h3 className={styles.locationName}>{trip?.destination.city}</h3>
-                            <p className={styles.locationAddress}>{trip?.destination.address}</p>
-                        </div>
+                    <div className={styles.locationDetails}>
+                        <span className={styles.locationLabel}>Pickup Location</span>
+                        <h3 className={styles.locationName}>{trip?.origin.city}</h3>
+                        <p className={styles.locationAddress}>{trip?.origin.address}</p>
                     </div>
                 </div>
 
-                <Divider className={styles.divider} />
-
-                <div className={styles.tripDetails}>
-                    <div className={styles.detailItem}>
-                        <Calendar className={styles.icon} />
-                        <div>
-                            <span className={styles.detailLabel}>Date</span>
-                            <span className={styles.detailValue}>
-                                {formatDate(trip?.departureDate)}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className={styles.detailItem}>
-                        <Clock className={styles.icon} />
-                        <div>
-                            <span className={styles.detailLabel}>Departure Time</span>
-                            <span className={styles.detailValue}>
-                                {formatTime(trip?.departureTime)}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className={styles.detailItem}>
-                        <Users className={styles.icon} />
-                        <div>
-                            <span className={styles.detailLabel}>Seats Needed</span>
-                            <span className={styles.detailValue}>
-                                {trip?.numberOfSeats}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className={styles.detailItem}>
-                        <Package className={styles.icon} />
-                        <div>
-                            <span className={styles.detailLabel}>Luggage Size</span>
-                            <span className={styles.detailValue}>
-                                {trip?.luggageSize.charAt(0).toUpperCase() + trip?.luggageSize.slice(1)}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Recurrence Details */}
-                    {trip?.recurrence && trip.recurrence.pattern !== 'none' && (
-                        <div className={styles.detailItem}>
-                            <Calendar className={styles.icon} />
-                            <div>
-                                <span className={styles.detailLabel}>Recurrence</span>
-                                <span className={styles.detailValue}>
-                                    {formatRecurrence(trip.recurrence)}
-                                </span>
-                            </div>
-                        </div>
-                    )}
+                <div className={styles.routeDivider}>
+                    <div className={styles.dividerLine} />
                 </div>
-            </Card>
-        );
-    };
+
+                <div className={styles.location}>
+                    <div className={styles.locationIcon}>
+                        <MapPin />
+                    </div>
+                    <div className={styles.locationDetails}>
+                        <span className={styles.locationLabel}>Dropoff Location</span>
+                        <h3 className={styles.locationName}>{trip?.destination.city}</h3>
+                        <p className={styles.locationAddress}>{trip?.destination.address}</p>
+                    </div>
+                </div>
+            </div>
+
+            <Divider className={styles.divider} />
+
+            <div className={styles.tripDetails}>
+                <div className={styles.detailItem}>
+                    <Calendar className={styles.detailIcon} />
+                    <div className={styles.detailContent}>
+                        <span className={styles.detailLabel}>Date</span>
+                        <span className={styles.detailValue}>
+                            {formatDate(trip?.departureDate)}
+                        </span>
+                    </div>
+                </div>
+
+                <div className={styles.detailItem}>
+                    <Clock className={styles.detailIcon} />
+                    <div className={styles.detailContent}>
+                        <span className={styles.detailLabel}>Time</span>
+                        <span className={styles.detailValue}>
+                            {formatTime(trip?.departureTime)}
+                        </span>
+                    </div>
+                </div>
+
+                <div className={styles.detailItem}>
+                    <Users className={styles.detailIcon} />
+                    <div className={styles.detailContent}>
+                        <span className={styles.detailLabel}>Seats</span>
+                        <span className={styles.detailValue}>
+                            {trip?.numberOfSeats} needed
+                        </span>
+                    </div>
+                </div>
+
+                <div className={styles.detailItem}>
+                    <Package className={styles.detailIcon} />
+                    <div className={styles.detailContent}>
+                        <span className={styles.detailLabel}>Luggage</span>
+                        <span className={styles.detailValue}>
+                            {trip?.luggageSize}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </Card>
+    );
     const renderAcceptModal = () => (
         <Modal
             title="Accept Trip Request"
             open={showAcceptModal}
-            className={styles.modal}
             onCancel={() => setShowAcceptModal(false)}
+            className={styles.modal}
             footer={[
                 <Button
                     key="cancel"
                     onClick={() => setShowAcceptModal(false)}
+                    icon={<X className={styles.modalIcon} />}
+                    className={styles.cancelButton}
                 >
                     Cancel
                 </Button>,
@@ -353,20 +387,49 @@ const TripDetails = () => {
                     type="primary"
                     loading={processing}
                     onClick={handleAcceptSubmit}
+                    icon={<Check className={styles.modalIcon} />}
+                    className={styles.acceptButton}
                 >
                     Accept Request
                 </Button>
             ]}
         >
             <div className={styles.modalContent}>
-                <p>You are about to accept this trip request. Make sure you can accommodate:</p>
-                <ul>
-                    <li>{trip?.numberOfSeats} passenger(s)</li>
-                    <li>{trip?.luggageSize} luggage</li>
-                    <li>Pickup from {trip?.origin.city}</li>
-                    <li>Dropoff at {trip?.destination.city}</li>
+                <Alert
+                    message="Please confirm the trip details"
+                    description="Make sure you can accommodate the following requirements:"
+                    type="info"
+                    showIcon
+                    className={styles.modalAlert}
+                />
+
+                <ul className={styles.requirementsList}>
+                    <li className={styles.requirementItem}>
+                        <Users className={styles.requirementIcon} />
+                        {trip?.numberOfSeats} passenger(s)
+                    </li>
+                    <li className={styles.requirementItem}>
+                        <Package className={styles.requirementIcon} />
+                        {trip?.luggageSize} luggage
+                    </li>
+                    <li className={styles.requirementItem}>
+                        <MapPin className={styles.requirementIcon} />
+                        Pickup from {trip?.origin.city}
+                    </li>
+                    <li className={styles.requirementItem}>
+                        <MapPin className={styles.requirementIcon} />
+                        Dropoff at {trip?.destination.city}
+                    </li>
                 </ul>
-                <p>Are you sure you want to accept this trip request?</p>
+
+                {error && (
+                    <Alert
+                        message={error}
+                        type="error"
+                        showIcon
+                        className={styles.errorAlert}
+                    />
+                )}
             </div>
         </Modal>
     );
@@ -387,35 +450,68 @@ const TripDetails = () => {
         <>
             <Navbar />
             <div className={styles.pageContainer}>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={styles.contentWrapper}
-                >
-                    {renderHeader()}
+                <div className={styles.contentWrapper}>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className={styles.mainContent}
+                    >
+                        {renderHeader()}
 
-                    <div className={styles.detailsContainer}>
-                        <div className={styles.mainContent}>
-                            {renderTripDetails()}
-                        </div>
-                        <div className={styles.sidebar}>
-                            {renderRequesterInfo()}
-                            {isAcceptable() && (
-                                <Button
-                                    type="primary"
-                                    size="large"
-                                    onClick={handleAcceptTrip}
-                                    className={styles.acceptButton}
-                                    block
-                                >
-                                    Accept Trip Request
-                                </Button>
-                            )}
-                        </div>
-                    </div>
+                        <div className={styles.contentGrid}>
+                            <div className={styles.tripContent}>
+                                {renderTripDetails()}
 
-                    {renderAcceptModal()}
-                </motion.div>
+                                {error && (
+                                    <Alert
+                                        message="Error"
+                                        description={error}
+                                        type="error"
+                                        showIcon
+                                        className={styles.errorAlert}
+                                    />
+                                )}
+                            </div>
+
+                            <div className={styles.sidebar}>
+                                {renderRequesterInfo()}
+
+                                {isAcceptable() && (
+                                    <Button
+                                        type="primary"
+                                        size="large"
+                                        onClick={handleAcceptTrip}
+                                        className={styles.acceptTripButton}
+                                        block
+                                    >
+                                        Accept Trip Request
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+
+                {renderAcceptModal()}
+
+                <AnimatePresence>
+                    {showConfirmation && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 50 }}
+                            className={styles.confirmationToast}
+                        >
+                            <Alert
+                                message="Trip Accepted Successfully!"
+                                type="success"
+                                showIcon
+                                closable
+                                onClose={() => setShowConfirmation(false)}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </>
     );

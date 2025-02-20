@@ -8,17 +8,21 @@ import moment from 'moment';
 import styles from '../styles/Home.module.css';
 import Header from '../components/Navigation/Header';
 import Footer from '../components/Navigation/Footer';
+import { AuthTokenCheck } from '../components/Authentication/AuthTokenCheck';
+import LoadingAnimation from '../components/LoadingAnimation';
 
 const { Option } = Select;
 
 const HomePage = () => {
   const router = useRouter();
+  const { isAuthenticated, isUserVerified, hasFetchedUserDetails } = AuthTokenCheck();
   const { searchPublicRides, loading } = useRide();
   const [form] = Form.useForm();
 
   const [searchResults, setSearchResults] = useState([]);
   const [isSearched, setIsSearched] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const [searchParams, setSearchParams] = useState({
     originCity: '',
@@ -29,11 +33,19 @@ const HomePage = () => {
     luggageSize: ''
   });
 
+  React.useEffect(() => {
+    if (hasFetchedUserDetails) {
+      if (isAuthenticated && isUserVerified) {
+        router.replace('/user/profile');
+      }
+      setIsLoading(false);
+    }
+  }, [hasFetchedUserDetails, isAuthenticated, isUserVerified, router]);
   // Load initial rides when page loads
   useEffect(() => {
     handleInitialSearch();
   }, []);
-
+  if (isLoading) return <LoadingAnimation />;
   const handleInitialSearch = async () => {
     try {
       const result = await searchPublicRides({});

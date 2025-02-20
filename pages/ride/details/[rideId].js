@@ -14,7 +14,8 @@ import {
     Divider,
     message,
     Spin,
-    Tooltip
+    Tooltip,
+    Alert
 } from 'antd';
 import {
     Car,
@@ -28,49 +29,60 @@ import {
     Star,
     PawPrint,
     ChevronLeft,
+    AlertCircle
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import moment from 'moment';
 import Navbar from '../../../components/Navigation/Navbar';
-import styles from '../../../styles/Rides/rideDetails.module.css';
 import LoadingAnimation from '../../../components/LoadingAnimation';
+import styles from '../../../styles/Rides/rideDetails.module.css';
 
 const RideDetails = () => {
+    // Router and context hooks
     const router = useRouter();
     const { rideId } = router.query;
     const { currentUser } = useAuth();
-    const { getRideDetails, matchRideRequest, createRideRequest, loading } = useRide();
+    const { getRideDetails, loading } = useRide();
     const { createChat } = useChat();
     const [form] = Form.useForm();
 
-    // State
+    // State management
     const [ride, setRide] = useState(null);
-    const [showBookingModal, setShowBookingModal] = useState(false);
-    const [bookingSeats, setBookingSeats] = useState(1);
+    const [error, setError] = useState(null);
     const [processing, setProcessing] = useState(false);
 
     // Fetch ride details
     useEffect(() => {
-        if (rideId) {
-            fetchRideDetails();
-        }
+        let mounted = true;
+
+        const fetchRide = async () => {
+            if (!rideId) return;
+
+            try {
+                setError(null);
+                const result = await getRideDetails(rideId);
+
+                if (!mounted) return;
+
+                if (result.success) {
+                    setRide(result.ride);
+                } else {
+                    throw new Error(result.message || 'Failed to fetch ride details');
+                }
+            } catch (err) {
+                console.error('Fetch ride error:', err);
+                setError('Unable to load ride details. Please try again.');
+                message.error('Error loading ride details');
+            }
+        };
+
+        fetchRide();
+
+        return () => {
+            mounted = false;
+        };
     }, [rideId]);
 
-    const fetchRideDetails = async () => {
-        try {
-            const result = await getRideDetails(rideId);
-            if (result.success) {
-                setRide(result.ride);
-            } else {
-                message.error('Failed to fetch ride details');
-                router.push('/ride/find-ride');
-            }
-        } catch (error) {
-            console.error('Fetch ride details error:', error);
-            message.error('Error loading ride details');
-            router.push('/ride/find-ride');
-        }
-    };
     // Helper functions
     const formatDate = (date) => {
         return moment(date).format('dddd, MMMM D, YYYY');
@@ -80,73 +92,26 @@ const RideDetails = () => {
         return moment(time, 'HH:mm').format('h:mm A');
     };
 
-    const calculateTotalPrice = () => {
-        return ride ? (ride.pricePerSeat * bookingSeats) : 0;
-    };
-
-    // Handler functions
+    // Event Handlers
     const handleContactDriver = async () => {
         if (!currentUser) {
             message.info('Please login to contact the driver');
-            router.push('/auth/login');
+            router.push(`/auth/login?redirect=/ride/details/${rideId}`);
             return;
         }
 
         try {
-            const chat = await createChat(ride.driver._id);
-            console.log(ride.driver._id)
-            if (chat) {
-                router.push(`/chat/${chat._id}`);
+            setProcessing(true);
+            const result = await createChat(ride.driver._id);
+
+            if (result.success) {
+                router.push(`/chat/${result.chat._id}`);
             } else {
-                message.error('Failed to create chat');
+                throw new Error(result.message || 'Failed to create chat');
             }
         } catch (error) {
             console.error('Create chat error:', error);
-            message.error('Error starting chat');
-        }
-    };
-
-    const handleBookingSubmit = async () => {
-        try {
-            setProcessing(true);
-
-            // First create the ride request
-            const requestData = {
-                origin: ride.origin,
-                destination: ride.destination,
-                departureDate: ride.departureDate,
-                numberOfSeats: bookingSeats,
-                maxPrice: ride.pricePerSeat * bookingSeats,
-                luggageSize: ride.allowedLuggage,
-                flexibleTiming: false,
-                // Add any other required fields from your RideRequest model
-            };
-
-            // Create request
-            const createResult = await createRideRequest(requestData);
-
-            if (!createResult.success) {
-                throw new Error(createResult.message || 'Failed to create request');
-            }
-
-            // Then match it with the ride offer
-            const matchResult = await matchRideRequest(
-                createResult.rideRequest._id,
-                ride._id
-            );
-
-            if (matchResult.success) {
-                message.success('Ride booked successfully!');
-                setShowBookingModal(false);
-                router.push('/ride/my-rides');
-            } else {
-                // If matching fails, we should probably cancel the request
-                // You might want to add a cancelRideRequest call here
-                throw new Error(matchResult.message || 'Failed to match ride');
-            }
-        } catch (error) {
-            console.error('Booking error:', error);
-            message.error(error.message || 'Error booking ride');
+            message.error('Unable to start chat. Please try again.');
         } finally {
             setProcessing(false);
         }
@@ -155,33 +120,35 @@ const RideDetails = () => {
     const handleGoBack = () => {
         router.back();
     };
-
-    // Check if the ride is bookable
-    const isBookable = () => {
-        if (!ride) return false;
-        return (
-            ride.status === 'active' &&
-            ride.availableSeats > ride.bookedSeats &&
-            (!currentUser || currentUser._id !== ride.driver._id)
-        );
-    };
-    // Render components
+    // Render Components
     const renderHeader = () => (
-        <div className={styles.header}>
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={styles.header}
+        >
             <Button
-                icon={<ChevronLeft />}
+                icon={<ChevronLeft className={styles.backIcon} />}
                 onClick={handleGoBack}
                 className={styles.backButton}
             >
                 Back to Search
             </Button>
-            <Badge
-                status="default"
-                color={ride?.status === 'active' ? '#2a9d8f' : '#666666'}
-                text={ride?.status.toUpperCase()}
-                className={styles.statusBadge}
-            />
-        </div>
+
+            <div className={styles.statusContainer}>
+                <Badge
+                    status={ride?.status === 'active' ? 'success' : 'default'}
+                    text={ride?.status.toUpperCase()}
+                    className={styles.statusBadge}
+                />
+
+                {ride?.status === 'active' && (
+                    <span className={styles.seatsIndicator}>
+                        {ride.availableSeats - ride.bookedSeats} seats left
+                    </span>
+                )}
+            </div>
+        </motion.div>
     );
 
     const renderDriverInfo = () => (
@@ -200,23 +167,28 @@ const RideDetails = () => {
                         </div>
                     )}
                 </div>
+
                 <div className={styles.driverDetails}>
-                    <h2 className={styles.driverName}>{ride?.driver.fullName}</h2>
+                    <h2 className={styles.driverName}>
+                        {ride?.driver.fullName}
+                    </h2>
                     <div className={styles.driverStats}>
                         <span className={styles.rating}>
-                            <Star className={styles.icon} />
-                            {ride?.driver.rating.toFixed(1)}
+                            <Star className={styles.statIcon} />
+                            {ride?.driver.rating?.toFixed(1)}
                         </span>
                         <span className={styles.trips}>
-                            <Car className={styles.icon} />
+                            <Car className={styles.statIcon} />
                             {ride?.driver.totalTrips} trips
                         </span>
                     </div>
                 </div>
+
                 <Button
                     type="primary"
-                    icon={<MessageCircle />}
+                    icon={<MessageCircle className={styles.buttonIcon} />}
                     onClick={handleContactDriver}
+                    loading={processing}
                     className={styles.contactButton}
                 >
                     Contact Driver
@@ -226,12 +198,17 @@ const RideDetails = () => {
             <Divider className={styles.divider} />
 
             <div className={styles.vehicleInfo}>
-                <h3>Vehicle Information</h3>
+                <h3 className={styles.sectionTitle}>Vehicle Information</h3>
                 <div className={styles.vehicleDetails}>
-                    <Car className={styles.icon} />
-                    <span>
-                        {ride?.vehicle.model} ({ride?.vehicle.year}) - {ride?.vehicle.plateNumber}
-                    </span>
+                    <Car className={styles.vehicleIcon} />
+                    <div className={styles.vehicleText}>
+                        <span className={styles.vehicleModel}>
+                            {ride?.vehicle.model} ({ride?.vehicle.year})
+                        </span>
+                        <span className={styles.plateNumber}>
+                            {ride?.vehicle.plateNumber}
+                        </span>
+                    </div>
                 </div>
             </div>
         </Card>
@@ -241,9 +218,11 @@ const RideDetails = () => {
         <Card className={styles.rideCard}>
             <div className={styles.routeInfo}>
                 <div className={styles.location}>
-                    <MapPin className={styles.icon} />
-                    <div>
-                        <span className={styles.locationLabel}>Pickup</span>
+                    <div className={styles.locationIcon}>
+                        <MapPin />
+                    </div>
+                    <div className={styles.locationDetails}>
+                        <span className={styles.locationLabel}>Pickup Location</span>
                         <h3 className={styles.locationName}>{ride?.origin.city}</h3>
                         <p className={styles.locationAddress}>{ride?.origin.address}</p>
                     </div>
@@ -254,9 +233,11 @@ const RideDetails = () => {
                 </div>
 
                 <div className={styles.location}>
-                    <MapPin className={styles.icon} />
-                    <div>
-                        <span className={styles.locationLabel}>Dropoff</span>
+                    <div className={styles.locationIcon}>
+                        <MapPin />
+                    </div>
+                    <div className={styles.locationDetails}>
+                        <span className={styles.locationLabel}>Dropoff Location</span>
                         <h3 className={styles.locationName}>{ride?.destination.city}</h3>
                         <p className={styles.locationAddress}>{ride?.destination.address}</p>
                     </div>
@@ -267,8 +248,8 @@ const RideDetails = () => {
 
             <div className={styles.tripDetails}>
                 <div className={styles.detailItem}>
-                    <Calendar className={styles.icon} />
-                    <div>
+                    <Calendar className={styles.detailIcon} />
+                    <div className={styles.detailContent}>
                         <span className={styles.detailLabel}>Date</span>
                         <span className={styles.detailValue}>
                             {formatDate(ride?.departureDate)}
@@ -277,8 +258,8 @@ const RideDetails = () => {
                 </div>
 
                 <div className={styles.detailItem}>
-                    <Clock className={styles.icon} />
-                    <div>
+                    <Clock className={styles.detailIcon} />
+                    <div className={styles.detailContent}>
                         <span className={styles.detailLabel}>Departure Time</span>
                         <span className={styles.detailValue}>
                             {formatTime(ride?.departureTime)}
@@ -287,8 +268,8 @@ const RideDetails = () => {
                 </div>
 
                 <div className={styles.detailItem}>
-                    <Users className={styles.icon} />
-                    <div>
+                    <Users className={styles.detailIcon} />
+                    <div className={styles.detailContent}>
                         <span className={styles.detailLabel}>Available Seats</span>
                         <span className={styles.detailValue}>
                             {ride?.availableSeats - ride?.bookedSeats} of {ride?.availableSeats}
@@ -297,8 +278,8 @@ const RideDetails = () => {
                 </div>
 
                 <div className={styles.detailItem}>
-                    <DollarSign className={styles.icon} />
-                    <div>
+                    <DollarSign className={styles.detailIcon} />
+                    <div className={styles.detailContent}>
                         <span className={styles.detailLabel}>Price per Seat</span>
                         <span className={styles.detailValue}>
                             ${ride?.pricePerSeat}
@@ -310,37 +291,52 @@ const RideDetails = () => {
             <Divider className={styles.divider} />
 
             <div className={styles.preferences}>
-                <h3>Ride Preferences</h3>
+                <h3 className={styles.sectionTitle}>Ride Preferences</h3>
                 <div className={styles.preferencesList}>
                     <div className={styles.preferenceItem}>
-                        <Package className={styles.icon} />
-                        <span>
-                            Luggage Size: {ride?.allowedLuggage.charAt(0).toUpperCase() +
-                                ride?.allowedLuggage.slice(1)}
-                        </span>
+                        <Package className={styles.preferenceIcon} />
+                        <div className={styles.preferenceContent}>
+                            <span className={styles.preferenceName}>Luggage Size</span>
+                            <span className={styles.preferenceValue}>
+                                {ride?.allowedLuggage.charAt(0).toUpperCase() +
+                                    ride?.allowedLuggage.slice(1)}
+                            </span>
+                        </div>
                     </div>
+
                     <div className={styles.preferenceItem}>
-                        <span className={styles.preferenceIcon}>
+                        <span className={`${styles.preferenceIcon} ${ride?.smoking ? styles.allowed : styles.notAllowed}`}>
                             {ride?.smoking ? '🚬' : '🚭'}
                         </span>
-                        <span>{ride?.smoking ? 'Smoking allowed' : 'No smoking'}</span>
+                        <div className={styles.preferenceContent}>
+                            <span className={styles.preferenceName}>Smoking</span>
+                            <span className={styles.preferenceValue}>
+                                {ride?.smoking ? 'Allowed' : 'Not allowed'}
+                            </span>
+                        </div>
                     </div>
+
                     <div className={styles.preferenceItem}>
-                        <PawPrint className={styles.icon} />
-                        <span>{ride?.pets ? 'Pets allowed' : 'No pets'}</span>
+                        <PawPrint className={`${styles.preferenceIcon} ${ride?.pets ? styles.allowed : styles.notAllowed}`} />
+                        <div className={styles.preferenceContent}>
+                            <span className={styles.preferenceName}>Pets</span>
+                            <span className={styles.preferenceValue}>
+                                {ride?.pets ? 'Allowed' : 'Not allowed'}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
         </Card>
     );
 
-    // Main render
+    // Main render with loading state
     if (loading || !ride) {
         return (
             <>
                 <Navbar />
                 <div className={styles.loadingContainer}>
-                   <LoadingAnimation />
+                    <LoadingAnimation />
                 </div>
             </>
         );
@@ -360,7 +356,18 @@ const RideDetails = () => {
                     <div className={styles.detailsContainer}>
                         <div className={styles.mainContent}>
                             {renderRideDetails()}
+
+                            {error && (
+                                <Alert
+                                    message="Error"
+                                    description={error}
+                                    type="error"
+                                    showIcon
+                                    className={styles.errorAlert}
+                                />
+                            )}
                         </div>
+
                         <div className={styles.sidebar}>
                             {renderDriverInfo()}
                         </div>

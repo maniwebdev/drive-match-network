@@ -7,16 +7,26 @@ import Image from 'next/image';
 import { Eye, EyeOff, Car, MapPin, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import TypeWriter from 'typewriter-effect';
+import { AuthTokenCheck } from '../../components/Authentication/AuthTokenCheck';
 
 const Login = () => {
     const router = useRouter();
     const { login } = useAuth();
-
+    const { isAuthenticated, isUserVerified, hasFetchedUserDetails } = AuthTokenCheck();
     // State management
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    React.useEffect(() => {
+        if (hasFetchedUserDetails) {
+            if (isAuthenticated && isUserVerified) {
+                router.replace('/user/profile');
+            }
+            setIsLoading(false);
+        }
+    }, [hasFetchedUserDetails, isAuthenticated, isUserVerified, router]);
 
     // Animation variants
     const containerVariants = {

@@ -287,42 +287,80 @@ export const TripProvider = ({ children }) => {
         try {
             const queryParams = new URLSearchParams();
 
-            // Basic filters
-            if (filters.originCity) queryParams.append('originCity', filters.originCity);
-            if (filters.destinationCity) queryParams.append('destinationCity', filters.destinationCity);
-            if (filters.seats) queryParams.append('seats', filters.seats);
-            if (filters.luggageSize) queryParams.append('luggageSize', filters.luggageSize);
-            if (filters.lat) queryParams.append('lat', filters.lat);
-            if (filters.lng) queryParams.append('lng', filters.lng);
+            // Location filters
+            if (filters.originCity) {
+                queryParams.append('originCity', filters.originCity);
+            }
+            if (filters.originZipCode) {
+                queryParams.append('originZipCode', filters.originZipCode);
+            }
+            if (filters.destinationCity) {
+                queryParams.append('destinationCity', filters.destinationCity);
+            }
+            if (filters.destinationZipCode) {
+                queryParams.append('destinationZipCode', filters.destinationZipCode);
+            }
 
-            // Handle urgent time filter
+            // Date and Time filters
             if (filters.urgent) {
+                // For urgent trips, use current date and time
                 const now = moment();
-                queryParams.append('urgent', 'true');
-                queryParams.append('urgentTime', now.format());
+                queryParams.append('departureDate', now.format('YYYY-MM-DD'));
+                queryParams.append('departureTime', now.format('HH:mm'));
             } else if (filters.date) {
-                const localDate = moment(filters.date).format('YYYY-MM-DD');
-                queryParams.append('date', localDate);
+                // For scheduled trips
+                const localDate = moment(filters.date);
+                queryParams.append('departureDate', localDate.format('YYYY-MM-DD'));
+                if (filters.time) {
+                    queryParams.append('departureTime', localDate.format('HH:mm'));
+                }
+            }
+
+            // Other filters
+            if (filters.seats) {
+                queryParams.append('seats', filters.seats);
+            }
+            if (filters.maxPrice) {
+                queryParams.append('maxPrice', filters.maxPrice);
+            }
+            if (filters.luggageSize) {
+                queryParams.append('luggageSize', filters.luggageSize);
             }
 
             const response = await fetch(
                 `${API_URL}/api/tripRequestRoutes/trips/available?${queryParams}`,
-                { headers: { 'auth-token': authToken } }
+                {
+                    headers: {
+                        'auth-token': authToken
+                    }
+                }
             );
 
             const data = await response.json();
 
             if (response.ok) {
-                const trips = data.requests;
-                setAvailableTrips(trips);
-                return { success: true, trips };
+                // Process the returned trips to ensure consistent datetime format
+                const processedTrips = data.requests.map(trip => ({
+                    ...trip,
+                    departureDateTime: moment(trip.departureDateTime).toDate()
+                }));
+
+                setAvailableTrips(processedTrips);
+                return {
+                    success: true,
+                    trips: processedTrips,
+                    count: data.count
+                };
             } else {
                 throw new Error(data.message || 'Failed to fetch available trips');
             }
         } catch (err) {
             const errorMessage = err.message || 'Error fetching available trips';
             setError(errorMessage);
-            return { success: false, error: errorMessage };
+            return {
+                success: false,
+                error: errorMessage
+            };
         } finally {
             setLoading(false);
         }

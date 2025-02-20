@@ -1,27 +1,5 @@
 /* styles/Trips/tripDetails.module.css */
-/* Recurrence Details */
-.detailItem {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-}
 
-.detailItem .icon {
-  margin-right: 12px;
-  color: #666666;
-}
-
-.detailLabel {
-  font-size: 14px;
-  color: #666666;
-  margin-bottom: 4px;
-}
-
-.detailValue {
-  font-size: 16px;
-  font-weight: 500;
-  color: #264653;
-}
 /* Base Layout */
 .pageContainer {
   min-height: 100vh;
@@ -32,78 +10,99 @@
 .contentWrapper {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px;
 }
 
-.loadingContainer {
+.mainContent {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
+  width: 100%;
+  animation: fadeIn 0.3s ease;
+}
+
+.contentGrid {
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.tripContent {
+  flex: 1;
+  min-width: 0; /* Prevents flex item from overflowing */
+}
+
+.sidebar {
+  width: 380px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
-/* Header */
+.loadingContainer {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Header Section */
 .header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  justify-content: space-between;
+  margin-top: 40px;
+  margin-bottom: 2px;
+  padding: 0 4px;
 }
 
 .backButton {
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 42px;
+  padding: 0 16px;
   border: 1px solid #e9ecef;
-  height: 40px;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  color: #264653;
+  background: white;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .backButton:hover {
   border-color: #2a9d8f;
   color: #2a9d8f;
+  transform: translateX(-2px);
+}
+
+.backIcon {
+  width: 18px;
+  height: 18px;
 }
 
 .statusBadge {
-  background: #f8f9fa;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: white;
+  border-radius: 20px;
+  font-size: 13px;
   font-weight: 500;
-}
-
-/* Main Layout */
-.detailsContainer {
-  display: flex;
-  gap: 24px;
-}
-
-.mainContent {
-  flex: 1;
-}
-
-.sidebar {
-  width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* Common Elements */
-.divider {
-  margin: 20px 0;
-  border-color: #e9ecef;
-}
-
-.icon {
-  width: 18px;
-  height: 18px;
   color: #2a9d8f;
-  flex-shrink: 0;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-/* Basic Animations */
+.statusBadge[data-status="active"] {
+  background: #e6f6f4;
+  color: #2a9d8f;
+  border-color: #bfe6e2;
+}
+
+/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -114,28 +113,69 @@
     transform: translateY(0);
   }
 }
-/* Requester Card */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Confirmation Toast */
+.confirmationToast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+}
+
+/* Common Elements */
+.divider {
+  margin: 24px 0;
+  border-color: #e9ecef;
+  opacity: 0.6;
+}
+
+.errorAlert {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+/* Requester Card Styles */
 .requesterCard {
-  background: #ffffff;
+  background: white;
   border-radius: 12px;
   border: 1px solid #e9ecef;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.requesterCard:hover {
+  transform: translateY(-2px);
 }
 
 .requesterInfo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  padding: 20px;
+  padding: 24px;
+  background: linear-gradient(to bottom, #f8f9fa 0%, white 100%);
 }
 
 .requesterAvatar {
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   overflow: hidden;
   margin-bottom: 16px;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(42, 157, 143, 0.15);
 }
 
 .avatarImage {
@@ -148,140 +188,213 @@
   width: 100%;
   height: 100%;
   background: #2a9d8f;
-  color: #ffffff;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
-  font-weight: 500;
+  font-size: 36px;
+  font-weight: 600;
 }
 
 .requesterDetails {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 12px;
+  width: 100%;
 }
 
 .requesterName {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   color: #264653;
   margin: 0;
+  text-align: center;
 }
 
 .requesterStats {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-radius: 20px;
+  border: 1px solid #e9ecef;
 }
 
 .rating,
 .trips {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   color: #666666;
   font-size: 14px;
+  font-weight: 500;
+}
+
+.rating .icon {
+  color: #ffd700;
+}
+
+.trips .icon {
+  color: #2a9d8f;
 }
 
 .contactButton {
+  margin-top: 20px;
+  height: 42px;
+  background: #2a9d8f;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #2a9d8f;
-  border: none;
-  height: 40px;
   padding: 0 24px;
-  margin-top: 8px;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
 }
 
 .contactButton:hover {
   background: #248277;
+  transform: translateY(-1px);
+}
+
+.contactButton:active {
+  transform: translateY(0);
+}
+
+.messageIcon {
+  width: 18px;
+  height: 18px;
 }
 
 .notes {
-  padding: 0 20px 20px;
+  padding: 20px 24px;
+  border-top: 1px solid #e9ecef;
 }
 
-.notes h3 {
-  font-size: 14px;
+.notesTitle {
+  font-size: 16px;
+  font-weight: 600;
   color: #264653;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
-.notes p {
+.notesContent {
   color: #666666;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-style: italic;
   margin: 0;
+  background: #f8f9fa;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
 }
 
-.acceptButton {
+.acceptTripButton {
+  height: 48px;
   background: #2a9d8f;
   border: none;
-  height: 48px;
+  border-radius: 8px;
   font-size: 16px;
-  transition: all 0.3s ease;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-top: 8px;
 }
 
-.acceptButton:hover {
+.acceptTripButton:hover {
   background: #248277;
+  transform: translateY(-1px);
+}
+
+.acceptTripButton:active {
+  transform: translateY(0);
 }
 /* Trip Details Card */
 .tripCard {
-  background: #ffffff;
+  background: white;
   border-radius: 12px;
   border: 1px solid #e9ecef;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  margin-bottom: 24px;
 }
 
 .routeInfo {
   display: flex;
-  align-items: flex-start;
-  padding: 20px;
+  padding: 24px;
+  position: relative;
+  background: linear-gradient(to bottom, #f8f9fa 0%, white 100%);
 }
 
 .location {
+  flex: 1;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 16px;
+  padding: 12px 20px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.locationIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e6f6f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2a9d8f;
+  flex-shrink: 0;
+}
+
+.locationDetails {
   flex: 1;
+  min-width: 0;
 }
 
 .locationLabel {
-  font-size: 12px;
+  font-size: 13px;
   color: #666666;
+  margin-bottom: 6px;
   display: block;
-  margin-bottom: 4px;
 }
 
 .locationName {
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
   color: #264653;
   margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .locationAddress {
   font-size: 14px;
   color: #666666;
   margin: 0;
+  line-height: 1.4;
 }
 
 .routeDivider {
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 0 32px;
   position: relative;
 }
 
 .dividerLine {
-  position: relative;
+  width: 80px;
   height: 2px;
-  width: 60px;
   background: #e9ecef;
+  position: relative;
 }
 
 .dividerLine::before,
@@ -307,75 +420,164 @@
 .tripDetails {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
-  padding: 20px;
+  gap: 20px;
+  padding: 24px;
 }
 
 .detailItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  flex: 1;
   min-width: 200px;
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
 }
 
-.detailItem div {
+.detailItem:hover {
+  background: white;
+  border-color: #2a9d8f;
+  transform: translateY(-2px);
+}
+
+.detailIcon {
+  width: 24px;
+  height: 24px;
+  color: #2a9d8f;
+}
+
+.detailContent {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
 .detailLabel {
-  font-size: 12px;
+  font-size: 13px;
   color: #666666;
 }
 
 .detailValue {
-  font-size: 14px;
-  color: #264653;
+  font-size: 15px;
   font-weight: 500;
+  color: #264653;
 }
 /* Modal Styles */
 .modal {
   animation: fadeIn 0.3s ease;
 }
 
-.modalContent {
-  padding: 16px 0;
+.modal :global(.ant-modal-content) {
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.modalContent p {
+.modal :global(.ant-modal-header) {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 0;
+}
+.modal :global(.ant-modal-footer) {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px 0 0 0;
+  margin-top: 24px;
+  border-top: 1px solid #e6e6e6;
+}
+.modal :global(.ant-modal-title) {
+  font-size: 18px;
+  font-weight: 600;
   color: #264653;
-  margin: 0 0 16px 0;
 }
 
-.modalContent ul {
-  list-style: none;
+.modalContent {
+  padding: 24px;
+}
+
+.modalAlert {
+  margin-bottom: 24px;
+  border-radius: 8px;
+}
+
+.requirementsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
   padding: 0;
-  margin: 0 0 16px 0;
+  list-style: none;
 }
 
-.modalContent li {
-  color: #666666;
-  padding: 8px 0;
-  padding-left: 24px;
-  position: relative;
+.requirementItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  color: #264653;
+  font-size: 14px;
 }
 
-.modalContent li::before {
-  content: "•";
-  position: absolute;
-  left: 8px;
+.requirementIcon {
+  width: 18px;
+  height: 18px;
   color: #2a9d8f;
+}
+
+.modalIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.cancelButton,
+.acceptButton {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.cancelButton {
+  border: 1px solid #e9ecef;
+  color: #666666;
+}
+
+.cancelButton:hover {
+  border-color: #264653;
+  color: #264653;
+}
+
+.acceptButton {
+  background: #2a9d8f;
+  border: none;
+  color: white;
+}
+
+.acceptButton:hover {
+  background: #248277;
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .detailsContainer {
-    flex-direction: column;
+  .contentGrid {
+    flex-direction: column-reverse;
   }
 
   .sidebar {
     width: 100%;
+  }
+
+  .requesterCard {
+    max-width: 600px;
+    margin: 0 auto;
   }
 
   .tripDetails {
@@ -389,55 +591,90 @@
 
 @media (max-width: 768px) {
   .pageContainer {
-    padding: 20px 16px;
+    padding: 20px 12px;
+  }
+
+  .contentWrapper {
+    padding: 0 2px;
   }
 
   .header {
-    flex-direction: column;
-    align-items: flex-start;
+    margin-top: 60px;
+    align-items: center;
     gap: 16px;
   }
 
   .statusBadge {
-    align-self: flex-end;
+    align-self: flex-start;
   }
 
-  .routeInfo {
-    flex-direction: column;
-    gap: 24px;
+  .location {
+    width: 100%;
   }
 
   .routeDivider {
+    align-self: center;
     transform: rotate(90deg);
-    margin: 16px 0;
-  }
-
-  .tripDetails {
-    flex-direction: column;
+    padding: 0;
+    margin: 8px 0;
   }
 
   .detailItem {
     width: 100%;
+    min-width: 100%;
+  }
+
+  .modalContent {
+    padding: 20px;
+  }
+
+  .requirementItem {
+    padding: 10px 14px;
   }
 }
+@media (max-width: 622px) {
+  .routeInfo {
+    display: flex;
+    flex-direction: column;
+    padding: 0px;
+    padding-right: 50px;
+  }
+  .location {
+    margin-top: 8px;
+  }
+  .tripDetails {
+    padding: 0px;
+    padding-right: 40px;
+  }
 
+  .tripCard :global(.ant-card .ant-card-body) {
+    padding: 0px;
+  }
+  .routeDivider {
+    display: none;
+  }
+}
 @media (max-width: 480px) {
   .requesterInfo {
-    padding: 16px;
+    padding: 20px 16px;
   }
 
   .requesterAvatar {
-    width: 64px;
-    height: 64px;
-  }
-
-  .requesterName {
-    font-size: 18px;
+    width: 80px;
+    height: 80px;
   }
 
   .requesterStats {
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .rating,
+  .trips {
+    justify-content: center;
+    width: 100%;
   }
 
   .locationName {
@@ -445,19 +682,72 @@
   }
 
   .notes {
-    padding: 0 16px 16px;
+    padding: 16px;
+  }
+
+  .notesContent {
+    padding: 10px 14px;
+  }
+
+  .modal :global(.ant-modal-header) {
+    padding: 16px 20px;
+  }
+
+  .modalContent {
+    padding: 16px;
+  }
+
+  .requirementsList {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 318px) {
+  .header {
+    flex-direction: column;
+    margin-top: 60px;
+    align-items: flex-start;
+    gap: 16px;
   }
 }
 
 /* Touch Device Optimizations */
 @media (hover: none) {
-  .backButton:hover {
-    border-color: #e9ecef;
-    color: inherit;
+  .backButton:hover,
+  .requesterCard:hover,
+  .detailItem:hover,
+  .contactButton:hover,
+  .acceptTripButton:hover,
+  .acceptButton:hover,
+  .cancelButton:hover {
+    transform: none;
   }
 
-  .contactButton:hover,
-  .acceptButton:hover {
-    background: #2a9d8f;
+  .contactButton:active,
+  .acceptTripButton:active {
+    background: #248277;
+  }
+}
+
+/* Animation Keyframes */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

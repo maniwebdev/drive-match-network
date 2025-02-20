@@ -94,11 +94,11 @@ const RequestTripModal = ({ visible, onCancel, onSuccess }) => {
                         minute: parseInt(tripData.departureTime.split(':')[1])
                     });
 
-                if (selectedDateTime.isBefore(moment())) {
-                    message.error('Departure time must be in the future');
-                    return false;
-                }
-                return true;
+                // if (selectedDateTime.isBefore(moment())) {
+                //     message.error('Departure time must be in the future');
+                //     return false;
+                // }
+                // return true;
 
             case 2: // Details
                 if (!tripData.numberOfSeats || tripData.numberOfSeats < 1 || tripData.numberOfSeats > 8) {
