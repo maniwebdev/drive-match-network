@@ -1,5 +1,4 @@
 // pages/ride/available-requests.js
-/* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../context/Auth/AuthContext';
@@ -13,13 +12,14 @@ import {
     Empty,
     Spin,
     message,
-    Input
+    Input,
+    Switch,
+    Tooltip
 } from 'antd';
 import {
     Search,
     Calendar,
     Users,
-    DollarSign,
     Package,
     MapPin,
     ArrowRight,
@@ -27,7 +27,9 @@ import {
     Clock,
     X,
     ClipboardList,
-    MessageSquare
+    MessageSquare,
+    AlertCircle,
+    Info
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import moment from 'moment';
@@ -36,6 +38,7 @@ import styles from '../../styles/Trips/availableTrips.module.css';
 import { useTrip } from '../../context/Ride/TripContext';
 
 const { Option } = Select;
+
 const AvailableRequests = () => {
     const router = useRouter();
     const { currentUser } = useAuth();
@@ -49,6 +52,7 @@ const AvailableRequests = () => {
     const [showFilters, setShowFilters] = useState(false);
     const [myRideOffers, setMyRideOffers] = useState([]);
     const [selectedRide, setSelectedRide] = useState(null);
+    const [isTimeRangeEnabled, setIsTimeRangeEnabled] = useState(false);
 
     const [searchParams, setSearchParams] = useState({
         origin: {
@@ -63,6 +67,8 @@ const AvailableRequests = () => {
         },
         departureDate: null,
         departureTime: null,
+        startTime: null,
+        endTime: null,
         seats: 1,
         luggageSize: ''
     });
@@ -123,33 +129,92 @@ const AvailableRequests = () => {
                 },
                 departureDate: departureDateTime,
                 departureTime: departureDateTime.format('HH:mm'),
-                seats: selectedOffer.availableSeats - selectedOffer.bookedSeats, // Consider booked seats
+                seats: selectedOffer.availableSeats - selectedOffer.bookedSeats,
                 luggageSize: selectedOffer.allowedLuggage
             });
         }
     };
-    // Handle search
+
+    // Handle time range toggle
+    const handleTimeRangeToggle = (enabled) => {
+        setIsTimeRangeEnabled(enabled);
+        if (!enabled) {
+            // Reset time range values when disabling
+            setSearchParams(prev => ({
+                ...prev,
+                startTime: null,
+                endTime: null
+            }));
+        } else {
+            // Reset exact time when enabling time range
+            setSearchParams(prev => ({
+                ...prev,
+                departureTime: null
+            }));
+        }
+    };
+
+    // Handle search with proper date formatting
     const handleSearch = async () => {
+        // Validate required fields
         if (!searchParams.origin.city) {
             message.error('Please fill in the pickup location');
             return;
         }
 
+        // Validate time selection based on mode
+        if (isTimeRangeEnabled) {
+            if (!searchParams.startTime || !searchParams.endTime) {
+                message.error('Please select both start and end times for the time range');
+                return;
+            }
+        }
+
         try {
-            const result = await getAvailableTrips({
+            // Build search filters object with PROPERLY FORMATTED date
+            const searchFilters = {
                 originCity: searchParams.origin.city,
                 originZipCode: searchParams.origin.zipCode,
                 destinationCity: searchParams.destination.city,
                 destinationZipCode: searchParams.destination.zipCode,
-                departureDate: searchParams.departureDate?.format('YYYY-MM-DD'),
-                departureTime: searchParams.departureTime,
+                // Format date as YYYY-MM-DD for consistent comparison
+                departureDate: searchParams.departureDate ? searchParams.departureDate.format('YYYY-MM-DD') : null,
                 seats: searchParams.seats,
                 luggageSize: searchParams.luggageSize
-            });
+            };
+
+            // console.log('Starting search with formatted date:', searchFilters.departureDate);
+
+            // Add time-related filters based on mode selection
+            if (isTimeRangeEnabled && searchParams.startTime && searchParams.endTime) {
+                searchFilters.startTime = searchParams.startTime;
+                searchFilters.endTime = searchParams.endTime;
+                //  console.log(`Using time range filter: ${searchParams.startTime} to ${searchParams.endTime}`);
+
+                // Show time range in search criteria message
+                const timeRangeMessage = `Searching trips between ${searchParams.startTime} and ${searchParams.endTime}`;
+                message.info(timeRangeMessage);
+            } else if (searchParams.departureTime) {
+                searchFilters.departureTime = searchParams.departureTime;
+                //   console.log(`Using exact time filter: ${searchParams.departureTime}`);
+            }
+
+            // Debug final search filters
+            //  console.log('Final search filters being sent to API:', searchFilters);
+
+            const result = await getAvailableTrips(searchFilters);
+            // console.log('API response:', result);
 
             if (result.success) {
                 setSearchResults(result.trips);
                 setIsSearched(true);
+
+                // Show result count feedback
+                if (result.trips.length === 0) {
+                    message.info('No trips found matching your criteria. Try adjusting your filters.');
+                } else {
+                    message.success(`Found ${result.trips.length} trips matching your criteria.`);
+                }
             } else {
                 message.error(result.message || 'Failed to search trip requests');
             }
@@ -161,16 +226,27 @@ const AvailableRequests = () => {
 
     // Handle clear filters
     const handleClearFilters = () => {
+        // Reset all search parameters
         setSearchParams({
             origin: { address: '', city: '', zipCode: '' },
             destination: { address: '', city: '', zipCode: '' },
             departureDate: null,
             departureTime: null,
+            startTime: null,
+            endTime: null,
             seats: 1,
             luggageSize: ''
         });
+
+        // Reset selection and mode states
         setSelectedRide(null);
+        setIsTimeRangeEnabled(false);
+
+        // Reset form fields
         form.resetFields();
+
+        // Provide feedback
+        message.success('All filters have been cleared');
     };
 
     // Render search form
@@ -182,31 +258,33 @@ const AvailableRequests = () => {
         >
             <Form form={form} layout="vertical" className={styles.searchForm}>
                 {/* Ride Offer Dropdown */}
-                <div className={styles.rideOfferSection}>
-                    <Form.Item label="My Ride Offers" className={styles.rideOfferField}>
-                        <Select
-                            placeholder="Select from your ride offers"
-                            value={selectedRide?._id}
-                            onChange={handleRideSelect}
-                            allowClear
-                            className={styles.rideSelect}
-                        >
-                            {myRideOffers.map(offer => (
-                                <Option key={offer._id} value={offer._id}>
-                                    <div className={styles.offerOption}>
-                                        <ClipboardList size={16} className={styles.offerIcon} />
-                                        <span>
-                                            {offer.origin.city} → {offer.destination.city}
-                                        </span>
-                                        <span className={styles.offerDate}>
-                                            {moment(offer.departureDateTime).format('MMM D')} at {moment(offer.departureDateTime).format('HH:mm')}
-                                        </span>
-                                    </div>
-                                </Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                </div>
+                {myRideOffers.length > 0 && (
+                    <div className={styles.rideOfferSection}>
+                        <Form.Item label="My Ride Offers" className={styles.rideOfferField}>
+                            <Select
+                                placeholder="Select from your ride offers"
+                                value={selectedRide?._id}
+                                onChange={handleRideSelect}
+                                allowClear
+                                className={styles.rideSelect}
+                            >
+                                {myRideOffers.map(offer => (
+                                    <Option key={offer._id} value={offer._id}>
+                                        <div className={styles.offerOption}>
+                                            <ClipboardList size={16} className={styles.offerIcon} />
+                                            <span>
+                                                {offer.origin.city} → {offer.destination.city}
+                                            </span>
+                                            <span className={styles.offerDate}>
+                                                {moment(offer.departureDateTime).format('MMM D')} at {moment(offer.departureDateTime).format('HH:mm')}
+                                            </span>
+                                        </div>
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </div>
+                )}
 
                 <div className={styles.mainSearchFields}>
                     {/* Origin Location */}
@@ -222,6 +300,7 @@ const AvailableRequests = () => {
                                     address: e.target.value
                                 }
                             }))}
+                            prefix={<MapPin size={16} className={styles.inputIcon} />}
                             className={styles.mainInput}
                         />
                         <Input
@@ -237,6 +316,7 @@ const AvailableRequests = () => {
                             className={styles.zipInput}
                         />
                     </Form.Item>
+
                     {/* Destination Location */}
                     <Form.Item label="To" className={styles.locationField}>
                         <Input
@@ -250,6 +330,7 @@ const AvailableRequests = () => {
                                     address: e.target.value
                                 }
                             }))}
+                            prefix={<MapPin size={16} className={styles.inputIcon} />}
                             className={styles.mainInput}
                         />
                         <Input
@@ -266,25 +347,6 @@ const AvailableRequests = () => {
                         />
                     </Form.Item>
 
-                    {/* Time Selector */}
-                    <Form.Item label="Time" className={styles.timeField}>
-                        <Select
-                            value={searchParams.departureTime}
-                            onChange={(time) => setSearchParams(prev => ({
-                                ...prev,
-                                departureTime: time
-                            }))}
-                            className={styles.timeSelect}
-                            placeholder="Select time"
-                        >
-                            {generateTimeOptions().map(time => (
-                                <Option key={time} value={time}>
-                                    {time}
-                                </Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-
                     {/* Date Picker */}
                     <Form.Item label="Date" className={styles.dateField}>
                         <DatePicker
@@ -297,13 +359,107 @@ const AvailableRequests = () => {
                             format="YYYY-MM-DD"
                             className={styles.datePicker}
                             placeholder="Select date"
+                            suffixIcon={<Calendar size={16} className={styles.calendarIcon} />}
                         />
+                    </Form.Item>
+
+                    {/* Time Selection Section */}
+                    <Form.Item
+                        label={
+                            <div className={styles.timeLabel}>
+                                <span>Time</span>
+                                <div className={styles.timeToggleWrapper}>
+                                    <span className={styles.timeToggleLabel}>
+                                        {isTimeRangeEnabled ? 'Time Range' : 'Exact Time'}
+                                    </span>
+                                    <Switch
+                                        size="small"
+                                        checked={isTimeRangeEnabled}
+                                        onChange={handleTimeRangeToggle}
+                                        className={styles.timeToggleSwitch}
+                                    />
+                                    <Tooltip title="Switch between exact time or a time range">
+                                        <Info size={14} className={styles.infoIcon} />
+                                    </Tooltip>
+                                </div>
+                            </div>
+                        }
+                        className={styles.timeField}
+                    >
+                        {isTimeRangeEnabled ? (
+                            <div className={styles.timeRangeInputs}>
+                                <Select
+                                    placeholder="Start Time"
+                                    value={searchParams.startTime}
+                                    onChange={(time) => setSearchParams(prev => ({
+                                        ...prev,
+                                        startTime: time,
+                                        endTime: prev.endTime && prev.endTime <= time ? null : prev.endTime
+                                    }))}
+                                    className={styles.timeRangeSelect}
+                                    suffixIcon={<Clock size={16} className={styles.clockIcon} />}
+                                    showSearch
+                                    optionFilterProp="children"
+                                >
+                                    {generateTimeOptions().map(time => (
+                                        <Option key={`start-${time}`} value={time}>
+                                            {time}
+                                        </Option>
+                                    ))}
+                                </Select>
+                                <div className={styles.timeRangeDivider}>
+                                    <ArrowRight size={16} />
+                                </div>
+                                <Select
+                                    placeholder="End Time"
+                                    value={searchParams.endTime}
+                                    onChange={(time) => setSearchParams(prev => ({
+                                        ...prev,
+                                        endTime: time
+                                    }))}
+                                    className={styles.timeRangeSelect}
+                                    suffixIcon={<Clock size={16} className={styles.clockIcon} />}
+                                    showSearch
+                                    optionFilterProp="children"
+                                    disabled={!searchParams.startTime}
+                                >
+                                    {generateTimeOptions()
+                                        .filter(time => !searchParams.startTime || time > searchParams.startTime)
+                                        .map(time => (
+                                            <Option key={`end-${time}`} value={time}>
+                                                {time}
+                                            </Option>
+                                        ))
+                                    }
+                                </Select>
+                            </div>
+                        ) : (
+                            <Select
+                                placeholder="Select time"
+                                value={searchParams.departureTime}
+                                onChange={(time) => setSearchParams(prev => ({
+                                    ...prev,
+                                    departureTime: time
+                                }))}
+                                className={styles.timeSelect}
+                                suffixIcon={<Clock size={16} className={styles.clockIcon} />}
+                                showSearch
+                                optionFilterProp="children"
+                                allowClear
+                            >
+                                {generateTimeOptions().map(time => (
+                                    <Option key={time} value={time}>
+                                        {time}
+                                    </Option>
+                                ))}
+                            </Select>
+                        )}
                     </Form.Item>
 
                     {/* Search Button */}
                     <Button
                         type="primary"
-                        icon={<Search />}
+                        icon={<Search size={18} />}
                         onClick={handleSearch}
                         loading={rideLoading}
                         className={styles.searchButton}
@@ -316,7 +472,7 @@ const AvailableRequests = () => {
                 <div className={styles.filtersSection}>
                     <Button
                         type="text"
-                        icon={<Filter />}
+                        icon={<Filter size={16} />}
                         onClick={() => setShowFilters(!showFilters)}
                         className={styles.filterToggle}
                     >
@@ -330,35 +486,41 @@ const AvailableRequests = () => {
                             exit={{ opacity: 0, height: 0 }}
                             className={styles.filtersContainer}
                         >
-                            {/* Seats Filter */}
-                            <Form.Item label="Seats" className={styles.filterField}>
-                                <InputNumber
-                                    min={1}
-                                    max={8}
-                                    value={searchParams.seats}
-                                    onChange={(value) => setSearchParams(prev => ({
-                                        ...prev,
-                                        seats: value
-                                    }))}
-                                    className={styles.seatsInput}
-                                />
-                            </Form.Item>
+                            <div className={styles.filterGrid}>
+                                {/* Seats Filter */}
+                                <Form.Item label="Seats Needed" className={styles.filterField}>
+                                    <InputNumber
+                                        min={1}
+                                        max={8}
+                                        value={searchParams.seats}
+                                        onChange={(value) => setSearchParams(prev => ({
+                                            ...prev,
+                                            seats: value
+                                        }))}
+                                        className={styles.seatsInput}
+                                        prefix={<Users size={16} className={styles.inputIcon} />}
+                                    />
+                                </Form.Item>
 
-                            {/* Luggage Size Filter */}
-                            <Form.Item label="Luggage Size" className={styles.filterField}>
-                                <Select
-                                    value={searchParams.luggageSize}
-                                    onChange={(value) => setSearchParams(prev => ({
-                                        ...prev,
-                                        luggageSize: value
-                                    }))}
-                                    className={styles.select}
-                                >
-                                    <Option value="small">Small (Backpack)</Option>
-                                    <Option value="medium">Medium (Carry-on)</Option>
-                                    <Option value="large">Large (Suitcase)</Option>
-                                </Select>
-                            </Form.Item>
+                                {/* Luggage Size Filter */}
+                                <Form.Item label="Luggage Size" className={styles.filterField}>
+                                    <Select
+                                        value={searchParams.luggageSize}
+                                        onChange={(value) => setSearchParams(prev => ({
+                                            ...prev,
+                                            luggageSize: value
+                                        }))}
+                                        className={styles.luggageSelect}
+                                        placeholder="Select size"
+                                        allowClear
+                                        suffixIcon={<Package size={16} className={styles.inputIcon} />}
+                                    >
+                                        <Option value="small">Small (Backpack)</Option>
+                                        <Option value="medium">Medium (Carry-on)</Option>
+                                        <Option value="large">Large (Suitcase)</Option>
+                                    </Select>
+                                </Form.Item>
+                            </div>
 
                             {/* Clear Filters Button */}
                             <div className={styles.clearFilters}>
@@ -419,6 +581,7 @@ const AvailableRequests = () => {
                 </div>
             );
         }
+
         return (
             <motion.div
                 initial={{ opacity: 0 }}
@@ -477,7 +640,9 @@ const AvailableRequests = () => {
                                             </span>
                                         </div>
                                     </div>
-                                    <div className={styles.locationDivider}>→</div>
+                                    <div className={styles.locationDivider}>
+                                        <ArrowRight className={styles.arrowIcon} />
+                                    </div>
                                     <div className={styles.locationItem}>
                                         <MapPin className={styles.locationIcon} />
                                         <div className={styles.locationText}>
@@ -512,15 +677,6 @@ const AvailableRequests = () => {
                                         </span>
                                     </div>
 
-                                    {request.additionalNotes && (
-                                        <div className={styles.infoItem}>
-                                            <MessageSquare className={styles.infoIcon} />
-                                            <span className={styles.notes}>
-                                                "{request.additionalNotes}"
-                                            </span>
-                                        </div>
-                                    )}
-
                                     {request.flexibleTiming && (
                                         <div className={styles.flexibleTiming}>
                                             <Clock className={styles.infoIcon} />
@@ -545,7 +701,7 @@ const AvailableRequests = () => {
                                             router.push(`/trip/details/${request._id}`)
                                         }}
                                     >
-                                        Open
+                                        View Details
                                     </Button>
                                 )}
                             </div>

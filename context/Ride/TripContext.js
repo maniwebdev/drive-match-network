@@ -277,7 +277,6 @@ export const TripProvider = ({ children }) => {
             setLoading(false);
         }
     };
-
     // Get all available trip requests (for drivers)
     const getAvailableTrips = async (filters = {}) => {
         setLoading(true);
@@ -285,7 +284,11 @@ export const TripProvider = ({ children }) => {
         const authToken = localStorage.getItem('authToken');
 
         try {
+            // Create query parameters
             const queryParams = new URLSearchParams();
+
+            // Debug what filters we're receiving
+            console.log('Filters received by context:', filters);
 
             // Location filters
             if (filters.originCity) {
@@ -301,19 +304,23 @@ export const TripProvider = ({ children }) => {
                 queryParams.append('destinationZipCode', filters.destinationZipCode);
             }
 
-            // Date and Time filters
-            if (filters.urgent) {
-                // For urgent trips, use current date and time
-                const now = moment();
-                queryParams.append('departureDate', now.format('YYYY-MM-DD'));
-                queryParams.append('departureTime', now.format('HH:mm'));
-            } else if (filters.date) {
-                // For scheduled trips
-                const localDate = moment(filters.date);
-                queryParams.append('departureDate', localDate.format('YYYY-MM-DD'));
-                if (filters.time) {
-                    queryParams.append('departureTime', localDate.format('HH:mm'));
-                }
+            // Date filtering - we expect departureDate to be a YYYY-MM-DD string
+            if (filters.departureDate) {
+                // Make sure it's in the correct format
+                queryParams.append('departureDate', filters.departureDate);
+                console.log(`Adding departureDate parameter: ${filters.departureDate}`);
+            }
+
+            // Time filtering - only add one type of time filter
+            if (filters.startTime && filters.endTime) {
+                // Time range filtering
+                queryParams.append('startTime', filters.startTime);
+                queryParams.append('endTime', filters.endTime);
+                console.log(`Adding time range parameters: ${filters.startTime} to ${filters.endTime}`);
+            } else if (filters.departureTime) {
+                // Exact time filtering
+                queryParams.append('departureTime', filters.departureTime);
+                console.log(`Adding exact time parameter: ${filters.departureTime}`);
             }
 
             // Other filters
@@ -327,6 +334,9 @@ export const TripProvider = ({ children }) => {
                 queryParams.append('luggageSize', filters.luggageSize);
             }
 
+            // Debug the final query string
+            console.log('Final query string:', queryParams.toString());
+
             const response = await fetch(
                 `${API_URL}/api/tripRequestRoutes/trips/available?${queryParams}`,
                 {
@@ -337,6 +347,7 @@ export const TripProvider = ({ children }) => {
             );
 
             const data = await response.json();
+            console.log('Raw API response:', data);
 
             if (response.ok) {
                 // Process the returned trips to ensure consistent datetime format
@@ -344,6 +355,8 @@ export const TripProvider = ({ children }) => {
                     ...trip,
                     departureDateTime: moment(trip.departureDateTime).toDate()
                 }));
+
+                console.log(`Received ${processedTrips.length} trips from API`);
 
                 setAvailableTrips(processedTrips);
                 return {
@@ -357,6 +370,7 @@ export const TripProvider = ({ children }) => {
         } catch (err) {
             const errorMessage = err.message || 'Error fetching available trips';
             setError(errorMessage);
+            console.error('Error in getAvailableTrips:', errorMessage);
             return {
                 success: false,
                 error: errorMessage
@@ -365,7 +379,6 @@ export const TripProvider = ({ children }) => {
             setLoading(false);
         }
     };
-
     //public route for finding the trip requests from the users
     const searchPublicRequests = async (searchParams = {}, page = 1, limit = 10) => {
         setLoading(true);

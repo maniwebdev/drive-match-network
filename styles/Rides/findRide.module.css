@@ -10,9 +10,10 @@
 .contentWrapper {
   max-width: 1200px;
   margin: 0 auto;
+  margin-top: 20px;
 }
 
-/* Search Form Container */
+/* Search Form */
 .searchFormContainer {
   background: #ffffff;
   border-radius: 12px;
@@ -20,7 +21,12 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   border: 1px solid #e9ecef;
   margin-bottom: 24px;
-  margin-top: 34px;
+  transition: all 0.3s ease;
+  margin-top: 40px;
+}
+
+.searchFormContainer:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .searchForm {
@@ -40,6 +46,27 @@
 
 .tripSelect {
   width: 100%;
+}
+
+.tripSelect:global(.ant-select) :global(.ant-select-selector) {
+  border-color: #e9ecef;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.tripSelect:global(.ant-select-focused) :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
+}
+
+.tripSelect:global(.ant-select):hover :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+}
+
+.tripSelect:global(.ant-select) :global(.ant-select-selection-item) {
+  line-height: 32px !important;
 }
 
 .tripOption {
@@ -62,34 +89,211 @@
 /* Main Search Fields */
 .mainSearchFields {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 16px;
 }
 
 .locationField {
-  flex: 2;
+  flex: 2 1 calc(40% - 16px);
   margin-bottom: 0;
+  min-width: 250px;
 }
 
 .dateField,
 .timeField {
-  flex: 1;
+  flex: 1 1 calc(30% - 16px);
   margin-bottom: 0;
+  min-width: 200px;
 }
 
-.zipInput{
+.mainInput {
+  width: 100%;
+}
+
+.mainInput:global(.ant-input) {
+  border-color: #e9ecef;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.mainInput:global(.ant-input):hover {
+  border-color: #2a9d8f;
+}
+
+.mainInput:global(.ant-input):focus {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.zipInput {
   margin-top: 10px;
+  width: 100%;
 }
 
-/* Time Select Specific */
+.zipInput:global(.ant-input) {
+  border-color: #e9ecef;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.zipInput:global(.ant-input):hover {
+  border-color: #2a9d8f;
+}
+
+.zipInput:global(.ant-input):focus {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+/* Enhanced Time Selection Styles */
+.timeLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.timeToggleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeToggleLabel {
+  font-size: 13px;
+  color: #666666;
+}
+
+.timeToggleSwitch:global(.ant-switch) {
+  background-color: #cccccc;
+}
+
+.timeToggleSwitch:global(.ant-switch-checked) {
+  background-color: #2a9d8f;
+}
+
+.infoIcon {
+  color: #999999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.infoIcon:hover {
+  color: #2a9d8f;
+}
+
+.timeRangeInputs {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+.timeRangeSelect {
+  flex: 1;
+  min-width: 0;
+}
+
+.timeRangeSelect:global(.ant-select) {
+  width: 100%;
+}
+
+.timeRangeSelect:global(.ant-select) :global(.ant-select-selector) {
+  height: 40px;
+  padding: 4px 12px;
+  border-color: #e9ecef;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.timeRangeSelect:global(.ant-select-focused) :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
+}
+
+.timeRangeSelect:global(.ant-select):hover :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+}
+
+.timeRangeSelect:global(.ant-select) :global(.ant-select-selection-item) {
+  line-height: 32px !important;
+}
+
+.timeRangeDivider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  color: #2a9d8f;
+  flex-shrink: 0;
+}
+
 .timeSelect {
   width: 100%;
 }
 
-.timeOption {
-  padding: 8px 12px;
+.timeSelect:global(.ant-select) :global(.ant-select-selector) {
+  height: 40px;
+  padding: 4px 12px;
+  border-color: #e9ecef;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
+
+.timeSelect:global(.ant-select-focused) :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
+}
+
+.timeSelect:global(.ant-select):hover :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+}
+
+.timeSelect:global(.ant-select) :global(.ant-select-selection-item) {
+  line-height: 32px !important;
+}
+
+.clockIcon,
+.calendarIcon,
+.inputIcon {
+  color: #2a9d8f;
+}
+
+/* Search Button */
+.searchButton {
+  flex: 1 1 100%;
+  height: 44px;
+  background: #2a9d8f;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 24px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  color: #ffffff;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.searchButton:hover {
+  background: #248277;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(42, 157, 143, 0.3);
+}
+
+.searchButton:global(.ant-btn-primary):hover,
+.searchButton:global(.ant-btn-primary):focus {
+  background: #248277 !important;
+  border-color: #248277 !important;
+}
+
 /* Filters Section */
 .filtersSection {
   border-top: 1px solid #e9ecef;
@@ -98,55 +302,131 @@
 }
 
 .filterToggle {
-  color: #2a9d8f;
-  padding: 0;
-  height: auto;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: color 0.3s ease;
+  color: #2a9d8f;
+  padding: 0;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.filterToggle:hover {
+.filterToggle:global(.ant-btn):hover,
+.filterToggle:global(.ant-btn):focus {
   color: #248277;
 }
 
 .filtersContainer {
+  margin-top: 16px;
+}
+
+.filterGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 16px;
-  padding: 16px 0;
+  gap: 16px;
 }
 
 .filterField {
-  flex: 1 1 250px;
-  margin-bottom: 0;
+  flex: 1 1 calc(50% - 16px);
+  margin-bottom: 12px;
+  min-width: 200px;
 }
 
 /* Input Styles */
-.datePicker,
-.seatsInput,
-.priceInput,
-.select {
+.datePicker {
   width: 100%;
 }
 
-.searchButton {
+.datePicker:global(.ant-picker) {
+  border-color: #e9ecef;
   height: 40px;
-  background: #2a9d8f;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 24px;
+  padding: 4px 12px;
   border-radius: 8px;
-  transition: all 0.3s ease;
-  margin-top: 20px;
+  transition: all 0.2s ease;
 }
 
-.searchButton:hover {
-  background: #248277;
+.datePicker:global(.ant-picker):hover {
+  border-color: #2a9d8f;
+}
+
+.datePicker:global(.ant-picker-focused) {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.seatsInput {
+  width: 100%;
+}
+
+.seatsInput:global(.ant-input-number) {
+  border-color: #e9ecef;
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.seatsInput:global(.ant-input-number):hover {
+  border-color: #2a9d8f;
+}
+
+.seatsInput:global(.ant-input-number-focused) {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.seatsInput:global(.ant-input-number) :global(.ant-input-number-input) {
+  height: 38px;
+}
+
+.priceInput {
+  width: 100%;
+}
+
+.priceInput:global(.ant-input-number) {
+  border-color: #e9ecef;
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.priceInput:global(.ant-input-number):hover {
+  border-color: #2a9d8f;
+}
+
+.priceInput:global(.ant-input-number-focused) {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.priceInput:global(.ant-input-number) :global(.ant-input-number-input) {
+  height: 38px;
+}
+
+.luggageSelect {
+  width: 100%;
+}
+
+.luggageSelect:global(.ant-select) :global(.ant-select-selector) {
+  border-color: #e9ecef;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.luggageSelect:global(.ant-select-focused) :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
+}
+
+.luggageSelect:global(.ant-select):hover :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+}
+
+.luggageSelect:global(.ant-select) :global(.ant-select-selection-item) {
+  line-height: 32px !important;
 }
 
 /* Clear Filters */
@@ -166,6 +446,7 @@
   padding: 6px 16px;
   transition: all 0.3s ease;
   border-radius: 6px;
+  height: 38px;
 }
 
 .clearFiltersButton:hover {
@@ -174,59 +455,64 @@
   border-color: #2a9d8f;
 }
 
-/* Loading and Empty States */
-.loadingState,
-.initialState,
-.noResults {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e9ecef;
-  text-align: center;
+.clearFiltersButton:global(.ant-btn):hover,
+.clearFiltersButton:global(.ant-btn):focus {
+  color: #fff;
+  background: #2a9d8f !important;
+  border-color: #2a9d8f !important;
 }
 
-.initialStateIcon,
-.noResultsIcon {
+/* States */
+.loadingState,
+.initialState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 48px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+}
+
+.loadingState p,
+.initialStateContent p {
+  color: #666666;
+  margin-top: 12px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.initialStateIcon {
   width: 48px;
   height: 48px;
   color: #2a9d8f;
   margin-bottom: 16px;
 }
-/* Search Results Section */
-.searchResults {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e9ecef;
-}
 
-.resultsTitle {
-  font-size: 20px;
-  color: #264653;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.resultsList {
+.initialStateContent {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  max-width: 400px;
 }
 
-/* Ride Card */
+.initialStateContent h2 {
+  font-size: 24px;
+  color: #264653;
+  margin: 0;
+  margin-bottom: 8px;
+}
+
+/* Ride Cards */
 .rideCard {
   background: #ffffff;
   border-radius: 12px;
-  padding: 20px;
   border: 1px solid #e9ecef;
+  padding: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
@@ -238,7 +524,6 @@
   transform: translateY(-2px);
 }
 
-/* Driver Info Section */
 .rideHeader {
   display: flex;
   justify-content: space-between;
@@ -257,10 +542,7 @@
   height: 48px;
   border-radius: 50%;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #e9ecef;
+  border: 2px solid #e9ecef;
 }
 
 .avatarImage {
@@ -270,9 +552,15 @@
 }
 
 .avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: #2a9d8f;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 20px;
-  color: #666666;
-  text-transform: uppercase;
+  font-weight: 500;
 }
 
 .driverDetails {
@@ -283,9 +571,10 @@
 
 .driverName {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   color: #264653;
   margin: 0;
+  line-height: 1.2;
 }
 
 .rating {
@@ -301,6 +590,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  justify-content: center;
 }
 
 .priceAmount {
@@ -313,7 +603,8 @@
   font-size: 12px;
   color: #666666;
 }
-/* Ride Details Section */
+
+/* Ride Details */
 .rideDetails {
   display: flex;
   flex-direction: column;
@@ -364,8 +655,15 @@
 
 .locationDivider {
   color: #2a9d8f;
-  font-size: 20px;
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrowIcon {
+  color: #2a9d8f;
+  width: 20px;
+  height: 20px;
 }
 
 /* Ride Info Section */
@@ -397,41 +695,108 @@
   flex-shrink: 0;
 }
 
-/* Ant Design Overrides */
-.searchFormContainer :global(.ant-form-item-label) > label {
+/* Ride Preferences */
+.ridePrefs {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.prefItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666666;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+/* View Button */
+.viewButton {
+  background: #2a9d8f;
+  color: #ffffff;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
   font-weight: 500;
+  margin-top: 16px;
+  width: 100%;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.viewButton:hover {
+  background: #248277;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(42, 157, 143, 0.3);
+}
+
+.viewButton:global(.ant-btn-primary):hover,
+.viewButton:global(.ant-btn-primary):focus {
+  background: #248277 !important;
+  border-color: #248277 !important;
+}
+
+/* Search Results Container */
+.searchResults {
+  margin-top: 24px;
+}
+
+.resultsTitle {
+  font-size: 20px;
   color: #264653;
+  margin-bottom: 16px;
+  font-weight: 600;
 }
 
-.searchFormContainer :global(.ant-select-selector) {
-  height: 40px !important;
-  padding: 4px 12px !important;
-  border-color: #e9ecef !important;
+.resultsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.searchFormContainer :global(.ant-select-selection-item) {
-  line-height: 32px !important;
+/* No Results State */
+.noResults {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 48px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.searchFormContainer :global(.ant-picker) {
-  width: 100%;
-  border-color: #e9ecef;
+.noResultsContent {
+  max-width: 300px;
+  margin: 0 auto;
 }
 
-.searchFormContainer :global(.ant-input-number) {
-  width: 100%;
-  border-color: #e9ecef;
+.noResultsContent h3 {
+  font-size: 18px;
+  color: #264653;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
+
+.noResultsContent p {
+  color: #666666;
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .mainSearchFields {
-    flex-wrap: wrap;
-  }
-
   .locationField,
   .dateField,
   .timeField {
     flex: 1 1 calc(50% - 16px);
+    min-width: 200px;
   }
 
   .searchButton {
@@ -439,12 +804,12 @@
     justify-content: center;
   }
 
-  .filtersContainer {
-    flex-direction: column;
-  }
-
   .filterField {
     flex: 1 1 100%;
+  }
+
+  .timeRangeInputs {
+    flex-direction: row;
   }
 }
 
@@ -453,8 +818,16 @@
     padding: 20px 16px;
   }
 
+  .contentWrapper {
+    margin-top: 10px;
+  }
+
+  .searchFormContainer {
+    margin-top: 50px;
+  }
+
   .searchFormContainer,
-  .searchResults {
+  .rideCard {
     padding: 16px;
   }
 
@@ -462,6 +835,7 @@
   .dateField,
   .timeField {
     flex: 1 1 100%;
+    min-width: 0;
   }
 
   .rideHeader {
@@ -482,6 +856,11 @@
   .locationDivider {
     align-self: center;
     transform: rotate(90deg);
+    margin: 8px 0;
+  }
+
+  .arrowIcon {
+    transform: rotate(90deg);
   }
 }
 
@@ -497,7 +876,6 @@
   }
 
   .driverInfo {
-    flex-direction: column;
     align-items: flex-start;
   }
 
@@ -509,32 +887,72 @@
     width: 100%;
   }
 
-  .initialStateContent h2,
-  .noResultsContent h3 {
-    font-size: 20px;
+  .ridePrefs {
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .resultsTitle {
-    font-size: 18px;
+  .prefItem {
+    width: 100%;
   }
 
-  .priceAmount {
-    font-size: 20px;
+  .timeRangeInputs {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .timeRangeDivider {
+    align-self: center;
+    transform: rotate(90deg);
+    margin: 0;
+  }
+
+  .timeLabel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .timeToggleWrapper {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 
-/* Touch Device Optimizations */
-@media (hover: none) {
-  .rideCard:hover {
-    transform: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  }
+/* Animation Classes */
+.fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
 
-  .searchButton:hover {
-    background: #2a9d8f;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  .filterToggle:hover {
-    color: #2a9d8f;
-  }
+/* Utility Classes */
+.hidden {
+  display: none;
+}
+
+.textTruncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flexCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flexColumn {
+  display: flex;
+  flex-direction: column;
 }

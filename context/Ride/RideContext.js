@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 require('dotenv').config();
 import { useRouter } from 'next/router';
 import { message } from 'antd';
+import moment from 'moment';
 
 const RideContext = createContext();
 
@@ -59,10 +60,15 @@ export const RideProvider = ({ children }) => {
                 return null;
             }).filter(Boolean) || [];
 
-            // Ensure departureDateTime is a proper Date object and convert to ISO string
-            const departureDateTime = offerData.departureDateTime instanceof Date
-                ? offerData.departureDateTime
-                : new Date(offerData.departureDateTime);
+            // Get client's timezone
+            const timezone = moment.tz.guess();
+
+            // Format date and ensure time format
+            const departureDate = offerData.departureDate instanceof Date
+                ? moment(offerData.departureDate).format('YYYY-MM-DD')
+                : offerData.departureDate;
+
+            const departureTime = offerData.departureTime.padStart(5, '0');
 
             // Prepare the request data
             const requestData = {
@@ -70,7 +76,9 @@ export const RideProvider = ({ children }) => {
                 origin,
                 destination,
                 waypoints,
-                departureDateTime: departureDateTime.toISOString()
+                departureDate,
+                departureTime,
+                timezone
             };
 
             const response = await fetch(`${API_URL}/api/rideRoute/offer/create`, {
@@ -103,14 +111,15 @@ export const RideProvider = ({ children }) => {
             setLoading(false);
         }
     };
-
-    // Search ride offers
+    // Fixed searchRideOffers function for proper time filtering
     const searchRideOffers = async (searchParams) => {
         setLoading(true);
         setError(null);
 
         try {
             const params = new URLSearchParams();
+
+            console.log('Search params received by context:', searchParams);
 
             // Location parameters
             if (searchParams.origin?.city) {
@@ -126,12 +135,41 @@ export const RideProvider = ({ children }) => {
                 params.append('destinationZipCode', searchParams.destination.zipCode);
             }
 
-            // Date and time parameters
+            // Format date parameter if it's a moment object or Date object
             if (searchParams.departureDate) {
-                params.append('departureDate', searchParams.departureDate);
+                let formattedDate;
+
+                // If it's a moment object
+                if (searchParams.departureDate._isAMomentObject) {
+                    formattedDate = searchParams.departureDate.format('YYYY-MM-DD');
+                }
+                // If it's a Date object
+                else if (searchParams.departureDate instanceof Date) {
+                    formattedDate = moment(searchParams.departureDate).format('YYYY-MM-DD');
+                }
+                // If it's already a string
+                else {
+                    formattedDate = searchParams.departureDate;
+                }
+
+                params.append('departureDate', formattedDate);
+                console.log(`Adding departureDate parameter: ${formattedDate}`);
             }
-            if (searchParams.departureTime) {
-                params.append('departureTime', searchParams.departureTime);
+
+            // Handle time parameters
+            if (searchParams.startTime && searchParams.endTime) {
+                // Time range filtering - ensure proper format (HH:MM)
+                const formattedStartTime = searchParams.startTime.padStart(5, '0');
+                const formattedEndTime = searchParams.endTime.padStart(5, '0');
+
+                params.append('startTime', formattedStartTime);
+                params.append('endTime', formattedEndTime);
+                console.log(`Adding time range parameters: ${formattedStartTime} to ${formattedEndTime}`);
+            } else if (searchParams.departureTime) {
+                // Exact time filtering - ensure proper format (HH:MM)
+                const formattedTime = searchParams.departureTime.padStart(5, '0');
+                params.append('departureTime', formattedTime);
+                console.log(`Adding exact time parameter: ${formattedTime}`);
             }
 
             // Other filters
@@ -145,6 +183,9 @@ export const RideProvider = ({ children }) => {
                 params.append('allowedLuggage', searchParams.allowedLuggage);
             }
 
+            console.log('Final query string:', params.toString());
+
+            // Make the API request
             const response = await fetch(
                 `${API_URL}/api/rideRoute/offers/search?${params.toString()}`,
                 {
@@ -157,12 +198,13 @@ export const RideProvider = ({ children }) => {
             );
 
             const data = await response.json();
+            console.log('API response data:', data);
 
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to search rides');
             }
 
-            // Format the ride offers with proper date/time handling
+            // Format the ride offers
             const formattedOffers = data.rideOffers.map(offer => ({
                 ...offer,
                 origin: {
@@ -174,12 +216,7 @@ export const RideProvider = ({ children }) => {
                     city: offer.destination.city,
                     address: offer.destination.address,
                     zipCode: offer.destination.zipCode
-                },
-                departureTime: new Date(offer.departureDateTime).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                })
+                }
             }));
 
             setRideOffers(formattedOffers);
@@ -200,7 +237,6 @@ export const RideProvider = ({ children }) => {
             setLoading(false);
         }
     };
-
     // Update ride offer
     const updateRideOffer = async (offerId, updateData) => {
         setLoading(true);
@@ -211,6 +247,9 @@ export const RideProvider = ({ children }) => {
                 throw new Error('Ride offer ID is required for update');
             }
 
+            // Get client's timezone
+            const timezone = moment.tz.guess();
+            
             // Location validation helper function
             const validateLocation = (location, name) => {
                 if (location) {
@@ -232,15 +271,17 @@ export const RideProvider = ({ children }) => {
                 return null;
             };
 
+            const processedUpdateData = { ...updateData, timezone };
+
             // Validate and format locations if provided
-            if (updateData.origin) {
-                updateData.origin = validateLocation(updateData.origin, 'Origin');
+            if (processedUpdateData.origin) {
+                processedUpdateData.origin = validateLocation(processedUpdateData.origin, 'Origin');
             }
-            if (updateData.destination) {
-                updateData.destination = validateLocation(updateData.destination, 'Destination');
+            if (processedUpdateData.destination) {
+                processedUpdateData.destination = validateLocation(processedUpdateData.destination, 'Destination');
             }
-            if (updateData.waypoints) {
-                updateData.waypoints = updateData.waypoints
+            if (processedUpdateData.waypoints) {
+                processedUpdateData.waypoints = processedUpdateData.waypoints
                     .map((waypoint, index) => {
                         if (waypoint.address || waypoint.city || waypoint.zipCode) {
                             return validateLocation(waypoint, `Waypoint ${index + 1}`);
@@ -250,43 +291,45 @@ export const RideProvider = ({ children }) => {
                     .filter(Boolean);
             }
 
-            // Validate departure date time if provided
-            if (updateData.departureDateTime) {
-                const departureDateTime = new Date(updateData.departureDateTime);
-                if (isNaN(departureDateTime.getTime())) {
-                    throw new Error('Invalid departure date and time');
+            // Format date if provided
+            if (processedUpdateData.departureDate) {
+                if (processedUpdateData.departureDate instanceof Date) {
+                    processedUpdateData.departureDate = moment(processedUpdateData.departureDate).format('YYYY-MM-DD');
+                } else if (processedUpdateData.departureDate._isAMomentObject) {
+                    processedUpdateData.departureDate = processedUpdateData.departureDate.format('YYYY-MM-DD');
                 }
-                if (departureDateTime <= new Date()) {
-                    throw new Error('Departure time must be in the future');
-                }
-                updateData.departureDateTime = departureDateTime.toISOString();
+            }
+            
+            // Ensure time format is padded properly if provided
+            if (processedUpdateData.departureTime) {
+                processedUpdateData.departureTime = processedUpdateData.departureTime.padStart(5, '0');
             }
 
             // Validate numeric fields
-            if (updateData.availableSeats) {
-                const seats = parseInt(updateData.availableSeats);
+            if (processedUpdateData.availableSeats) {
+                const seats = parseInt(processedUpdateData.availableSeats);
                 if (isNaN(seats) || seats < 1 || seats > 8) {
                     throw new Error('Available seats must be between 1 and 8');
                 }
             }
 
-            if (updateData.pricePerSeat) {
-                const price = parseFloat(updateData.pricePerSeat);
+            if (processedUpdateData.pricePerSeat) {
+                const price = parseFloat(processedUpdateData.pricePerSeat);
                 if (isNaN(price) || price < 0) {
                     throw new Error('Price per seat must be a positive number');
                 }
             }
 
-            if (updateData.estimatedDuration) {
-                const duration = parseInt(updateData.estimatedDuration);
+            if (processedUpdateData.estimatedDuration) {
+                const duration = parseInt(processedUpdateData.estimatedDuration);
                 if (isNaN(duration) || duration < 1) {
                     throw new Error('Estimated duration must be a positive number');
                 }
             }
 
             // Validate allowed luggage if provided
-            if (updateData.allowedLuggage &&
-                !['small', 'medium', 'large'].includes(updateData.allowedLuggage)) {
+            if (processedUpdateData.allowedLuggage &&
+                !['small', 'medium', 'large'].includes(processedUpdateData.allowedLuggage)) {
                 throw new Error('Invalid luggage size');
             }
 
@@ -297,7 +340,7 @@ export const RideProvider = ({ children }) => {
                     'Content-Type': 'application/json',
                     'auth-token': localStorage.getItem('authToken')
                 },
-                body: JSON.stringify(updateData)
+                body: JSON.stringify(processedUpdateData)
             });
 
             const data = await response.json();

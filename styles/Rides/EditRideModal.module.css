@@ -1,0 +1,291 @@
+/* Edit Trip Modal Styles - Part 1 */
+
+/* Modal Base Styles */
+.modal {
+    min-width: 320px;
+}
+
+.modal :global(.ant-modal-content) {
+    border-radius: 16px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.modal :global(.ant-modal-header) {
+    padding: 24px 32px;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 0;
+}
+
+.modal :global(.ant-modal-title) {
+    font-size: 24px;
+    font-weight: 600;
+    color: #264653;
+    margin: 0;
+}
+
+.modal :global(.ant-modal-body) {
+    padding: 32px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.modal :global(.ant-modal-close) {
+    top: 24px;
+    right: 24px;
+}
+
+.modal :global(.ant-modal-close-x) {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    color: #666666;
+}
+
+/* Steps Section */
+.steps {
+    margin-bottom: 32px;
+}
+
+.steps :global(.ant-steps-item-title) {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.steps :global(.ant-steps-item-icon) {
+    background: #ffffff;
+    border-color: #e9ecef;
+}
+
+.steps :global(.ant-steps-item-active .ant-steps-item-icon) {
+    background: #2a9d8f;
+    border-color: #2a9d8f;
+}
+
+.steps :global(.ant-steps-item-finish .ant-steps-item-icon) {
+    background: #ffffff;
+    border-color: #2a9d8f;
+}
+
+.steps :global(.ant-steps-item-active .ant-steps-item-title) {
+    color: #2a9d8f !important;
+}
+
+.stepIcon {
+    color: #2a9d8f;
+    width: 20px;
+    height: 20px;
+}
+/* Edit Trip Modal Styles - Part 2 */
+
+/* Form Base Styles */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.stepContent {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.sectionTitle {
+    font-size: 18px;
+    font-weight: 500;
+    color: #264653;
+    margin: 0;
+}
+
+/* Form Items and Inputs */
+.form :global(.ant-form-item) {
+    margin-bottom: 16px;
+}
+
+.form :global(.ant-form-item-label) {
+    padding-bottom: 8px;
+}
+
+.form :global(.ant-form-item-label) > label {
+    font-weight: 500;
+    color: #264653;
+    font-size: 14px;
+}
+
+.form :global(.ant-input) {
+    height: 40px;
+    border-radius: 8px;
+    border-color: #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form :global(.ant-input):hover {
+    border-color: #2a9d8f;
+}
+
+.form :global(.ant-input):focus {
+    border-color: #2a9d8f;
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+/* Edit Trip Modal Styles - Part 3 */
+
+/* Select Styles */
+.form :global(.ant-select) {
+    width: 100%;
+}
+
+.form :global(.ant-select-selector) {
+    height: 40px !important;
+    border-radius: 8px !important;
+    border-color: #e9ecef !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.form :global(.ant-select:hover .ant-select-selector) {
+    border-color: #2a9d8f !important;
+}
+
+.form :global(.ant-select-focused .ant-select-selector) {
+    border-color: #2a9d8f !important;
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
+}
+
+/* Number Input Styles */
+.form :global(.ant-input-number) {
+    width: 100%;
+    border-radius: 8px;
+    border-color: #e9ecef;
+}
+
+.form :global(.ant-input-number-handler-wrap) {
+    border-radius: 0 8px 8px 0;
+    background: #f8f9fa;
+}
+
+.form :global(.ant-input-number:hover) {
+    border-color: #2a9d8f;
+}
+
+.form :global(.ant-input-number-focused) {
+    border-color: #2a9d8f;
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+/* DatePicker Styles */
+.form :global(.ant-picker) {
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+    border-color: #e9ecef;
+}
+
+.form :global(.ant-picker:hover) {
+    border-color: #2a9d8f;
+}
+
+.form :global(.ant-picker-focused) {
+    border-color: #2a9d8f;
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+/* Edit Trip Modal Styles - Part 4 */
+
+/* Button and Action Styles */
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 24px;
+    margin-top: 24px;
+    border-top: 1px solid #e9ecef;
+}
+
+.prevButton,
+.form :global(.ant-btn) {
+    height: 40px;
+    padding: 0 24px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.prevButton {
+    color: #666666;
+    border: 1px solid #e9ecef;
+}
+
+.prevButton:hover {
+    color: #2a9d8f;
+    border-color: #2a9d8f;
+    background: rgba(42, 157, 143, 0.1);
+}
+
+.form :global(.ant-btn-primary) {
+    background: #2a9d8f;
+    border: none;
+}
+
+.form :global(.ant-btn-primary:hover) {
+    background: #248277;
+}
+
+/* Icon Styles */
+.icon {
+    color: #2a9d8f;
+    width: 16px;
+    height: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modal :global(.ant-modal-header) {
+        padding: 20px 24px;
+    }
+
+    .modal :global(.ant-modal-body) {
+        padding: 24px;
+    }
+
+    .section {
+        padding: 16px;
+    }
+
+    .actions {
+        flex-direction: column-reverse;
+        gap: 12px;
+    }
+
+    .prevButton,
+    .form :global(.ant-btn) {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal :global(.ant-modal-title) {
+        font-size: 20px;
+    }
+
+    .steps :global(.ant-steps-item-title) {
+        font-size: 14px;
+    }
+
+    .sectionTitle {
+        font-size: 16px;
+    }
+}

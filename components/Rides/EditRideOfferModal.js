@@ -1,10 +1,11 @@
-// //component/EditRideOfferModal.js
+// component/EditRideOfferModal.js
 import React, { useState, useEffect } from 'react';
 import { Modal, Steps, Button, Form, DatePicker, InputNumber, Select, Input, message } from 'antd';
 import { MapPin, Calendar, Users, Package, DollarSign, Car } from 'lucide-react';
 import moment from 'moment';
-import styles from '../../styles/Trips/EditTripModal.module.css';
+import styles from '../../styles/Rides/EditRideModal.module.css';
 import { useRide } from '../../context/Ride/RideContext';
+import ScheduleStep from './ScheduleStep';
 
 const { Step } = Steps;
 const { Option } = Select;
@@ -33,7 +34,8 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
             plateNumber: '',
             capacity: null
         },
-        departureDateTime: null,
+        departureDate: null,
+        departureTime: '',
         availableSeats: 1,
         pricePerSeat: 0,
         allowedLuggage: 'medium',
@@ -45,11 +47,24 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
     // Initialize form data when modal opens
     useEffect(() => {
         if (offer && visible) {
-            const departureMoment = moment(offer.departureDateTime);
+            // Parse date and time from offer
+            let departureDateMoment, departureTimeString;
+
+            // Check if we have the new separate fields
+            if (offer.departureDate && offer.departureTime) {
+                departureDateMoment = moment(offer.departureDate);
+                departureTimeString = offer.departureTime;
+            }
+            // Backward compatibility if we still have departureDateTime
+            else if (offer.departureDateTime) {
+                const departureMoment = moment(offer.departureDateTime);
+                departureDateMoment = departureMoment.clone();
+                departureTimeString = departureMoment.format('HH:mm');
+            }
 
             setCurrentStep(0);
-            setSelectedDate(departureMoment);
-            setSelectedTime(departureMoment);
+            setSelectedDate(departureDateMoment);
+            setSelectedTime(moment(departureTimeString, 'HH:mm'));
 
             setRideData({
                 origin: {
@@ -68,7 +83,8 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                     plateNumber: offer.vehicle?.plateNumber || '',
                     capacity: offer.vehicle?.capacity || null
                 },
-                departureDateTime: departureMoment,
+                departureDate: departureDateMoment.format('YYYY-MM-DD'),
+                departureTime: departureTimeString,
                 availableSeats: offer.availableSeats || 1,
                 pricePerSeat: offer.pricePerSeat || 0,
                 allowedLuggage: offer.allowedLuggage || 'medium',
@@ -78,36 +94,33 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
             });
         }
     }, [offer, visible]);
+
     // Date and Time handlers
-    const handleDateTimeChange = (date, time) => {
-        if (date && time) {
-            const combinedDateTime = moment(date.format('YYYY-MM-DD'))
-                .set({
-                    hour: time.hour(),
-                    minute: time.minute(),
-                    second: 0
-                });
-
-            if (combinedDateTime.isValid()) {
-                setRideData(prev => ({
-                    ...prev,
-                    departureDateTime: combinedDateTime
-                }));
-            }
-        }
-    };
-
     const handleDateChange = date => {
         setSelectedDate(date);
-        if (date && selectedTime) {
-            handleDateTimeChange(date, selectedTime);
+        if (date) {
+            setRideData(prev => ({
+                ...prev,
+                departureDate: date.format('YYYY-MM-DD')
+            }));
         }
     };
 
     const handleTimeChange = time => {
         setSelectedTime(time);
-        if (selectedDate && time) {
-            handleDateTimeChange(selectedDate, time);
+        if (time) {
+            // Handle different time input formats
+            let timeString;
+            if (typeof time === 'string') {
+                timeString = time;
+            } else {
+                timeString = time.format('HH:mm');
+            }
+
+            setRideData(prev => ({
+                ...prev,
+                departureTime: timeString
+            }));
         }
     };
 
@@ -191,16 +204,13 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                 return true;
 
             case 1: // Schedule
-                if (!selectedDate || !selectedTime) {
+                if (!rideData.departureDate || !rideData.departureTime) {
                     message.error('Please select both date and time');
                     return false;
                 }
-                const selectedDateTime = moment(selectedDate.format('YYYY-MM-DD'))
-                    .set({
-                        hour: selectedTime.hour(),
-                        minute: selectedTime.minute(),
-                        second: 0
-                    });
+
+                // Check if departure time is in the future
+                const selectedDateTime = moment(`${rideData.departureDate} ${rideData.departureTime}`, 'YYYY-MM-DD HH:mm');
                 if (selectedDateTime.isBefore(moment().subtract(5, 'minutes'))) {
                     message.error('Departure time must be at least 5 minutes in the future');
                     return false;
@@ -226,6 +236,7 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                 return true;
         }
     };
+
     // Navigation handlers
     const handleNext = () => validateCurrentStep() && setCurrentStep(prev => prev + 1);
     const handlePrev = () => setCurrentStep(prev => prev - 1);
@@ -239,17 +250,11 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
                 throw new Error('No ride offer ID available');
             }
 
-            // Create a new moment object for submission
-            const submissionDateTime = moment(selectedDate.format('YYYY-MM-DD'))
-                .set({
-                    hour: selectedTime.hour(),
-                    minute: selectedTime.minute(),
-                    second: 0
-                });
-
+            // Prepare update data with separate date and time fields
             const updatePayload = {
                 ...rideData,
-                departureDateTime: submissionDateTime.toISOString(),
+                // Ensure departureTime is properly formatted
+                departureTime: rideData.departureTime.padStart(5, '0')
             };
 
             const result = await updateRideOffer(offer._id, updatePayload);
@@ -333,56 +338,15 @@ const EditRideOfferModal = ({ offer, visible, onCancel, onSuccess }) => {
             title: 'Schedule',
             icon: <Calendar className={styles.stepIcon} />,
             content: (
-                <div className={styles.stepContent}>
-                    <div className={styles.datetimeContainer}>
-                        <Form.Item label="Departure Date" required>
-                            <DatePicker
-                                format="YYYY-MM-DD"
-                                className={styles.dateInput}
-                                value={selectedDate}
-                                onChange={handleDateChange}
-                                disabledDate={(current) =>
-                                    current && current < moment().startOf('day')
-                                }
-                            />
-                        </Form.Item>
-
-                        <Form.Item label="Departure Time" required>
-                            <DatePicker
-                                picker="time"
-                                format="HH:mm"
-                                className={styles.timeInput}
-                                value={selectedTime}
-                                onChange={handleTimeChange}
-                                disabledTime={(current) => {
-                                    if (selectedDate?.isSame(moment(), 'day')) {
-                                        const now = moment();
-                                        return {
-                                            disabledHours: () =>
-                                                Array.from({ length: now.hour() }, (_, i) => i),
-                                            disabledMinutes: (selectedHour) =>
-                                                selectedHour === now.hour() ?
-                                                    Array.from({ length: now.minute() + 1 }, (_, i) => i) : []
-                                        };
-                                    }
-                                    return {};
-                                }}
-                            />
-                        </Form.Item>
-
-                        <Form.Item label="Estimated Duration (minutes)" required>
-                            <InputNumber
-                                min={1}
-                                value={rideData.estimatedDuration}
-                                onChange={value => setRideData(prev => ({
-                                    ...prev,
-                                    estimatedDuration: value
-                                }))}
-                                placeholder="Enter estimated duration"
-                            />
-                        </Form.Item>
-                    </div>
-                </div>
+                <ScheduleStep
+                    selectedDate={selectedDate}
+                    selectedTime={selectedTime}
+                    handleDateChange={handleDateChange}
+                    handleTimeChange={handleTimeChange}
+                    rideData={rideData}
+                    setRideData={setRideData}
+                    styles={styles}
+                />
             )
         },
         {
