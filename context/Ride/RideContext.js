@@ -119,7 +119,7 @@ export const RideProvider = ({ children }) => {
         try {
             const params = new URLSearchParams();
 
-            console.log('Search params received by context:', searchParams);
+            // console.log('Search params received by context:', searchParams);
 
             // Location parameters
             if (searchParams.origin?.city) {
@@ -198,7 +198,7 @@ export const RideProvider = ({ children }) => {
             );
 
             const data = await response.json();
-            console.log('API response data:', data);
+            //  console.log('API response data:', data);
 
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to search rides');
@@ -249,7 +249,7 @@ export const RideProvider = ({ children }) => {
 
             // Get client's timezone
             const timezone = moment.tz.guess();
-            
+
             // Location validation helper function
             const validateLocation = (location, name) => {
                 if (location) {
@@ -299,7 +299,7 @@ export const RideProvider = ({ children }) => {
                     processedUpdateData.departureDate = processedUpdateData.departureDate.format('YYYY-MM-DD');
                 }
             }
-            
+
             // Ensure time format is padded properly if provided
             if (processedUpdateData.departureTime) {
                 processedUpdateData.departureTime = processedUpdateData.departureTime.padStart(5, '0');

@@ -158,6 +158,13 @@
   width: 100%;
 }
 
+.timeToggleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
 .timeToggleWrapper {
   display: flex;
   align-items: center;
@@ -185,52 +192,6 @@
 
 .infoIcon:hover {
   color: #2a9d8f;
-}
-
-.timeRangeInputs {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 8px;
-}
-
-.timeRangeSelect {
-  flex: 1;
-  min-width: 0;
-}
-
-.timeRangeSelect:global(.ant-select) {
-  width: 100%;
-}
-
-.timeRangeSelect:global(.ant-select) :global(.ant-select-selector) {
-  height: 40px;
-  padding: 4px 12px;
-  border-color: #e9ecef;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.timeRangeSelect:global(.ant-select-focused) :global(.ant-select-selector) {
-  border-color: #2a9d8f !important;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
-}
-
-.timeRangeSelect:global(.ant-select):hover :global(.ant-select-selector) {
-  border-color: #2a9d8f !important;
-}
-
-.timeRangeSelect:global(.ant-select) :global(.ant-select-selection-item) {
-  line-height: 32px !important;
-}
-
-.timeRangeDivider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-  color: #2a9d8f;
-  flex-shrink: 0;
 }
 
 .timeSelect {
@@ -262,6 +223,82 @@
 .calendarIcon,
 .inputIcon {
   color: #2a9d8f;
+}
+
+/* Time Slider Styles */
+.timeSliderContainer {
+  margin: 20px 0;
+  padding: 16px 8px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.timeSliderLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.timeSliderValues {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #2a9d8f;
+  font-weight: 500;
+  background: #e9f5f3;
+  padding: 4px 12px;
+  border-radius: 16px;
+}
+
+.timeSlider {
+  margin: 8px 12px 28px;
+}
+
+/* The following Ant Design overrides need to be handled properly for NextJS */
+/* We target the class on our component and then use :global() for Ant components */
+.timeSlider :global(.ant-slider-track) {
+  background-color: #2a9d8f;
+}
+
+.timeSlider :global(.ant-slider-handle) {
+  border-color: #2a9d8f;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+}
+
+.timeSlider :global(.ant-slider-handle:focus),
+.timeSlider :global(.ant-slider-handle-dragging) {
+  box-shadow: 0 0 0 5px rgba(42, 157, 143, 0.12);
+  border-color: #2a9d8f;
+}
+
+.timeSlider :global(.ant-slider-mark-text) {
+  color: #666666;
+  font-size: 12px;
+}
+
+.timeSlider :global(.ant-slider-dot) {
+  border-color: #cccccc;
+}
+
+.timeSlider :global(.ant-slider-dot-active) {
+  border-color: #2a9d8f;
+}
+
+.timeSlider :global(.ant-slider-rail) {
+  background-color: #e9ecef;
+}
+
+.timeSlider:hover :global(.ant-slider-track) {
+  background-color: #248277;
+}
+
+.timeSlider:hover :global(.ant-slider-handle) {
+  border-color: #248277;
 }
 
 /* Search Button */
@@ -807,10 +844,6 @@
   .filterField {
     flex: 1 1 100%;
   }
-
-  .timeRangeInputs {
-    flex-direction: row;
-  }
 }
 
 @media (max-width: 768px) {
@@ -862,6 +895,14 @@
   .arrowIcon {
     transform: rotate(90deg);
   }
+
+  .timeSliderContainer {
+    padding: 12px 4px;
+  }
+
+  .timeSlider {
+    margin: 8px 4px 24px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -896,17 +937,6 @@
     width: 100%;
   }
 
-  .timeRangeInputs {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .timeRangeDivider {
-    align-self: center;
-    transform: rotate(90deg);
-    margin: 0;
-  }
-
   .timeLabel {
     flex-direction: column;
     align-items: flex-start;
@@ -916,6 +946,29 @@
   .timeToggleWrapper {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .timeSliderLabel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .timeSliderValues {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .timeSlider {
+    margin: 16px 0 28px;
+  }
+
+  .timeSlider :global(.ant-slider-mark-text) {
+    display: none;
+  }
+
+  .timeSlider :global(.ant-slider-dot):nth-child(odd) {
+    display: none;
   }
 }
 
@@ -944,15 +997,4 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.flexCenter {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.flexColumn {
-  display: flex;
-  flex-direction: column;
 }

@@ -1,4 +1,4 @@
-/* availableTrips.module.css - Updated with improved styling */
+/* availableTrips.module.css - Updated with time slider */
 
 /* Base Layout */
 .pageContainer {
@@ -256,6 +256,91 @@
 
 .timeSelect:global(.ant-select) :global(.ant-select-selection-item) {
   line-height: 32px !important;
+}
+
+/* Time Slider Styles */
+.timeSliderContainer {
+  width: 100%;
+  padding: 12px 8px 0;
+}
+
+.timeSliderValues {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  background: #e9f5f3;
+  padding: 8px 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.timeSliderValues span {
+  font-size: 15px;
+  font-weight: 500;
+  color: #2a9d8f;
+}
+
+.timeSliderValues span:nth-child(2) {
+  color: #666666;
+  font-size: 13px;
+}
+
+.timeSlider {
+  margin: 4px 8px 8px;
+}
+
+/* Slider Ant Design Overrides */
+.timeSlider :global(.ant-slider-track) {
+  background-color: #2a9d8f;
+  height: 6px;
+}
+
+.timeSlider :global(.ant-slider-rail) {
+  height: 6px;
+  background-color: #e9ecef;
+}
+
+.timeSlider :global(.ant-slider-handle) {
+  border-color: #2a9d8f;
+  width: 22px;
+  height: 22px;
+  margin-top: -8px;
+  box-shadow: 0 2px 8px rgba(42, 157, 143, 0.3);
+  transition: box-shadow 0.2s ease;
+}
+
+.timeSlider :global(.ant-slider-handle:focus),
+.timeSlider :global(.ant-slider-handle-dragging) {
+  box-shadow: 0 0 0 8px rgba(42, 157, 143, 0.12);
+  border-color: #2a9d8f;
+}
+
+.timeSlider :global(.ant-slider-mark-text) {
+  color: #666666;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.timeSlider :global(.ant-slider-dot) {
+  border-color: #cccccc;
+  border-width: 2px;
+  height: 10px;
+  width: 10px;
+  margin-top: -2px;
+}
+
+.timeSlider :global(.ant-slider-dot-active) {
+  border-color: #2a9d8f;
+}
+
+.timeSlider:hover :global(.ant-slider-track) {
+  background-color: #248277;
+}
+
+.timeSlider:hover :global(.ant-slider-handle) {
+  border-color: #248277;
+  box-shadow: 0 2px 12px rgba(42, 157, 143, 0.4);
 }
 
 .clockIcon,
@@ -833,6 +918,14 @@
   .arrowIcon {
     transform: rotate(90deg);
   }
+
+  .timeSliderContainer {
+    padding: 12px 4px;
+  }
+
+  .timeSlider {
+    margin: 8px 4px 24px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -878,6 +971,23 @@
   .timeToggleWrapper {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .timeSliderValues {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .timeSlider {
+    margin: 16px 0 28px;
+  }
+
+  .timeSlider :global(.ant-slider-mark-text) {
+    display: none;
+  }
+
+  .timeSlider :global(.ant-slider-dot):nth-child(odd) {
+    display: none;
   }
 }
 

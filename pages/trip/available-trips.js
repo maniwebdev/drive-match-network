@@ -14,7 +14,8 @@ import {
     message,
     Input,
     Switch,
-    Tooltip
+    Tooltip,
+    Slider
 } from 'antd';
 import {
     Search,
@@ -36,6 +37,7 @@ import moment from 'moment';
 import Navbar from '../../components/Navigation/Navbar';
 import styles from '../../styles/Trips/availableTrips.module.css';
 import { useTrip } from '../../context/Ride/TripContext';
+import Image from 'next/image';
 
 const { Option } = Select;
 
@@ -53,6 +55,9 @@ const AvailableRequests = () => {
     const [myRideOffers, setMyRideOffers] = useState([]);
     const [selectedRide, setSelectedRide] = useState(null);
     const [isTimeRangeEnabled, setIsTimeRangeEnabled] = useState(false);
+
+    // Time slider state
+    const [timeSliderValues, setTimeSliderValues] = useState([8 * 4, 18 * 4]); // 8:00 AM to 6:00 PM by default
 
     const [searchParams, setSearchParams] = useState({
         origin: {
@@ -72,6 +77,43 @@ const AvailableRequests = () => {
         seats: 1,
         luggageSize: ''
     });
+
+    // Convert slider value to time format (HH:MM)
+    const sliderValueToTime = (value) => {
+        const hours = Math.floor(value / 4);
+        const minutes = (value % 4) * 15;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    };
+
+    // Convert time string to slider value
+    const timeToSliderValue = (timeString) => {
+        if (!timeString) return null;
+        const [hours, minutes] = timeString.split(':').map(Number);
+        return hours * 4 + Math.round(minutes / 15);
+    };
+
+    // Generate marks for the time slider
+    const generateTimeMarks = () => {
+        const marks = {};
+        for (let hour = 0; hour <= 24; hour += 6) {
+            marks[hour * 4] = `${hour}:00`;
+        }
+        return marks;
+    };
+
+    // Handle time slider change
+    const handleTimeSliderChange = (values) => {
+        setTimeSliderValues(values);
+
+        const startTime = sliderValueToTime(values[0]);
+        const endTime = sliderValueToTime(values[1]);
+
+        setSearchParams(prev => ({
+            ...prev,
+            startTime,
+            endTime
+        }));
+    };
 
     // Time options generator (15-minute intervals)
     const generateTimeOptions = () => {
@@ -151,6 +193,9 @@ const AvailableRequests = () => {
                 ...prev,
                 departureTime: null
             }));
+
+            // Set default slider values
+            handleTimeSliderChange([8 * 4, 18 * 4]);
         }
     };
 
@@ -183,27 +228,19 @@ const AvailableRequests = () => {
                 luggageSize: searchParams.luggageSize
             };
 
-            // console.log('Starting search with formatted date:', searchFilters.departureDate);
-
             // Add time-related filters based on mode selection
             if (isTimeRangeEnabled && searchParams.startTime && searchParams.endTime) {
                 searchFilters.startTime = searchParams.startTime;
                 searchFilters.endTime = searchParams.endTime;
-                //  console.log(`Using time range filter: ${searchParams.startTime} to ${searchParams.endTime}`);
 
                 // Show time range in search criteria message
                 const timeRangeMessage = `Searching trips between ${searchParams.startTime} and ${searchParams.endTime}`;
                 message.info(timeRangeMessage);
             } else if (searchParams.departureTime) {
                 searchFilters.departureTime = searchParams.departureTime;
-                //   console.log(`Using exact time filter: ${searchParams.departureTime}`);
             }
 
-            // Debug final search filters
-            //  console.log('Final search filters being sent to API:', searchFilters);
-
             const result = await getAvailableTrips(searchFilters);
-            // console.log('API response:', result);
 
             if (result.success) {
                 setSearchResults(result.trips);
@@ -241,6 +278,7 @@ const AvailableRequests = () => {
         // Reset selection and mode states
         setSelectedRide(null);
         setIsTimeRangeEnabled(false);
+        setTimeSliderValues([8 * 4, 18 * 4]); // Reset to default time range
 
         // Reset form fields
         form.resetFields();
@@ -347,23 +385,7 @@ const AvailableRequests = () => {
                         />
                     </Form.Item>
 
-                    {/* Date Picker */}
-                    <Form.Item label="Date" className={styles.dateField}>
-                        <DatePicker
-                            value={searchParams.departureDate}
-                            onChange={(date) => setSearchParams(prev => ({
-                                ...prev,
-                                departureDate: date
-                            }))}
-                            disabledDate={(current) => current && current < moment().startOf('day')}
-                            format="YYYY-MM-DD"
-                            className={styles.datePicker}
-                            placeholder="Select date"
-                            suffixIcon={<Calendar size={16} className={styles.calendarIcon} />}
-                        />
-                    </Form.Item>
-
-                    {/* Time Selection Section */}
+                    {/* Time Selection */}
                     <Form.Item
                         label={
                             <div className={styles.timeLabel}>
@@ -387,51 +409,25 @@ const AvailableRequests = () => {
                         className={styles.timeField}
                     >
                         {isTimeRangeEnabled ? (
-                            <div className={styles.timeRangeInputs}>
-                                <Select
-                                    placeholder="Start Time"
-                                    value={searchParams.startTime}
-                                    onChange={(time) => setSearchParams(prev => ({
-                                        ...prev,
-                                        startTime: time,
-                                        endTime: prev.endTime && prev.endTime <= time ? null : prev.endTime
-                                    }))}
-                                    className={styles.timeRangeSelect}
-                                    suffixIcon={<Clock size={16} className={styles.clockIcon} />}
-                                    showSearch
-                                    optionFilterProp="children"
-                                >
-                                    {generateTimeOptions().map(time => (
-                                        <Option key={`start-${time}`} value={time}>
-                                            {time}
-                                        </Option>
-                                    ))}
-                                </Select>
-                                <div className={styles.timeRangeDivider}>
-                                    <ArrowRight size={16} />
+                            <div className={styles.timeSliderContainer}>
+                                <div className={styles.timeSliderValues}>
+                                    <span>{sliderValueToTime(timeSliderValues[0])}</span>
+                                    <span>to</span>
+                                    <span>{sliderValueToTime(timeSliderValues[1])}</span>
                                 </div>
-                                <Select
-                                    placeholder="End Time"
-                                    value={searchParams.endTime}
-                                    onChange={(time) => setSearchParams(prev => ({
-                                        ...prev,
-                                        endTime: time
-                                    }))}
-                                    className={styles.timeRangeSelect}
-                                    suffixIcon={<Clock size={16} className={styles.clockIcon} />}
-                                    showSearch
-                                    optionFilterProp="children"
-                                    disabled={!searchParams.startTime}
-                                >
-                                    {generateTimeOptions()
-                                        .filter(time => !searchParams.startTime || time > searchParams.startTime)
-                                        .map(time => (
-                                            <Option key={`end-${time}`} value={time}>
-                                                {time}
-                                            </Option>
-                                        ))
-                                    }
-                                </Select>
+                                <Slider
+                                    range
+                                    min={0}
+                                    max={96} // 24 hours * 4 (15-min intervals)
+                                    step={1}
+                                    value={timeSliderValues}
+                                    onChange={handleTimeSliderChange}
+                                    marks={generateTimeMarks()}
+                                    tooltip={{
+                                        formatter: value => sliderValueToTime(value)
+                                    }}
+                                    className={styles.timeSlider}
+                                />
                             </div>
                         ) : (
                             <Select
@@ -487,6 +483,22 @@ const AvailableRequests = () => {
                             className={styles.filtersContainer}
                         >
                             <div className={styles.filterGrid}>
+                                {/* Date Picker */}
+                                <Form.Item label="Travel Date" className={styles.filterField}>
+                                    <DatePicker
+                                        value={searchParams.departureDate}
+                                        onChange={(date) => setSearchParams(prev => ({
+                                            ...prev,
+                                            departureDate: date
+                                        }))}
+                                        disabledDate={(current) => current && current < moment().startOf('day')}
+                                        format="YYYY-MM-DD"
+                                        className={styles.datePicker}
+                                        placeholder="Select date"
+                                        suffixIcon={<Calendar size={16} className={styles.calendarIcon} />}
+                                    />
+                                </Form.Item>
+
                                 {/* Seats Filter */}
                                 <Form.Item label="Seats Needed" className={styles.filterField}>
                                     <InputNumber
@@ -605,7 +617,7 @@ const AvailableRequests = () => {
                                 <div className={styles.passengerInfo}>
                                     <div className={styles.passengerAvatar}>
                                         {request.requester.profilePicture ? (
-                                            <img
+                                            <Image
                                                 src={request.requester.profilePicture.url}
                                                 alt={request.requester.fullName}
                                                 className={styles.avatarImage}
