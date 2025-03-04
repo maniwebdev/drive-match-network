@@ -380,36 +380,67 @@ export const TripProvider = ({ children }) => {
         }
     };
     //public route for finding the trip requests from the users
-    const searchPublicRequests = async (searchParams = {}, page = 1, limit = 10) => {
+    const searchPublicRequests = async (filters = {}, page = 1, limit = 10) => {
         setLoading(true);
         setError(null);
 
         try {
-            const params = new URLSearchParams();
+            // Create query parameters
+            const queryParams = new URLSearchParams();
+
+            // Debug what filters we're receiving
+            console.log('Filters received by context:', filters);
 
             // Add pagination parameters
-            params.append('page', page);
-            params.append('limit', limit);
+            queryParams.append('page', page);
+            queryParams.append('limit', limit);
 
-            // Add search parameters
-            if (searchParams.originCity?.trim()) {
-                params.append('originCity', searchParams.originCity.trim());
+            // Location filters
+            if (filters.originCity) {
+                queryParams.append('originCity', filters.originCity);
             }
-            if (searchParams.destinationCity?.trim()) {
-                params.append('destinationCity', searchParams.destinationCity.trim());
+            if (filters.originZipCode) {
+                queryParams.append('originZipCode', filters.originZipCode);
             }
-            if (searchParams.departureDate) {
-                params.append('departureDate', searchParams.departureDate);
+            if (filters.destinationCity) {
+                queryParams.append('destinationCity', filters.destinationCity);
             }
-            if (searchParams.seats && !isNaN(searchParams.seats)) {
-                params.append('seats', searchParams.seats);
+            if (filters.destinationZipCode) {
+                queryParams.append('destinationZipCode', filters.destinationZipCode);
             }
-            if (searchParams.luggageSize) {
-                params.append('luggageSize', searchParams.luggageSize);
+
+            // Date filtering - we expect departureDate to be a YYYY-MM-DD string
+            if (filters.departureDate) {
+                // Make sure it's in the correct format
+                queryParams.append('departureDate', filters.departureDate);
+                console.log(`Adding departureDate parameter: ${filters.departureDate}`);
             }
+
+            // Time filtering - only add one type of time filter
+            if (filters.startTime && filters.endTime) {
+                // Time range filtering
+                queryParams.append('startTime', filters.startTime);
+                queryParams.append('endTime', filters.endTime);
+                console.log(`Adding time range parameters: ${filters.startTime} to ${filters.endTime}`);
+            } else if (filters.departureTime) {
+                // Exact time filtering
+                queryParams.append('departureTime', filters.departureTime);
+                console.log(`Adding exact time parameter: ${filters.departureTime}`);
+            }
+
+            // Other filters
+            if (filters.seats) {
+                queryParams.append('seats', filters.seats);
+            }
+            if (filters.luggageSize) {
+                queryParams.append('luggageSize', filters.luggageSize);
+            }
+
+            // Debug the final query string
+            console.log('Final query string:', queryParams.toString());
 
             const response = await fetch(
-                `${API_URL}/api/tripRequestRoutes/requests/public?${params.toString()}`,
+                `${API_URL}/api/tripRequestRoutes/requests/public?${queryParams.toString()}`,
                 {
                     method: 'GET',
                     headers: {
@@ -419,39 +450,47 @@ export const TripProvider = ({ children }) => {
             );
 
             const data = await response.json();
+            console.log('Raw API response:', data);
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to fetch public requests');
-            }
+            if (response.ok) {
+                // Process the returned trips to ensure consistent datetime format
+                const processedTrips = data.requests.map(trip => ({
+                    ...trip,
+                    departureDateTime: moment(trip.departureDateTime).toDate()
+                }));
 
-            // Update state with new data
-            if (page === 1) {
-                setAvailableRequests(data.tripRequests);
+                console.log(`Received ${processedTrips.length} public trip requests from API`);
+
+                // Update state with new data
+                if (page === 1) {
+                    setAvailableRequests(processedTrips);
+                } else {
+                    setAvailableRequests(prevRequests => [...prevRequests, ...processedTrips]);
+                }
+
+                return {
+                    success: true,
+                    trips: processedTrips,
+                    count: data.count,
+                    totalCount: data.totalCount,
+                    hasMore: data.hasMore,
+                    currentPage: data.currentPage
+                };
             } else {
-                setAvailableRequests(prevRequests => [...prevRequests, ...data.tripRequests]);
+                throw new Error(data.message || 'Failed to fetch public trip requests');
             }
-
-            return {
-                success: true,
-                requests: data.tripRequests,
-                totalCount: data.totalCount,
-                hasMore: data.hasMore,
-                currentPage: data.currentPage,
-                filters: data.filters
-            };
-
         } catch (err) {
-            console.error('Public requests search error:', err);
-            setError(err.message || 'Failed to fetch public requests');
+            const errorMessage = err.message || 'Error fetching public trip requests';
+            setError(errorMessage);
+            console.error('Error in searchPublicRequests:', errorMessage);
             return {
                 success: false,
-                message: err.message || 'Failed to fetch public requests'
+                error: errorMessage
             };
         } finally {
             setLoading(false);
         }
     };
-
     // Get user's own trip requests
     const getMyTrips = async () => {
         setLoading(true);

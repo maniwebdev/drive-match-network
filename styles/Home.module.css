@@ -1,115 +1,336 @@
-/* styles/FindRide.module.css */
+/* styles/Home.module.css */
 
 /* Base Layout */
 .pageContainer {
   min-height: 100vh;
   background-color: #f8f9fa;
+  padding: 40px 20px;
 }
 
-.header {
-  margin-top: 20px;
-  background: #ffffff;
-  padding: 16px 24px;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.mainContent {
-  padding: 20px;
-}
-
-/* Search Section */
-.searchSection {
+.contentWrapper {
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.searchFormContainer {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 32px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
-}
-
-.searchHeaderText {
-  margin-bottom: 24px;
-}
-
-.searchTitle {
-  font-size: 32px;
-  color: #264653;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-}
-
-.searchSubtitle {
-  font-size: 16px;
-  color: #666666;
-  margin: 0;
+  margin-top: 20px;
 }
 
 /* Search Form */
+.searchFormContainer {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+  margin-top: 40px;
+}
+
+.searchFormContainer:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 .searchForm {
   width: 100%;
 }
 
+/* Trip Request Section */
+.tripRequestSection {
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 20px;
+}
+
+.tripRequestField {
+  margin-bottom: 0;
+}
+
+.tripSelect {
+  width: 100%;
+}
+
+.tripSelect:global(.ant-select) :global(.ant-select-selector) {
+  border-color: #e9ecef;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.tripSelect:global(.ant-select-focused) :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
+}
+
+.tripSelect:global(.ant-select):hover :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+}
+
+.tripSelect:global(.ant-select) :global(.ant-select-selection-item) {
+  line-height: 32px !important;
+}
+
+.tripOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.tripIcon {
+  color: #2a9d8f;
+}
+
+.tripDate {
+  margin-left: auto;
+  color: #666666;
+  font-size: 14px;
+}
+
+/* Main Search Fields */
 .mainSearchFields {
   display: flex;
-  align-items: flex-end;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 16px;
 }
 
 .locationField {
-  flex: 2;
+  flex: 2 1 calc(40% - 16px);
   margin-bottom: 0;
+  min-width: 250px;
 }
 
 .dateField,
-.seatsField {
-  flex: 1;
+.timeField {
+  flex: 1 1 calc(30% - 16px);
   margin-bottom: 0;
+  min-width: 200px;
 }
 
-/* Ant Design Form Overrides */
-.searchFormContainer :global(.ant-form-item-label) > label {
-  font-weight: 500;
-  color: #264653;
-}
-
-.searchFormContainer :global(.ant-input) {
-  border-color: #e9ecef;
-  border-radius: 8px;
-  height: 40px;
-  padding: 8px 12px;
-}
-
-.searchFormContainer :global(.ant-input):hover {
-  border-color: #2a9d8f;
-}
-
-.searchFormContainer :global(.ant-input):focus,
-.searchFormContainer :global(.ant-input-focused) {
-  border-color: #2a9d8f;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1);
-}
-
-.searchFormContainer :global(.ant-picker) {
+.mainInput {
   width: 100%;
+}
+
+.mainInput:global(.ant-input) {
+  border-color: #e9ecef;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.mainInput:global(.ant-input):hover {
+  border-color: #2a9d8f;
+}
+
+.mainInput:global(.ant-input):focus {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.zipInput {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.zipInput:global(.ant-input) {
+  border-color: #e9ecef;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.zipInput:global(.ant-input):hover {
+  border-color: #2a9d8f;
+}
+
+.zipInput:global(.ant-input):focus {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+/* Enhanced Time Selection Styles */
+.timeLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.timeToggleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.timeToggleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeToggleLabel {
+  font-size: 13px;
+  color: #666666;
+}
+
+.timeToggleSwitch:global(.ant-switch) {
+  background-color: #cccccc;
+}
+
+.timeToggleSwitch:global(.ant-switch-checked) {
+  background-color: #2a9d8f;
+}
+
+.infoIcon {
+  color: #999999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.infoIcon:hover {
+  color: #2a9d8f;
+}
+
+.timeSelect {
+  width: 100%;
+}
+
+.timeSelect:global(.ant-select) :global(.ant-select-selector) {
+  height: 40px;
+  padding: 4px 12px;
   border-color: #e9ecef;
   border-radius: 8px;
-  height: 40px;
+  transition: all 0.2s ease;
 }
 
-.searchFormContainer :global(.ant-picker):hover {
+.timeSelect:global(.ant-select-focused) :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
+}
+
+.timeSelect:global(.ant-select):hover :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+}
+
+.timeSelect:global(.ant-select) :global(.ant-select-selection-item) {
+  line-height: 32px !important;
+}
+
+.clockIcon,
+.calendarIcon,
+.inputIcon {
+  color: #2a9d8f;
+}
+
+/* Time Slider Styles */
+.timeSliderContainer {
+  margin: 20px 0;
+  padding: 16px 8px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.timeSliderLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.timeSliderValues {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #2a9d8f;
+  font-weight: 500;
+  background: #e9f5f3;
+  padding: 4px 12px;
+  border-radius: 16px;
+}
+
+.timeSlider {
+  margin: 8px 12px 28px;
+}
+
+/* The following Ant Design overrides need to be handled properly for NextJS */
+/* We target the class on our component and then use :global() for Ant components */
+.timeSlider :global(.ant-slider-track) {
+  background-color: #2a9d8f;
+}
+
+.timeSlider :global(.ant-slider-handle) {
+  border-color: #2a9d8f;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+}
+
+.timeSlider :global(.ant-slider-handle:focus),
+.timeSlider :global(.ant-slider-handle-dragging) {
+  box-shadow: 0 0 0 5px rgba(42, 157, 143, 0.12);
   border-color: #2a9d8f;
 }
 
-.searchFormContainer :global(.ant-picker-focused),
-.searchFormContainer :global(.ant-picker):focus {
-  border-color: #2a9d8f;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1);
+.timeSlider :global(.ant-slider-mark-text) {
+  color: #666666;
+  font-size: 12px;
 }
+
+.timeSlider :global(.ant-slider-dot) {
+  border-color: #cccccc;
+}
+
+.timeSlider :global(.ant-slider-dot-active) {
+  border-color: #2a9d8f;
+}
+
+.timeSlider :global(.ant-slider-rail) {
+  background-color: #e9ecef;
+}
+
+.timeSlider:hover :global(.ant-slider-track) {
+  background-color: #248277;
+}
+
+.timeSlider:hover :global(.ant-slider-handle) {
+  border-color: #248277;
+}
+
+/* Search Button */
+.searchButton {
+  flex: 1 1 100%;
+  height: 44px;
+  background: #2a9d8f;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 24px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  color: #ffffff;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.searchButton:hover {
+  background: #248277;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(42, 157, 143, 0.3);
+}
+
+.searchButton:global(.ant-btn-primary):hover,
+.searchButton:global(.ant-btn-primary):focus {
+  background: #248277 !important;
+  border-color: #248277 !important;
+}
+
 /* Filters Section */
 .filtersSection {
   border-top: 1px solid #e9ecef;
@@ -118,198 +339,221 @@
 }
 
 .filterToggle {
-  color: #2a9d8f;
-  padding: 0;
-  height: auto;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.3s ease;
+  color: #2a9d8f;
+  padding: 0;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.filterToggle:hover {
+.filterToggle:global(.ant-btn):hover,
+.filterToggle:global(.ant-btn):focus {
   color: #248277;
 }
 
 .filtersContainer {
+  margin-top: 16px;
+}
+
+.filterGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 16px;
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  gap: 16px;
 }
 
 .filterField {
-  margin-bottom: 0;
+  flex: 1 1 calc(50% - 16px);
+  margin-bottom: 12px;
+  min-width: 200px;
 }
 
-/* Input Number and Select Overrides */
-.searchFormContainer :global(.ant-input-number) {
+/* Input Styles */
+.datePicker {
   width: 100%;
-  border-color: #e9ecef;
-  border-radius: 8px;
 }
 
-.searchFormContainer :global(.ant-input-number-input) {
+.datePicker:global(.ant-picker) {
+  border-color: #e9ecef;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.datePicker:global(.ant-picker):hover {
+  border-color: #2a9d8f;
+}
+
+.datePicker:global(.ant-picker-focused) {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.seatsInput {
+  width: 100%;
+}
+
+.seatsInput:global(.ant-input-number) {
+  border-color: #e9ecef;
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.seatsInput:global(.ant-input-number):hover {
+  border-color: #2a9d8f;
+}
+
+.seatsInput:global(.ant-input-number-focused) {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.seatsInput:global(.ant-input-number) :global(.ant-input-number-input) {
   height: 38px;
 }
 
-.searchFormContainer :global(.ant-input-number):hover {
-  border-color: #2a9d8f;
-}
-
-.searchFormContainer :global(.ant-input-number-focused),
-.searchFormContainer :global(.ant-input-number):focus {
-  border-color: #2a9d8f;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1);
-}
-
-.searchFormContainer :global(.ant-select) {
+.priceInput {
   width: 100%;
 }
 
-.searchFormContainer :global(.ant-select-selector) {
-  height: 40px !important;
-  padding: 4px 12px !important;
-  border-color: #e9ecef !important;
-  border-radius: 8px !important;
+.priceInput:global(.ant-input-number) {
+  border-color: #e9ecef;
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.searchFormContainer :global(.ant-select-selection-item) {
+.priceInput:global(.ant-input-number):hover {
+  border-color: #2a9d8f;
+}
+
+.priceInput:global(.ant-input-number-focused) {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.priceInput:global(.ant-input-number) :global(.ant-input-number-input) {
+  height: 38px;
+}
+
+.luggageSelect {
+  width: 100%;
+}
+
+.luggageSelect:global(.ant-select) :global(.ant-select-selector) {
+  border-color: #e9ecef;
+  height: 40px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.luggageSelect:global(.ant-select-focused) :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2) !important;
+}
+
+.luggageSelect:global(.ant-select):hover :global(.ant-select-selector) {
+  border-color: #2a9d8f !important;
+}
+
+.luggageSelect:global(.ant-select) :global(.ant-select-selection-item) {
   line-height: 32px !important;
 }
 
-.searchFormContainer :global(.ant-select):hover :global(.ant-select-selector) {
-  border-color: #2a9d8f !important;
+/* Clear Filters */
+.clearFilters {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 }
 
-.searchFormContainer
-  :global(.ant-select-focused)
-  :global(.ant-select-selector) {
-  border-color: #2a9d8f !important;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.1) !important;
-}
-
-/* Buttons */
-.searchButton {
-  height: 40px;
-  background: #2a9d8f;
-  border: none;
+.clearFiltersButton {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 24px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  color: #ffffff;
-  font-weight: 500;
-}
-
-.searchButton:hover {
-  background: #248277;
-}
-
-.inputIcon {
   color: #2a9d8f;
-  width: 16px;
-  height: 16px;
-}
-/* Results Section */
-.resultsSection {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 20px;
+  border-color: #2a9d8f;
+  padding: 6px 16px;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  height: 38px;
 }
 
-/* Loading State */
-.loadingState {
+.clearFiltersButton:hover {
+  color: #fff;
+  background: #2a9d8f;
+  border-color: #2a9d8f;
+}
+
+.clearFiltersButton:global(.ant-btn):hover,
+.clearFiltersButton:global(.ant-btn):focus {
+  color: #fff;
+  background: #2a9d8f !important;
+  border-color: #2a9d8f !important;
+}
+
+/* States */
+.loadingState,
+.initialState {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 300px;
-  gap: 16px;
-  color: #666666;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e9ecef;
-}
-
-/* Initial State */
-.initialState {
-  padding: 60px 20px;
-}
-
-.initialStateContent {
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.featureGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  justify-content: center;
-}
-
-.featureCard {
-  flex: 1 1 300px;
-  max-width: 350px;
-  padding: 24px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e9ecef;
   text-align: center;
-  transition: transform 0.3s ease;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 48px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
 }
 
-.featureCard:hover {
-  transform: translateY(-4px);
-}
-
-.featureIcon {
-  color: #2a9d8f;
-  width: 40px;
-  height: 40px;
-  margin-bottom: 16px;
-}
-
-.featureCard h3 {
-  font-size: 20px;
-  color: #264653;
-  margin-bottom: 12px;
-}
-
-.featureCard p {
+.loadingState p,
+.initialStateContent p {
   color: #666666;
-  margin: 0;
+  margin-top: 12px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
-/* Search Results */
+.initialStateIcon {
+  width: 48px;
+  height: 48px;
+  color: #2a9d8f;
+  margin-bottom: 16px;
+}
+
+.initialStateContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 400px;
+}
+
+.initialStateContent h2 {
+  font-size: 24px;
+  color: #264653;
+  margin: 0;
+  margin-bottom: 8px;
+}
+
+/* Ride Cards */
 .searchResults {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e9ecef;
+  margin-top: 24px;
 }
 
 .resultsTitle {
-  font-size: 24px;
+  font-size: 20px;
   color: #264653;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 16px;
+  font-weight: 600;
 }
 
 .resultsList {
@@ -318,50 +562,22 @@
   gap: 16px;
 }
 
-/* No Results State */
-.noResults {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 300px;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e9ecef;
-}
-
-.noResultsContent {
-  text-align: center;
-}
-
-.noResultsContent h3 {
-  font-size: 20px;
-  color: #264653;
-  margin-bottom: 8px;
-}
-
-.noResultsContent p {
-  color: #666666;
-  font-size: 16px;
-  margin: 0;
-}
-/* Ride Card Styles */
 .rideCard {
   background: #ffffff;
   border-radius: 12px;
-  padding: 24px;
   border: 1px solid #e9ecef;
+  padding: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .rideCard:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-color: #2a9d8f;
+  transform: translateY(-2px);
 }
 
-/* Ride Header */
 .rideHeader {
   display: flex;
   justify-content: space-between;
@@ -369,12 +585,69 @@
   margin-bottom: 20px;
 }
 
+.driverInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.driverAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #e9ecef;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: #2a9d8f;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.driverDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.driverName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #264653;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #666666;
+}
+
+/* Price Section */
 .ridePrice {
-  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
 }
 
 .priceAmount {
-  display: block;
   font-size: 24px;
   font-weight: 600;
   color: #2a9d8f;
@@ -385,63 +658,69 @@
   color: #666666;
 }
 
-.rideSeats {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #666666;
-  font-size: 14px;
-  padding: 6px 12px;
-  background: rgba(42, 157, 143, 0.1);
-  border-radius: 20px;
-}
-
-.seatIcon {
-  width: 16px;
-  height: 16px;
-  color: #2a9d8f;
-}
-
 /* Ride Details */
 .rideDetails {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
-.routeInfo {
+/* Locations Section */
+.locations {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   padding: 16px;
   background: #f8f9fa;
   border-radius: 8px;
 }
 
-.location {
+.locationItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   flex: 1;
+}
+
+.locationIcon {
+  color: #2a9d8f;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.locationText {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
 }
 
-.cityName {
+.locationName {
   font-size: 16px;
   font-weight: 500;
   color: #264653;
 }
 
-.address {
+.locationAddress {
   font-size: 14px;
   color: #666666;
 }
 
-.arrow {
+.locationDivider {
   color: #2a9d8f;
-  font-size: 20px;
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.arrowIcon {
+  color: #2a9d8f;
+  width: 20px;
+  height: 20px;
+}
+
+/* Ride Info Section */
 .rideInfo {
   display: flex;
   flex-wrap: wrap;
@@ -451,55 +730,108 @@
   border-radius: 8px;
 }
 
-.datetime {
-  font-size: 14px;
-  color: #264653;
-  font-weight: 500;
-}
-
-.preferences {
+.infoItem {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
-  align-items: center;
-}
-
-.luggageInfo {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #666666;
   font-size: 14px;
-  padding: 4px 12px;
+  color: #666666;
+  padding: 8px 16px;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 6px;
   border: 1px solid #e9ecef;
 }
 
-.separator {
-  color: #e9ecef;
+.infoIcon {
+  color: #2a9d8f;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
-.viewDetailsButton {
+/* Ride Preferences */
+.ridePrefs {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.prefItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666666;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+/* View Button */
+.viewButton {
+  background: #2a9d8f;
+  color: #ffffff;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-weight: 500;
   margin-top: 16px;
   width: 100%;
   height: 40px;
-  color: #2a9d8f;
-  border-color: #2a9d8f;
-  border-radius: 8px;
   transition: all 0.3s ease;
+}
+
+.viewButton:hover {
+  background: #248277;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(42, 157, 143, 0.3);
+}
+
+.viewButton:global(.ant-btn-primary):hover,
+.viewButton:global(.ant-btn-primary):focus {
+  background: #248277 !important;
+  border-color: #248277 !important;
+}
+
+/* No Results State */
+.noResults {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 48px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noResultsContent {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.noResultsContent h3 {
+  font-size: 18px;
+  color: #264653;
+  margin-bottom: 8px;
   font-weight: 500;
 }
 
-.viewDetailsButton:hover {
-  background: #2a9d8f;
-  color: #ffffff;
-  border-color: #2a9d8f;
+.noResultsContent p {
+  color: #666666;
+  margin: 0;
+  line-height: 1.5;
 }
+
 /* Trust Section */
 .trustSection {
-  padding: 80px 20px;
+  padding: 60px 20px;
   background: #ffffff;
+  margin-top: 40px;
+  border-top: 1px solid #e9ecef;
 }
 
 .trustContent {
@@ -509,28 +841,30 @@
 }
 
 .trustContent h2 {
-  font-size: 32px;
+  font-size: 28px;
   color: #264653;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   font-weight: 600;
 }
 
 .trustGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 32px;
+  gap: 24px;
   justify-content: center;
 }
 
 .trustItem {
   flex: 1 1 300px;
   max-width: 350px;
-  padding: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
   transition: transform 0.3s ease;
+  background-color: #f8f9fa;
+  border-radius: 12px;
 }
 
 .trustItem:hover {
@@ -538,7 +872,7 @@
 }
 
 .trustIcon {
-  font-size: 48px;
+  font-size: 42px;
   margin-bottom: 8px;
 }
 
@@ -558,22 +892,22 @@
 
 /* How It Works Section */
 .howItWorksSection {
-  padding: 80px 20px;
+  padding: 60px 20px;
   background: #f8f9fa;
   text-align: center;
 }
 
 .howItWorksSection h2 {
-  font-size: 32px;
+  font-size: 28px;
   color: #264653;
-  margin-bottom: 48px;
+  margin-bottom: 30px;
   font-weight: 600;
 }
 
 .stepsGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 32px;
+  gap: 24px;
   justify-content: center;
   max-width: 1200px;
   margin: 0 auto;
@@ -582,7 +916,7 @@
 .step {
   flex: 1 1 300px;
   max-width: 350px;
-  padding: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -595,6 +929,7 @@
 
 .step:hover {
   transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .stepNumber {
@@ -628,13 +963,13 @@
 /* CTA Section */
 .ctaSection {
   background: linear-gradient(135deg, #264653 0%, #2a9d8f 100%);
-  padding: 80px 20px;
+  padding: 60px 20px;
   text-align: center;
   color: #ffffff;
 }
 
 .ctaSection h2 {
-  font-size: 36px;
+  font-size: 32px;
   margin-bottom: 16px;
   font-weight: 600;
 }
@@ -686,191 +1021,155 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-  .searchFormContainer,
-  .resultsSection {
-    max-width: 960px;
-  }
-}
-
 @media (max-width: 1024px) {
-  .mainSearchFields {
-    flex-wrap: wrap;
-  }
-
-  .locationField {
-    flex: 1 1 100%;
-  }
-
+  .locationField,
   .dateField,
-  .seatsField {
-    flex: 1 1 calc(50% - 8px);
+  .timeField {
+    flex: 1 1 calc(50% - 16px);
+    min-width: 200px;
   }
 
   .searchButton {
     width: 100%;
-  }
-
-  .filtersContainer {
-    flex-direction: column;
+    justify-content: center;
   }
 
   .filterField {
-    width: 100%;
-  }
-
-  .routeInfo {
-    padding: 12px;
+    flex: 1 1 100%;
   }
 }
 
 @media (max-width: 768px) {
   .pageContainer {
-    padding: 16px;
+    padding: 20px 16px;
+  }
+
+  .contentWrapper {
+    margin-top: 10px;
   }
 
   .searchFormContainer {
-    padding: 20px;
+    margin-top: 50px;
   }
 
-  .searchTitle {
-    font-size: 24px;
+  .searchFormContainer,
+  .rideCard {
+    padding: 16px;
   }
 
-  .searchSubtitle {
-    font-size: 14px;
+  .locationField,
+  .dateField,
+  .timeField {
+    flex: 1 1 100%;
+    min-width: 0;
   }
 
   .rideHeader {
-    gap: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
 
   .ridePrice {
-    text-align: left;
-  }
-
-  .routeInfo {
-    flex-direction: column;
     align-items: flex-start;
   }
 
-  .arrow {
+  .locations {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .locationDivider {
     align-self: center;
     transform: rotate(90deg);
     margin: 8px 0;
   }
 
-  .rideInfo {
-    flex-direction: column;
-    gap: 12px;
+  .arrowIcon {
+    transform: rotate(90deg);
   }
 
-  .preferences {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .trustSection,
-  .howItWorksSection {
-    padding: 60px 20px;
+  .timeSliderContainer {
+    padding: 12px 4px;
   }
 
-  .trustContent h2,
-  .howItWorksSection h2,
-  .ctaSection h2 {
-    font-size: 28px;
-  }
-
-  .trustItem,
-  .step {
-    padding: 24px;
-  }
-
-  .ctaSection {
-    padding: 60px 20px;
-  }
-
-  .ctaSection p {
-    font-size: 16px;
-  }
-
-  .ctaButtons {
-    flex-direction: column;
-    max-width: 280px;
-    margin: 0 auto;
+  .timeSlider {
+    margin: 8px 4px 24px;
   }
 }
 
 @media (max-width: 480px) {
-  .searchTitle {
-    font-size: 20px;
+  .tripOption {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 
-  .featureCard {
-    flex: 1 1 100%;
+  .tripDate {
+    margin-left: 0;
   }
 
-  .luggageInfo {
+  .driverInfo {
+    align-items: flex-start;
+  }
+
+  .rideInfo {
+    flex-direction: column;
+  }
+
+  .infoItem {
     width: 100%;
-    justify-content: center;
   }
 
-  .separator {
+  .ridePrefs {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .prefItem {
+    width: 100%;
+  }
+
+  .timeLabel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .timeToggleWrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .timeSliderLabel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .timeSliderValues {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .timeSlider {
+    margin: 16px 0 28px;
+  }
+
+  .timeSlider :global(.ant-slider-mark-text) {
     display: none;
   }
 
-  .priceAmount {
-    font-size: 20px;
-  }
-
-  .datetime {
-    font-size: 13px;
-  }
-  .trustContent h2,
-  .howItWorksSection h2,
-  .ctaSection h2 {
-    font-size: 24px;
-  }
-
-  .trustIcon {
-    font-size: 40px;
-  }
-
-  .stepNumber {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-  }
-
-  .trustItem h3,
-  .step h3 {
-    font-size: 18px;
-  }
-
-  .trustItem p,
-  .step p {
-    font-size: 14px;
-  }
-  .pageContainer {
-    padding: 0px;
-  }
-  .resultsSection {
-    padding: 0 0px;
-  }
-  .searchResults {
-    padding: 14px;
-  }
-  .mainContent {
-    padding: 10px;
-  }
-  .rideCard {
-    padding: 14px;
-  }
-  .routeInfo {
-    padding: 6px;
+  .timeSlider :global(.ant-slider-dot):nth-child(odd) {
+    display: none;
   }
 }
 
-/* Animations */
+/* Animation Classes */
+.fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -882,75 +1181,13 @@
   }
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* Utility Classes */
+.hidden {
+  display: none;
 }
 
-/* Apply Animations */
-.searchFormContainer {
-  animation: fadeIn 0.5s ease-out;
-}
-
-.rideCard {
-  animation: slideIn 0.5s ease-out;
-}
-
-.featureCard {
-  animation: fadeIn 0.5s ease-out;
-}
-
-/* Touch Device Optimizations */
-@media (hover: none) {
-  .featureCard:hover {
-    transform: none;
-  }
-
-  .rideCard:hover {
-    box-shadow: none;
-    border-color: #e9ecef;
-  }
-
-  .viewDetailsButton:active {
-    background: #2a9d8f;
-    color: #ffffff;
-  }
-}
-
-/* Loading and Empty State Overrides */
-.loadingState :global(.ant-spin) {
-  color: #2a9d8f;
-}
-
-.loadingState :global(.ant-spin-dot-item) {
-  background-color: #2a9d8f;
-}
-
-.noResults :global(.ant-empty) {
-  margin: 32px 0;
-}
-
-.noResults :global(.ant-empty-image) {
-  height: 80px;
-}
-
-.noResults :global(.ant-empty-description) {
-  color: #666666;
-}
-
-/* Additional Button States */
-.searchButton:focus,
-.viewDetailsButton:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
-}
-
-.searchButton:active {
-  background: #1f7268;
+.textTruncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

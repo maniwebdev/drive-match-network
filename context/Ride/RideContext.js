@@ -399,16 +399,58 @@ export const RideProvider = ({ children }) => {
             params.append('page', page);
             params.append('limit', limit);
 
-            // Add core search parameters
-            if (searchParams.originCity?.trim()) {
-                params.append('originCity', searchParams.originCity.trim());
+            // Location parameters - now aligned with searchRideOffers
+            if (searchParams.origin?.city) {
+                params.append('originCity', searchParams.origin.city);
             }
-            if (searchParams.destinationCity?.trim()) {
-                params.append('destinationCity', searchParams.destinationCity.trim());
+            if (searchParams.origin?.zipCode) {
+                params.append('originZipCode', searchParams.origin.zipCode);
             }
+            if (searchParams.destination?.city) {
+                params.append('destinationCity', searchParams.destination.city);
+            }
+            if (searchParams.destination?.zipCode) {
+                params.append('destinationZipCode', searchParams.destination.zipCode);
+            }
+
+            // Format date parameter if it's a moment object or Date object
             if (searchParams.departureDate) {
-                params.append('departureDate', searchParams.departureDate);
+                let formattedDate;
+
+                // If it's a moment object
+                if (searchParams.departureDate._isAMomentObject) {
+                    formattedDate = searchParams.departureDate.format('YYYY-MM-DD');
+                }
+                // If it's a Date object
+                else if (searchParams.departureDate instanceof Date) {
+                    formattedDate = moment(searchParams.departureDate).format('YYYY-MM-DD');
+                }
+                // If it's already a string
+                else {
+                    formattedDate = searchParams.departureDate;
+                }
+
+                params.append('departureDate', formattedDate);
+                //     console.log(`Adding departureDate parameter: ${formattedDate}`);
             }
+
+            // Handle time parameters - now aligned with searchRideOffers
+            if (searchParams.startTime && searchParams.endTime) {
+                // Time range filtering - ensure proper format (HH:MM)
+                const formattedStartTime = searchParams.startTime.padStart(5, '0');
+                const formattedEndTime = searchParams.endTime.padStart(5, '0');
+
+                params.append('startTime', formattedStartTime);
+                params.append('endTime', formattedEndTime);
+                //     console.log(`Adding time range parameters: ${formattedStartTime} to ${formattedEndTime}`);
+            } else if (searchParams.departureTime) {
+                // Exact time filtering - ensure proper format (HH:MM)
+                const formattedTime = searchParams.departureTime.padStart(5, '0');
+                params.append('departureTime', formattedTime);
+                //      console.log(`Adding exact time parameter: ${formattedTime}`);
+            }
+
+            // Other filters
             if (searchParams.seats && !isNaN(searchParams.seats)) {
                 params.append('seats', searchParams.seats);
             }
@@ -419,17 +461,14 @@ export const RideProvider = ({ children }) => {
                 params.append('allowedLuggage', searchParams.allowedLuggage);
             }
 
-            // Add time filter if specified
-            if (searchParams.timeFilter) {
-                params.append('timeFilter', searchParams.timeFilter);
-            }
-
             // Add location parameters if available
             if (userLocation?.lat && userLocation?.lng) {
                 params.append('lat', userLocation.lat);
                 params.append('lng', userLocation.lng);
                 params.append('maxDistance', '20000');
             }
+
+            //   console.log('Final query string for public rides:', params.toString());
 
             const response = await fetch(
                 `${API_URL}/api/rideRoute/offers/public?${params.toString()}`,
@@ -480,7 +519,6 @@ export const RideProvider = ({ children }) => {
             setLoading(false);
         }
     };
-
     // Add loadMorePublicRides function for pagination
     const loadMorePublicRides = async (searchParams = {}, userLocation = null) => {
         if (!hasMore || loading) return;
