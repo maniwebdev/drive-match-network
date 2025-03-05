@@ -35,7 +35,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import moment from 'moment';
-import Navbar from '../components/Navigation/Navbar';
+import Header from '../components/Navigation/Header';
 import styles from '../styles/Home.module.css';
 import Image from 'next/image';
 import Footer from '../components/Navigation/Footer';
@@ -794,7 +794,7 @@ const HomePage = () => {
         <meta name="twitter:description" content="Find and share rides with trusted drivers. Save money, reduce carbon footprint, and travel comfortably." />
       </Head>
 
-      <Navbar />
+      <Header />
 
       <div className={styles.pageContainer}>
         <motion.div

@@ -33,7 +33,6 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import moment from 'moment';
-import Navbar from '../components/Navigation/Navbar';
 import styles from '../styles/RideRequests.module.css';
 import Header from '../components/Navigation/Header';
 import Footer from '../components/Navigation/Footer';
@@ -767,8 +766,7 @@ const RideRequests = () => {
             </Head>
 
             <div className={styles.pageContainer}>
-                {currentUser ? <Navbar /> : <Header />}
-
+                <Header />
                 <main className={styles.mainContent}>
                     <div className={styles.contentWrapper}>
                         {renderSearchForm()}
