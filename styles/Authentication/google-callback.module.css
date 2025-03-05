@@ -1,0 +1,95 @@
+/* styles/Authentication/google-callback.module.css */
+
+.callbackContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+}
+
+.loadingWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(42, 157, 143, 0.15);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.loadingWrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, #264653, #2a9d8f);
+}
+
+.title {
+    color: #264653;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    letter-spacing: -0.5px;
+}
+
+.animationContainer {
+    width: 100%;
+    height: 240px;
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loadingMessage {
+    color: #264653;
+    font-size: 18px;
+    font-weight: 500;
+    margin: 10px 0 0 0;
+    position: relative;
+    display: inline-block;
+}
+
+.loadingMessage::after {
+    content: "...";
+    position: absolute;
+    right: -20px;
+    animation: ellipsis 1.5s infinite;
+    width: 20px;
+    text-align: left;
+}
+
+@keyframes ellipsis {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .loadingWrapper {
+        padding: 30px 20px;
+    }
+    
+    .title {
+        font-size: 22px;
+    }
+    
+    .loadingMessage {
+        font-size: 16px;
+    }
+    
+    .animationContainer {
+        height: 200px;
+    }
+}

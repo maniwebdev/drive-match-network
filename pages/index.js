@@ -39,12 +39,15 @@ import Header from '../components/Navigation/Header';
 import styles from '../styles/Home.module.css';
 import Image from 'next/image';
 import Footer from '../components/Navigation/Footer';
+import { AuthTokenCheck } from '../components/Authentication/AuthTokenCheck';
+import LoadingAnimation from '../components/LoadingAnimation';
 
 const { Option } = Select;
 
 const HomePage = () => {
   const router = useRouter();
-  const { currentUser, isAuthenticated } = useAuth();
+  const { currentUser } = useAuth();
+  const { isAuthenticated, isUserVerified, hasFetchedUserDetails } = AuthTokenCheck();
   const { searchPublicRides, loading } = useRide();
   const { getMyTrips } = useTrip();
   const [form] = Form.useForm();
@@ -56,7 +59,7 @@ const HomePage = () => {
   const [myTripRequests, setMyTripRequests] = useState([]);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [isTimeRangeEnabled, setIsTimeRangeEnabled] = useState(true);
-
+  const [isLoading, setIsLoading] = useState(false);
   // Time slider state
   const [timeSliderValues, setTimeSliderValues] = useState([8 * 4, 18 * 4]); // 8:00 AM to 6:00 PM by default
 
@@ -129,6 +132,15 @@ const HomePage = () => {
     }
     return times;
   };
+
+  useEffect(() => {
+    if (hasFetchedUserDetails) {
+      if (isAuthenticated && isUserVerified) {
+        router.replace('/user/profile');
+      }
+      setIsLoading(false);
+    }
+  }, [hasFetchedUserDetails, isAuthenticated, isUserVerified, router]);
 
   // Fetch user's trip requests on component mount
   useEffect(() => {
@@ -319,6 +331,10 @@ const HomePage = () => {
       router.push(`/ride/details/${rideId}`);
     }
   };
+
+  if(isLoading){
+    return <LoadingAnimation />
+  }
 
   // Render search form
   const renderSearchForm = () => (

@@ -8,6 +8,7 @@ import { Eye, EyeOff, Car, MapPin, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import TypeWriter from 'typewriter-effect';
 import { AuthTokenCheck } from '../../components/Authentication/AuthTokenCheck';
+import GoogleLoginButton from '../../components/Authentication/GoogleLoginButton';
 
 const Login = () => {
     const router = useRouter();
@@ -152,7 +153,7 @@ const Login = () => {
                 <motion.div className={styles.formContainer}>
                     <h2 className={styles.welcomeText}>Welcome Back</h2>
                     <p className={styles.welcomeSubtext}>Continue your journey with us</p>
-
+                    <GoogleLoginButton text="Sign in with Google" />
                     <form onSubmit={handleSubmit} className={styles.loginForm}>
                         <div className={styles.inputGroup}>
                             <label htmlFor="email" className={styles.inputLabel}>

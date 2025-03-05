@@ -233,6 +233,22 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const handleGoogleLogin = async (token) => {
+        if (!token) return;
+
+        setAuthToken(token);
+        localStorage.setItem('authToken', token);
+
+        // Fetch the user data with the new token
+        try {
+            await fetchCurrentUser();
+            return true;
+        } catch (err) {
+            console.error('Error fetching Google user:', err);
+            return false;
+        }
+    };
+
     const contextValue = {
         currentUser,
         loading,
@@ -245,6 +261,7 @@ export const AuthProvider = ({ children }) => {
         updateBasicProfile,
         uploadProfilePicture,
         fetchUserProfile,
+        handleGoogleLogin,
     };
 
     return (

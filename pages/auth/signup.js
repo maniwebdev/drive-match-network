@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Eye, EyeOff, Shield, Users, Car } from 'lucide-react';
 import { motion } from 'framer-motion';
 import TypeWriter from 'typewriter-effect';
+import GoogleLoginButton from '../../components/Authentication/GoogleLoginButton';
 
 const Signup = () => {
     const router = useRouter();
@@ -99,7 +100,7 @@ const Signup = () => {
     };
 
     return (
-        <motion.div 
+        <motion.div
             className={styles.pageContainer}
             initial="hidden"
             animate="visible"
@@ -157,7 +158,7 @@ const Signup = () => {
                 <motion.div className={styles.formContainer}>
                     <h2 className={styles.welcomeText}>Create Account</h2>
                     <p className={styles.welcomeSubtext}>Join our community of trusted travelers</p>
-
+                    <GoogleLoginButton text="Sign up with Google" />
                     <form onSubmit={handleSubmit} className={styles.signupForm}>
                         <div className={styles.inputGroup}>
                             <label htmlFor="email" className={styles.inputLabel}>
