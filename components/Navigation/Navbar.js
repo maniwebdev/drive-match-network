@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../styles/Layout/navbar.module.css';
 import { useAuth } from '../../context/Auth/AuthContext';
+import { useChat } from '../../context/Chat/ChatContext'; // Import ChatContext
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -16,13 +17,14 @@ import {
     MapPin,
     UserPlus,
     LayoutGrid,
-    ClipboardList
+    ClipboardList,
 } from 'lucide-react';
 import { Badge, Dropdown } from 'antd';
 
 const Navbar = () => {
     const router = useRouter();
     const { currentUser, fetchCurrentUser } = useAuth();
+    const { unreadCount } = useChat(); // Access unreadCount from ChatContext
     const [scrolled, setScrolled] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
@@ -30,7 +32,7 @@ const Navbar = () => {
         fetchCurrentUser();
     }, []);
 
-    // Handle scroll effect
+    // Handle scroll and resize effects
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 20);
@@ -52,25 +54,20 @@ const Navbar = () => {
 
     const logout = () => {
         localStorage.removeItem('authToken');
-        router.push('/auth/login')
-    }
+        router.push('/auth/login');
+    };
 
     // Navigation items for normal users
     const userNavigationItems = [
         {
             label: 'Find a Ride',
             href: '/ride/find-ride',
-            icon: <Search className={styles.menuIcon} />
+            icon: <Search className={styles.menuIcon} />,
         },
         {
             label: 'My Trip Requests',
             href: '/trip/my-trips',
-            icon: <ClipboardList className={styles.menuIcon} />
-        },
-        {
-            label: 'My Rides',
-            href: '/ride/my-rides',
-            icon: <Car className={styles.menuIcon} />
+            icon: <ClipboardList className={styles.menuIcon} />,
         },
     ];
 
@@ -79,22 +76,23 @@ const Navbar = () => {
         {
             label: 'Available Requests',
             href: '/trip/available-trips',
-            icon: <UserPlus className={styles.menuIcon} />
+            icon: <UserPlus className={styles.menuIcon} />,
         },
         {
             label: 'My Offers',
             href: '/ride/my-offers',
-            icon: <LayoutGrid className={styles.menuIcon} />
+            icon: <LayoutGrid className={styles.menuIcon} />,
         },
         {
             label: 'Offer a Ride',
             href: '/ride/offer-ride',
-            icon: <Car className={styles.menuIcon} />
-        }
+            icon: <Car className={styles.menuIcon} />,
+        },
     ];
 
     // Select navigation items based on user role
     const navigationItems = currentUser?.isDriver ? driverNavigationItems : userNavigationItems;
+
     // User menu items (for dropdown)
     const userMenuItems = [
         {
@@ -108,22 +106,21 @@ const Navbar = () => {
                     </div>
                 </div>
             ),
-            onClick: () => router.push('/user/profile')
+            onClick: () => router.push('/user/profile'),
         },
         { type: 'divider' },
-
-        // Only include navigation items in mobile view
-        ...(isMobile ? navigationItems.map(item => ({
-            key: item.label,
-            label: (
-                <div className={styles.menuItem}>
-                    {item.icon}
-                    <span>{item.label}</span>
-                </div>
-            ),
-            onClick: () => router.push(item.href)
-        })) : []),
-
+        ...(isMobile
+            ? navigationItems.map((item) => ({
+                key: item.label,
+                label: (
+                    <div className={styles.menuItem}>
+                        {item.icon}
+                        <span>{item.label}</span>
+                    </div>
+                ),
+                onClick: () => router.push(item.href),
+            }))
+            : []),
         ...(isMobile ? [{ type: 'divider' }] : []),
         {
             key: 'help',
@@ -133,7 +130,7 @@ const Navbar = () => {
                     <span>Help & Support</span>
                 </div>
             ),
-            onClick: () => router.push('/help')
+            onClick: () => router.push('/help'),
         },
         {
             key: 'logout',
@@ -143,8 +140,8 @@ const Navbar = () => {
                     <span>Logout</span>
                 </div>
             ),
-            onClick: logout
-        }
+            onClick: logout,
+        },
     ];
 
     const goToInbox = () => {
@@ -154,6 +151,7 @@ const Navbar = () => {
     const goToNotifications = () => {
         router.push('/notifications');
     };
+
     return (
         <motion.nav
             className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}
@@ -199,18 +197,6 @@ const Navbar = () => {
 
                 {/* Right Section */}
                 <div className={styles.navRight}>
-                    {/* 
-                         <motion.button
-                        className={styles.notificationBtn}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={goToNotifications}
-                    >
-                        <Badge count={3} size="small">
-                            <Bell className={styles.bellIcon} />
-                        </Badge>
-                    </motion.button>
-                        */}
                     {/* Messages */}
                     <motion.button
                         className={styles.messageBtn}
@@ -218,7 +204,7 @@ const Navbar = () => {
                         whileTap={{ scale: 0.95 }}
                         onClick={goToInbox}
                     >
-                        <Badge count={2} size="small">
+                        <Badge count={unreadCount} size="small">
                             <MessageSquare className={styles.messageIcon} />
                         </Badge>
                     </motion.button>

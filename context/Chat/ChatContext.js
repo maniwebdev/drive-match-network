@@ -2,6 +2,22 @@ import React, { createContext, useState, useContext, useEffect, useCallback } fr
 import { useAuth } from '../Auth/AuthContext';
 import io from 'socket.io-client';
 import { debounce } from 'lodash';
+import { initializeApp } from 'firebase/app';
+import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCf40sFEpU55NM-wDDcxzxMCkAyaDv6orY",
+    authDomain: "drive-match-network-5b68e.firebaseapp.com",
+    projectId: "drive-match-network-5b68e",
+    storageBucket: "drive-match-network-5b68e.firebasestorage.app",
+    messagingSenderId: "1057879481955",
+    appId: "1:1057879481955:web:d3704baac88b1db31e6256",
+    measurementId: "G-QNEKJD8C7T"
+};
+
+// Initialize Firebase (safe for both SSR and client-side)
+const firebaseApp = initializeApp(firebaseConfig);
 
 const ChatContext = createContext();
 const API_URL = process.env.NEXT_PUBLIC_Car_API_URL;
@@ -9,7 +25,6 @@ const API_URL = process.env.NEXT_PUBLIC_Car_API_URL;
 export const useChat = () => useContext(ChatContext);
 
 export const ChatProvider = ({ children }) => {
-    // State Management for Chat Functionality
     const [chatId, setChatId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [chats, setChats] = useState([]);
@@ -20,20 +35,107 @@ export const ChatProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const { currentUser, fetchCurrentUser } = useAuth();
     const [audioChunks, setAudioChunks] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
 
-    // Message deduplication helper
-    const handleNewMessage = (newMessage) => {
-        setMessages(prevMessages => {
-            const messageExists = prevMessages.some(msg => msg._id === newMessage._id);
-            if (messageExists) return prevMessages;
+    // Initialize Firebase Messaging and Push Notifications (Client-side only)
+    useEffect(() => {
+        if (typeof window === 'undefined' || !currentUser) return; // Skip during SSR or if no user
 
-            // Sort messages by timestamp if message has createdAt
-            const updatedMessages = [...prevMessages, newMessage].sort((a, b) =>
-                new Date(a.createdAt) - new Date(b.createdAt)
-            );
+        const messaging = getMessaging(firebaseApp);
 
-            return updatedMessages;
+        const setupNotifications = async () => {
+            if (!('serviceWorker' in navigator)) {
+              //  console.log('Service Workers are not supported in this browser.');
+                return;
+            }
+
+            try {
+                // Register Service Worker silently
+                const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+             //   console.log('Service Worker registered with scope:', registration.scope);
+
+                // Check notification permission without throwing errors
+                const permission = Notification.permission;
+                if (permission === 'granted') {
+                    const token = await getToken(messaging, { serviceWorkerRegistration: registration });
+                  //  console.log('FCM Token:', token);
+                    await sendFcmTokenToBackend(token);
+                } else if (permission === 'default') {
+                    // Request permission only if not previously decided
+                    const newPermission = await Notification.requestPermission();
+                    if (newPermission === 'granted') {
+                        const token = await getToken(messaging, { serviceWorkerRegistration: registration });
+                    //    console.log('FCM Token:', token);
+                        await sendFcmTokenToBackend(token);
+                    }
+                    // No logging for 'denied' or 'default' to avoid clutter
+                }
+                // Silently handle 'denied' or 'blocked' cases (do nothing)
+            } catch (err) {
+                // Only log unexpected errors (not permission-related)
+                if (err.code !== 'messaging/permission-blocked' && err.code !== 'messaging/permission-default') {
+                    console.error('Unexpected error in notification setup:', err);
+                }
+            }
+        };
+
+        const sendFcmTokenToBackend = async (token) => {
+            const authToken = localStorage.getItem('authToken');
+            try {
+                const response = await fetch(`${API_URL}/api/auth/updateFcmToken`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'auth-token': authToken,
+                    },
+                    body: JSON.stringify({ fcmToken: token }),
+                });
+                if (!response.ok) {
+                    console.error('Failed to send FCM token to backend:', response.statusText);
+                }
+            } catch (err) {
+                console.error('Error sending FCM token to backend:', err);
+            }
+        };
+
+        // Handle foreground notifications
+        onMessage(messaging, (payload) => {
+          //  console.log('Foreground message received:', payload);
+            setUnreadCount((prev) => prev + 1);
         });
+
+        setupNotifications();
+        fetchUnreadCount();
+    }, [currentUser]);
+
+    // Optimized Message Deduplication Helper
+    const handleNewMessage = useCallback((newMessage) => {
+        setMessages((prevMessages) => {
+            const messageIds = new Set(prevMessages.map((msg) => msg._id));
+            if (!messageIds.has(newMessage._id)) {
+                const updatedMessages = [...prevMessages, newMessage].sort((a, b) =>
+                    new Date(a.createdAt) - new Date(b.createdAt)
+                );
+                return updatedMessages;
+            }
+            return prevMessages;
+        });
+    }, []);
+
+    // Fetch initial unread message count
+    const fetchUnreadCount = async () => {
+        const authToken = localStorage.getItem('authToken');
+        try {
+            const response = await fetch(`${API_URL}/api/chatRoute/unreadCount`, {
+                headers: {
+                    'auth-token': authToken,
+                },
+            });
+            const data = await response.json();
+            setUnreadCount(data.unreadCount || 0);
+        } catch (err) {
+            console.error('Failed to fetch unread count:', err);
+        }
     };
 
     // Initialize Socket Connection
@@ -43,44 +145,39 @@ export const ChatProvider = ({ children }) => {
         const newSocket = io(API_URL, {
             query: { userId: currentUser._id },
             transports: ['websocket'],
-            upgrade: false
+            upgrade: false,
         });
 
         setSocket(newSocket);
 
-        // Socket Event Listeners
         newSocket.on('connect', () => {
             console.log('Socket connected successfully');
         });
 
-        // Single receiveMessage handler
-        newSocket.on('receiveMessage', ({ content, senderId, chatId, messageId }) => {
+        newSocket.on('receiveMessage', ({ content, senderId, chatId: receivedChatId, messageId }) => {
+            if (receivedChatId === chatId) {
+                const newMessage = {
+                    _id: messageId || Date.now().toString(),
+                    content,
+                    sender: { _id: senderId },
+                    senderId: senderId,
+                    chat: receivedChatId,
+                    type: 'text',
+                    createdAt: new Date().toISOString(),
+                    read: false,
+                    notificationSent: false,
+                };
+                handleNewMessage(newMessage);
+            }
 
-            const newMessage = {
-                _id: messageId || Date.now().toString(),
-                content,
-                sender: {
-                    _id: senderId // Add sender object structure to match populated messages
-                },
-                senderId: senderId, // Keep this for compatibility
-                chat: chatId,
-                type: 'text',
-                createdAt: new Date().toISOString(),
-                read: false,
-                notificationSent: false
-            };
-
-            setMessages(prevMessages => [...prevMessages, newMessage]);
-
-            // Also update the chat's last message
-            setChats(prevChats =>
-                prevChats.map(chat =>
-                    chat._id === chatId
+            setChats((prevChats) =>
+                prevChats.map((chat) =>
+                    chat._id === receivedChatId
                         ? {
                             ...chat,
                             lastMessage: content,
                             lastMessageContent: content,
-                            updatedAt: new Date().toISOString()
+                            updatedAt: new Date().toISOString(),
                         }
                         : chat
                 )
@@ -105,43 +202,40 @@ export const ChatProvider = ({ children }) => {
             console.error('Socket error:', errorMessage);
         });
 
-        // Cleanup on unmount
         return () => {
             if (newSocket) {
                 newSocket.disconnect();
             }
         };
-    }, [currentUser]);
+    }, [currentUser, chatId, handleNewMessage]);
 
+    // File Message Listener
     useEffect(() => {
         if (!socket) return;
 
         socket.on('receiveFileMessage', (data) => {
-            const newMessage = {
-                _id: data.messageId,
-                sender: {
-                    _id: data.senderId // Add sender object structure
-                },
-                senderId: data.senderId, // Keep this for compatibility
-                chat: data.chatId,
-                type: 'image',
-                imageUrl: data.imageUrl,
-                createdAt: data.createdAt || new Date().toISOString(),
-                read: false
-            };
-
-            setMessages(prev => [...prev, newMessage]);
+            if (data.chatId === chatId) {
+                const newMessage = {
+                    _id: data.messageId,
+                    sender: { _id: data.senderId },
+                    senderId: data.senderId,
+                    chat: data.chatId,
+                    type: 'image',
+                    imageUrl: data.imageUrl,
+                    createdAt: data.createdAt || new Date().toISOString(),
+                    read: false,
+                };
+                handleNewMessage(newMessage);
+            }
         });
 
         socket.on('recordingStarted', ({ senderId }) => {
-            // Only set recording state if it's not the current user
             if (senderId !== currentUser._id) {
                 setIsRecording(true);
             }
         });
 
         socket.on('recordingStopped', ({ senderId }) => {
-            // Only update recording state if it's not the current user
             if (senderId !== currentUser._id) {
                 setIsRecording(false);
             }
@@ -149,35 +243,37 @@ export const ChatProvider = ({ children }) => {
 
         return () => {
             socket.off('receiveFileMessage');
+            socket.off('recordingStarted');
+            socket.off('recordingStopped');
         };
-    }, [socket]);
+    }, [socket, chatId, currentUser, handleNewMessage]);
 
+    // Audio Message Listener
     useEffect(() => {
         if (!socket) return;
 
-        // Add audio message receiver
         socket.on('receiveAudioMessage', (data) => {
-            const newMessage = {
-                _id: data.messageId,
-                sender: data.senderId,
-                chat: data.chatId,
-                type: 'audio',
-                voiceUrl: data.voiceUrl,
-                createdAt: new Date().toISOString(),
-                read: false
-            };
+            if (data.chatId === chatId) {
+                const newMessage = {
+                    _id: data.messageId,
+                    sender: data.senderId,
+                    chat: data.chatId,
+                    type: 'audio',
+                    voiceUrl: data.voiceUrl,
+                    createdAt: new Date().toISOString(),
+                    read: false,
+                };
+                handleNewMessage(newMessage);
+            }
 
-            setMessages(prev => [...prev, newMessage]);
-
-            // Update chat's last message
-            setChats(prevChats =>
-                prevChats.map(chat =>
+            setChats((prevChats) =>
+                prevChats.map((chat) =>
                     chat._id === data.chatId
                         ? {
                             ...chat,
-                            lastMessage: "Sent a voice message",
-                            lastMessageContent: "Sent a voice message",
-                            updatedAt: new Date().toISOString()
+                            lastMessage: 'Sent a voice message',
+                            lastMessageContent: 'Sent a voice message',
+                            updatedAt: new Date().toISOString(),
                         }
                         : chat
                 )
@@ -187,7 +283,21 @@ export const ChatProvider = ({ children }) => {
         return () => {
             socket.off('receiveAudioMessage');
         };
-    }, [socket]);
+    }, [socket, chatId, handleNewMessage]);
+
+    // Listen for new messages via WebSocket
+    useEffect(() => {
+        if (socket) {
+            socket.on('receiveMessage', (data) => {
+                if (data.chatId !== chatId) {
+                    setUnreadCount((prev) => prev + 1);
+                }
+            });
+        }
+        return () => {
+            if (socket) socket.off('receiveMessage');
+        };
+    }, [socket, chatId]);
 
     // Create New Chat
     const createChat = async (participantId) => {
@@ -199,9 +309,9 @@ export const ChatProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'auth-token': authToken
+                    'auth-token': authToken,
                 },
-                body: JSON.stringify({ participantId }) // Changed from participantEmail
+                body: JSON.stringify({ participantId }),
             });
 
             if (!response.ok) {
@@ -209,10 +319,9 @@ export const ChatProvider = ({ children }) => {
             }
 
             const newChat = await response.json();
-            setChats(prev => [...prev, newChat]);
+            setChats((prev) => [...prev, newChat]);
             setChatId(newChat._id);
 
-            // Join the socket room for this chat
             if (socket) {
                 socket.emit('joinRoom', { chatId: newChat._id });
             }
@@ -237,8 +346,8 @@ export const ChatProvider = ({ children }) => {
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        'auth-token': authToken
-                    }
+                        'auth-token': authToken,
+                    },
                 }
             );
 
@@ -247,15 +356,13 @@ export const ChatProvider = ({ children }) => {
             }
 
             const data = await response.json();
-
-            // Update chats with recipient details and last message info
             setChats(data.chats);
 
             return {
                 chats: data.chats,
                 totalChats: data.totalChats,
                 currentPage: data.page,
-                totalPages: data.totalPages
+                totalPages: data.totalPages,
             };
         } catch (err) {
             setError('Failed to fetch chats: ' + err.message);
@@ -265,7 +372,6 @@ export const ChatProvider = ({ children }) => {
         }
     }, []);
 
-    // Continue in Part 2...
     // Fetch Messages for a Chat with Pagination
     const fetchMessages = useCallback(async (chatId, skip = 0, limit = 10) => {
         if (!chatId) return null;
@@ -279,8 +385,8 @@ export const ChatProvider = ({ children }) => {
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        'auth-token': authToken
-                    }
+                        'auth-token': authToken,
+                    },
                 }
             );
 
@@ -290,12 +396,12 @@ export const ChatProvider = ({ children }) => {
 
             const fetchedMessages = await response.json();
 
-            setMessages(prevMessages => {
+            setMessages((prevMessages) => {
                 if (skip > 0) {
-                    // Append older messages to the start
                     const newMessages = [...fetchedMessages, ...prevMessages];
-                    // Remove duplicates based on message ID
-                    return Array.from(new Map(newMessages.map(msg => [msg._id, msg])).values());
+                    return Array.from(
+                        new Map(newMessages.map((msg) => [msg._id, msg])).values()
+                    );
                 }
                 return fetchedMessages;
             });
@@ -319,9 +425,9 @@ export const ChatProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'auth-token': authToken
+                    'auth-token': authToken,
                 },
-                body: JSON.stringify({ chatId, content })
+                body: JSON.stringify({ chatId, content }),
             });
 
             if (!response.ok) {
@@ -329,26 +435,23 @@ export const ChatProvider = ({ children }) => {
             }
 
             const newMessage = await response.json();
-
-            // Add sender's message immediately to the UI
             const messageWithSender = {
                 ...newMessage,
                 sender: currentUser._id,
                 chat: chatId,
                 createdAt: new Date().toISOString(),
                 read: false,
-                notificationSent: false
+                notificationSent: false,
             };
 
-            setMessages(prev => [...prev, messageWithSender]);
+            setMessages((prev) => [...prev, messageWithSender]);
 
-            // Emit the message to other users
             if (socket) {
                 socket.emit('sendMessage', {
                     chatId,
                     content,
                     senderId: currentUser._id,
-                    messageId: newMessage._id
+                    messageId: newMessage._id,
                 });
             }
 
@@ -369,28 +472,25 @@ export const ChatProvider = ({ children }) => {
 
             reader.onloadend = () => {
                 const base64Audio = reader.result.split(',')[1];
-
-                // Emit immediately to show local recording
                 const tempId = Date.now().toString();
                 const tempMessage = {
                     _id: tempId,
                     sender: currentUser._id,
                     chat: chatId,
                     type: 'audio',
-                    voiceUrl: URL.createObjectURL(audioBlob), // Local URL for immediate playback
+                    voiceUrl: URL.createObjectURL(audioBlob),
                     createdAt: new Date().toISOString(),
                     read: false,
-                    isTemp: true
+                    isTemp: true,
                 };
 
-                setMessages(prev => [...prev, tempMessage]);
+                setMessages((prev) => [...prev, tempMessage]);
 
-                // Send to server
                 socket.emit('audioMessage', {
                     chatId,
                     senderId: currentUser._id,
                     audioChunk: base64Audio,
-                    tempId
+                    tempId,
                 });
             };
         } catch (err) {
@@ -399,23 +499,29 @@ export const ChatProvider = ({ children }) => {
     };
 
     // Recording Handlers
-    const startRecording = useCallback((chatId) => {
-        if (socket && chatId) {
-            socket.emit('startRecording', {
-                chatId,
-                senderId: currentUser._id
-            });
-        }
-    }, [socket, currentUser]);
+    const startRecording = useCallback(
+        (chatId) => {
+            if (socket && chatId) {
+                socket.emit('startRecording', {
+                    chatId,
+                    senderId: currentUser._id,
+                });
+            }
+        },
+        [socket, currentUser]
+    );
 
-    const stopRecording = useCallback((chatId) => {
-        if (socket && chatId) {
-            socket.emit('stopRecording', {
-                chatId,
-                senderId: currentUser._id
-            });
-        }
-    }, [socket, currentUser]);
+    const stopRecording = useCallback(
+        (chatId) => {
+            if (socket && chatId) {
+                socket.emit('stopRecording', {
+                    chatId,
+                    senderId: currentUser._id,
+                });
+            }
+        },
+        [socket, currentUser]
+    );
 
     // Typing Indicator
     const handleTyping = debounce(() => {
@@ -433,8 +539,8 @@ export const ChatProvider = ({ children }) => {
             const response = await fetch(`${API_URL}/api/chatRoute/profile/${userId}`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'auth-token': authToken
-                }
+                    'auth-token': authToken,
+                },
             });
 
             if (!response.ok) {
@@ -449,68 +555,91 @@ export const ChatProvider = ({ children }) => {
     };
 
     // Join Chat Room
-    const joinChatRoom = useCallback((chatId) => {
-        if (socket && chatId) {
-            socket.emit('joinRoom', { chatId });
-        }
-    }, [socket]);
+    const joinChatRoom = useCallback(
+        (chatId) => {
+            if (socket && chatId) {
+                socket.emit('joinRoom', { chatId });
+            }
+        },
+        [socket]
+    );
 
     // Handle File Messages
-    const sendFileMessage = useCallback(async (file, chatId) => {
-        if (!file || !chatId) return null;
+    const sendFileMessage = useCallback(
+        async (file, chatId) => {
+            if (!file || !chatId) return null;
 
-        const authToken = localStorage.getItem('authToken');
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('chatId', chatId);
+            const authToken = localStorage.getItem('authToken');
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('chatId', chatId);
 
-        try {
-            const response = await fetch(`${API_URL}/api/chatRoute/sendFileMessage`, {
-                method: 'POST',
-                headers: {
-                    'auth-token': authToken
-                },
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to upload image');
-            }
-
-            const { data } = await response.json();
-
-            // Create a new message object with the correct image URL
-            const newMessage = {
-                _id: data._id,
-                sender: currentUser._id,
-                chat: chatId,
-                type: 'image',
-                imageUrl: data.imageUrl, // Use imageUrl from response
-                createdAt: new Date().toISOString(),
-                read: false
-            };
-
-            // Update local state
-            setMessages(prev => [...prev, newMessage]);
-
-            // Emit to socket with the correct URL
-            if (socket) {
-                socket.emit('sendFileMessage', {
-                    chatId,
-                    messageId: data._id,
-                    senderId: currentUser._id,
-                    type: 'image',
-                    imageUrl: data.imageUrl // Send imageUrl in socket event
+            try {
+                const response = await fetch(`${API_URL}/api/chatRoute/sendFileMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'auth-token': authToken,
+                    },
+                    body: formData,
                 });
-            }
 
-            return newMessage;
+                if (!response.ok) {
+                    throw new Error('Failed to upload image');
+                }
+
+                const { data } = await response.json();
+                const newMessage = {
+                    _id: data._id,
+                    sender: currentUser._id,
+                    chat: chatId,
+                    type: 'image',
+                    imageUrl: data.imageUrl,
+                    createdAt: new Date().toISOString(),
+                    read: false,
+                };
+
+                setMessages((prev) => [...prev, newMessage]);
+
+                if (socket) {
+                    socket.emit('sendFileMessage', {
+                        chatId,
+                        messageId: data._id,
+                        senderId: currentUser._id,
+                        type: 'image',
+                        imageUrl: data.imageUrl,
+                    });
+                }
+
+                return newMessage;
+            } catch (err) {
+                console.error('Failed to send image:', err);
+                setError('Failed to send image: ' + err.message);
+                return null;
+            }
+        },
+        [currentUser, socket]
+    );
+
+    // Mark Messages as Read
+    const markMessagesAsRead = useCallback(async (chatId) => {
+        const authToken = localStorage.getItem('authToken');
+        try {
+            const response = await fetch(`${API_URL}/api/chatRoute/markAsRead/${chatId}`, {
+                method: 'PATCH',
+                headers: {
+                    'auth-token': authToken,
+                },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setUnreadCount((prev) => Math.max(prev - (data.updatedMessagesCount || 0), 0));
+            } else {
+                console.error('Failed to mark messages as read:', response.statusText);
+            }
         } catch (err) {
-            console.error('Failed to send image:', err);
-            setError('Failed to send image: ' + err.message);
-            return null;
+            console.error('Failed to mark messages as read:', err);
         }
-    }, [currentUser, socket]);
+    }, [setUnreadCount]);
 
     const contextValue = {
         socket,
@@ -534,14 +663,13 @@ export const ChatProvider = ({ children }) => {
         joinChatRoom,
         sendFileMessage,
         audioChunks,
-        setAudioChunks
+        setAudioChunks,
+        handleNewMessage,
+        markMessagesAsRead,
+        unreadCount,
     };
 
-    return (
-        <ChatContext.Provider value={contextValue}>
-            {children}
-        </ChatContext.Provider>
-    );
+    return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>;
 };
 
 export default ChatProvider;

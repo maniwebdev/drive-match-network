@@ -47,6 +47,7 @@ const ChatPage = () => {
         isRecording,
         handleTyping,
         sendFileMessage,
+        markMessagesAsRead,
     } = useChat();
 
     const { currentUser, fetchCurrentUser } = useAuth();
@@ -56,7 +57,8 @@ const ChatPage = () => {
     const [messageInput, setMessageInput] = useState('');
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
+    const [hasMoreChats, setHasMoreChats] = useState(true);
+    const [hasMoreMessages, setHasMoreMessages] = useState(true);
     const [imagePreview, setImagePreview] = useState(null);
     const [recordingTime, setRecordingTime] = useState(0);
     const [showOptionsMenu, setShowOptionsMenu] = useState(false);
@@ -75,7 +77,7 @@ const ChatPage = () => {
                 setChatId(id);
                 const result = await fetchUserChats(1, 20);
                 if (result?.chats) {
-                    const chat = result.chats.find(c => c._id === id);
+                    const chat = result.chats.find((c) => c._id === id);
                     setSelectedChat(chat);
                 }
             }
@@ -84,11 +86,16 @@ const ChatPage = () => {
         initializeChat();
     }, [id, currentUser]);
 
+    useEffect(() => {
+        if (chatId) {
+            markMessagesAsRead(chatId);
+        }
+    }, [chatId]);
+
     // Socket Connection Effect
     useEffect(() => {
         if (chatId && socket) {
             socket.emit('joinRoom', { chatId });
-            //   console.log('Joined chat room:', chatId);
         }
     }, [chatId, socket]);
 
@@ -102,7 +109,7 @@ const ChatPage = () => {
         const loadChats = async () => {
             const result = await fetchUserChats(1, 20);
             if (result?.chats) {
-                setHasMore(result.totalPages > 1);
+                setHasMoreChats(result.totalPages > 1);
             }
             setLoading(false);
         };
@@ -112,24 +119,32 @@ const ChatPage = () => {
     // Message Loading Effect
     useEffect(() => {
         if (chatId) {
-            fetchMessages(chatId);
-            const chatData = chats.find(chat => chat._id === chatId);
+            setHasMoreMessages(true);
+            fetchMessages(chatId, 0, 10).then((fetchedMessages) => {
+                if (fetchedMessages && fetchedMessages.length < 10) {
+                    setHasMoreMessages(false);
+                }
+            });
+            const chatData = chats.find((chat) => chat._id === chatId);
             setSelectedChat(chatData);
         }
     }, [chatId, chats, fetchMessages]);
 
     // Handler Functions
-    const handleScroll = async (e) => {
-        const { scrollTop, scrollHeight, clientHeight } = e.target;
-        if (scrollTop === 0 && hasMore && !loading) {
+    const handleScroll = () => {
+        if (
+            chatContainerRef.current.scrollTop === 0 &&
+            hasMoreMessages &&
+            !loading
+        ) {
             setLoading(true);
-            const nextPage = page + 1;
-            const result = await fetchUserChats(nextPage, 20);
-            if (result?.chats) {
-                setHasMore(result.totalPages > nextPage);
-                setPage(nextPage);
-            }
-            setLoading(false);
+            const newSkip = messages.length;
+            fetchMessages(chatId, newSkip, 10).then((fetchedMessages) => {
+                if (fetchedMessages && fetchedMessages.length < 10) {
+                    setHasMoreMessages(false);
+                }
+                setLoading(false);
+            });
         }
     };
 
@@ -137,7 +152,6 @@ const ChatPage = () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Validate file type and size
         const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
         if (!validTypes.includes(file.type)) {
             alert('Please select a valid image file (JPEG, PNG, or GIF)');
@@ -155,7 +169,7 @@ const ChatPage = () => {
             reader.onloadend = () => {
                 setImagePreview({
                     url: reader.result,
-                    file: file
+                    file: file,
                 });
             };
             reader.readAsDataURL(file);
@@ -165,7 +179,6 @@ const ChatPage = () => {
         }
     };
 
-    //continuing from Part 1
     const startVoiceRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -185,16 +198,14 @@ const ChatPage = () => {
 
             mediaRecorderRef.current = mediaRecorder;
             mediaRecorder.start();
-            startRecording();
+            startRecording(chatId);
             setIsLocalRecording(true);
 
-            // Start recording timer
             let seconds = 0;
             recordingTimeRef.current = setInterval(() => {
                 seconds += 1;
                 setRecordingTime(seconds);
             }, 1000);
-
         } catch (err) {
             console.error('Failed to start recording:', err);
             alert('Could not access microphone. Please check your permissions.');
@@ -204,8 +215,8 @@ const ChatPage = () => {
     const stopVoiceRecording = () => {
         if (mediaRecorderRef.current && isLocalRecording) {
             mediaRecorderRef.current.stop();
-            mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-            stopRecording();
+            mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+            stopRecording(chatId);
             clearInterval(recordingTimeRef.current);
             setRecordingTime(0);
             setIsLocalRecording(false);
@@ -215,16 +226,14 @@ const ChatPage = () => {
     const cancelRecording = () => {
         if (mediaRecorderRef.current && isLocalRecording) {
             mediaRecorderRef.current.stop();
-            mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-            stopRecording();
+            mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+            stopRecording(chatId);
             clearInterval(recordingTimeRef.current);
             setRecordingTime(0);
             setIsLocalRecording(false);
         }
     };
 
-  
-    
     const handleSendMessage = async (e) => {
         e.preventDefault();
         const trimmedMessage = messageInput.trim();
@@ -232,7 +241,7 @@ const ChatPage = () => {
         if (!trimmedMessage && !imagePreview) return;
 
         try {
-            setIsSendingMessage(true); // Use local loading state instead
+            setIsSendingMessage(true);
 
             if (imagePreview) {
                 await sendFileMessage(imagePreview.file, chatId);
@@ -247,13 +256,15 @@ const ChatPage = () => {
             console.error('Error sending message:', error);
             message.error('Failed to send message. Please try again.');
         } finally {
-            setIsSendingMessage(false); // Clear local loading state
+            setIsSendingMessage(false);
         }
     };
+
     const GoInbox = () => {
         router.push('/inbox/chats');
-    }
-    // Start of JSX
+    };
+
+    // JSX
     return (
         <>
             {!currentUser ? (
@@ -290,7 +301,6 @@ const ChatPage = () => {
                             </div>
                         </div>
 
-                        {/* Chat List */}
                         <div className={styles.chatList}>
                             {loading ? (
                                 <div className={styles.loadingState}>
@@ -303,7 +313,6 @@ const ChatPage = () => {
                                     <p>No conversations yet</p>
                                 </div>
                             ) : (
-                                // Continuing chat list mapping
                                 chats.map((chat) => (
                                     <div
                                         key={chat._id}
@@ -312,7 +321,10 @@ const ChatPage = () => {
                                             }`}
                                     >
                                         <Image
-                                            src={chat.recipientDetails?.profilePicture?.url || '/images/carlogo.png'}
+                                            src={
+                                                chat.recipientDetails?.profilePicture?.url ||
+                                                '/images/carlogo.png'
+                                            }
                                             alt={chat.recipientDetails?.fullName}
                                             width={50}
                                             height={50}
@@ -344,14 +356,14 @@ const ChatPage = () => {
                                 {/* Chat Header */}
                                 <div className={styles.chatHeader}>
                                     <div className={styles.chatHeaderLeft}>
-                                        <button
-                                            onClick={GoInbox}
-                                            className={styles.backButton}
-                                        >
+                                        <button onClick={GoInbox} className={styles.backButton}>
                                             <ArrowLeft size={20} />
                                         </button>
                                         <Image
-                                            src={selectedChat.recipientDetails?.profilePicture?.url || '/images/carlogo.png'}
+                                            src={
+                                                selectedChat.recipientDetails?.profilePicture?.url ||
+                                                '/images/carlogo.png'
+                                            }
                                             alt={selectedChat.recipientDetails?.fullName}
                                             width={40}
                                             height={40}
@@ -360,10 +372,13 @@ const ChatPage = () => {
                                         <div
                                             onClick={() => {
                                                 if (selectedChat?.recipientDetails?._id) {
-                                                    router.push(`/user/userprofile/${selectedChat.recipientDetails._id}`);
+                                                    router.push(
+                                                        `/user/userprofile/${selectedChat.recipientDetails._id}`
+                                                    );
                                                 }
                                             }}
-                                            className={styles.chatHeaderInfo}>
+                                            className={styles.chatHeaderInfo}
+                                        >
                                             <h2 className={styles.chatHeaderName}>
                                                 {selectedChat.recipientDetails?.fullName}
                                             </h2>
@@ -371,14 +386,17 @@ const ChatPage = () => {
                                                 <p className={styles.typingIndicator}>typing...</p>
                                             ) : (
                                                 <p className={styles.lastSeen}>
-                                                    {selectedChat.recipientDetails?.lastActive ?
-                                                        `Last seen ${new Date(selectedChat.recipientDetails.lastActive).toLocaleString()}` :
-                                                        'Offline'}
+                                                    {selectedChat.recipientDetails?.lastActive
+                                                        ? `Last seen ${new Date(
+                                                            selectedChat.recipientDetails.lastActive
+                                                        ).toLocaleString()}`
+                                                        : 'Offline'}
                                                 </p>
                                             )}
                                         </div>
                                     </div>
-                                    <div className={styles.chatHeaderRight}>
+                                    {/* 
+                                      <div className={styles.chatHeaderRight}>
                                         <button
                                             className={styles.headerButton}
                                             onClick={() => setShowOptionsMenu(!showOptionsMenu)}
@@ -390,7 +408,9 @@ const ChatPage = () => {
                                                 <button
                                                     onClick={() => {
                                                         if (selectedChat?.recipientDetails?._id) {
-                                                            router.push(`/user/userprofile/${selectedChat.recipientDetails._id}`);
+                                                            router.push(
+                                                                `/user/userprofile/${selectedChat.recipientDetails._id}`
+                                                            );
                                                             setShowOptionsMenu(false);
                                                         }
                                                     }}
@@ -406,6 +426,7 @@ const ChatPage = () => {
                                             </div>
                                         )}
                                     </div>
+                                    */}
                                 </div>
 
                                 {/* Messages Container */}
@@ -432,9 +453,9 @@ const ChatPage = () => {
                                                     key={message._id}
                                                     className={`${styles.messageWrapper} ${message.sender?._id === currentUser._id ||
                                                         message.senderId === currentUser._id ||
-                                                        message.sender === currentUser._id ?
-                                                        styles.outgoingMessage :
-                                                        styles.incomingMessage
+                                                        message.sender === currentUser._id
+                                                        ? styles.outgoingMessage
+                                                        : styles.incomingMessage
                                                         }`}
                                                 >
                                                     <div className={styles.messageContent}>
@@ -455,7 +476,10 @@ const ChatPage = () => {
                                                                     priority
                                                                     onLoad={(result) => {
                                                                         if (result.naturalWidth === 0) {
-                                                                            console.error('Failed to load image:', message.imageUrl);
+                                                                            console.error(
+                                                                                'Failed to load image:',
+                                                                                message.imageUrl
+                                                                            );
                                                                         }
                                                                     }}
                                                                 />
@@ -472,23 +496,28 @@ const ChatPage = () => {
                                                                         src={message.voiceUrl}
                                                                         type="audio/webm"
                                                                     />
-                                                                    Your browser doesn't support audio playback.
+                                                                    Your browser doesn't support audio
+                                                                    playback.
                                                                 </audio>
                                                             </div>
                                                         )}
 
                                                         <div className={styles.messageMetadata}>
                                                             <span className={styles.messageTime}>
-                                                                {new Date(message.createdAt).toLocaleTimeString([], {
+                                                                {new Date(
+                                                                    message.createdAt
+                                                                ).toLocaleTimeString([], {
                                                                     hour: '2-digit',
-                                                                    minute: '2-digit'
+                                                                    minute: '2-digit',
                                                                 })}
                                                             </span>
                                                             {(message.sender?._id === currentUser._id ||
                                                                 message.senderId === currentUser._id ||
                                                                 message.sender === currentUser._id) && (
-                                                                    <span className={`${styles.messageStatus} ${message.read ? styles.read : ''
-                                                                        }`}>
+                                                                    <span
+                                                                        className={`${styles.messageStatus} ${message.read ? styles.read : ''
+                                                                            }`}
+                                                                    >
                                                                         {message.read ? '✓✓' : '✓'}
                                                                     </span>
                                                                 )}
@@ -502,7 +531,10 @@ const ChatPage = () => {
                                 </div>
 
                                 {/* Message Input Area */}
-                                <div className={`${styles.inputArea} ${isLocalRecording ? styles.recording : ''}`}>
+                                <div
+                                    className={`${styles.inputArea} ${isLocalRecording ? styles.recording : ''
+                                        }`}
+                                >
                                     {isLocalRecording ? (
                                         <div className={styles.recordingInterface}>
                                             <div className={styles.recordingInfo}>
@@ -513,7 +545,7 @@ const ChatPage = () => {
                                             <div className={styles.recordingActions}>
                                                 <button
                                                     type="button"
-                                                    onClick={cancelRecording} // Changed to onClick
+                                                    onClick={cancelRecording}
                                                     className={styles.cancelRecordingButton}
                                                 >
                                                     <X size={20} />
@@ -521,7 +553,7 @@ const ChatPage = () => {
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    onClick={stopVoiceRecording} // Changed to onClick
+                                                    onClick={stopVoiceRecording}
                                                     className={styles.sendRecordingButton}
                                                 >
                                                     <Send size={20} />
@@ -531,7 +563,6 @@ const ChatPage = () => {
                                         </div>
                                     ) : (
                                         <>
-                                            {/* Image Preview */}
                                             {imagePreview && (
                                                 <div className={styles.imagePreviewContainer}>
                                                     <div className={styles.imagePreviewWrapper}>
@@ -553,13 +584,11 @@ const ChatPage = () => {
                                                 </div>
                                             )}
 
-                                            {/* Message Input Form */}
                                             <form
                                                 onSubmit={handleSendMessage}
                                                 className={styles.messageForm}
                                             >
                                                 <div className={styles.inputWrapper}>
-                                                    {/* File Input */}
                                                     <input
                                                         type="file"
                                                         ref={fileInputRef}
@@ -568,7 +597,6 @@ const ChatPage = () => {
                                                         className={styles.hiddenInput}
                                                     />
 
-                                                    {/* Media Buttons */}
                                                     <div className={styles.mediaButtons}>
                                                         <button
                                                             type="button"
@@ -582,16 +610,24 @@ const ChatPage = () => {
                                                         <button
                                                             type="button"
                                                             onMouseDown={startVoiceRecording}
-                                                            onMouseUp={isLocalRecording ? stopVoiceRecording : undefined}
-                                                            onMouseLeave={isLocalRecording ? cancelRecording : undefined}
-                                                            className={`${styles.mediaButton} ${isLocalRecording ? styles.recording : ''}`}
+                                                            onMouseUp={
+                                                                isLocalRecording
+                                                                    ? stopVoiceRecording
+                                                                    : undefined
+                                                            }
+                                                            onMouseLeave={
+                                                                isLocalRecording
+                                                                    ? cancelRecording
+                                                                    : undefined
+                                                            }
+                                                            className={`${styles.mediaButton} ${isLocalRecording ? styles.recording : ''
+                                                                }`}
                                                             disabled={imagePreview !== null}
                                                         >
                                                             <Mic size={20} />
                                                         </button>
                                                     </div>
 
-                                                    {/* Text Input */}
                                                     <input
                                                         type="text"
                                                         value={messageInput}
@@ -604,12 +640,17 @@ const ChatPage = () => {
                                                         disabled={isLocalRecording}
                                                     />
 
-                                                    {/* Send Button */}
                                                     <button
                                                         type="submit"
-                                                        className={`${styles.sendButton} ${(!messageInput.trim() && !imagePreview) ?
-                                                            styles.disabled : ''}`}
-                                                        disabled={!messageInput.trim() && !imagePreview || isSendingMessage}
+                                                        className={`${styles.sendButton} ${!messageInput.trim() && !imagePreview
+                                                            ? styles.disabled
+                                                            : ''
+                                                            }`}
+                                                        disabled={
+                                                            !messageInput.trim() &&
+                                                            !imagePreview &&
+                                                            isSendingMessage
+                                                        }
                                                     >
                                                         {isSendingMessage ? (
                                                             <div className={styles.sendingSpinner} />
@@ -624,7 +665,6 @@ const ChatPage = () => {
                                 </div>
                             </>
                         ) : (
-                            // Empty State
                             <div className={styles.emptyChatState}>
                                 <div className={styles.emptyChatContent}>
                                     <MessageCircle size={64} />
